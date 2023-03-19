@@ -1,0 +1,21 @@
+// Configuraciones del proyecto
+
+1. Instalar Node.js (si no lo tienen todavía):
+
+https://phoenixnap.com/kb/install-node-js-npm-on-windows
+
+2. Abrir el proyecto en Visual Studio Code
+
+3. Abrir una terminal de comandos
+
+4. Ejecutar: npm init -y
+   Esto crea un archivo .json con las dependencias del proyecto
+
+5. Ejecutar: npm i express
+   Esto instala express
+
+6. Ejecutar: npm i ejs
+   Esto instala ejs
+
+7. Ejecutar: npm i --save-dev nodemon
+   Esto configura el reinicio automático del servidor cuando hay cambios
