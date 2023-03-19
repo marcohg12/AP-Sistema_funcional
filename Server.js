@@ -9,7 +9,6 @@ app.set("view engine", "ejs")
 
 // Funciones de atención de peticiones
 app.get("/", async (req, res) => {
-    console.log("aa")
     res.render("login")
 });
 
