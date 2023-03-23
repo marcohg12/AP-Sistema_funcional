@@ -10,7 +10,7 @@ app.set("view engine", "ejs")
 // Funciones de atención de peticiones
 app.get("/", async (req, res) => {
     res.render("login")
-});
+})
 
 // Configuración del puerto
 app.listen(4500)
