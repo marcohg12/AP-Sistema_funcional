@@ -28,7 +28,8 @@ initialize_passport(
 )
 
 // Funciones de atención de peticiones
-app.get("/dgnjtfnhbg", check_not_authenticated, async (req, res) => {
+app.get("/", check_not_authenticated, async (req, res) => {
+    res.render("login")
 })
 
 app.post("/logout", async (req, res) => {
@@ -51,7 +52,7 @@ function check_not_authenticated(req, res, next){
 }
 
 // Asignación de atención de los routers a las rutas
-app.use("/user", user_router);
+app.use(user_router);
 
 // Configuración del puerto
 app.listen(4500)
