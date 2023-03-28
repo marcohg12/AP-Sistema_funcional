@@ -7,6 +7,7 @@ const flash = require("express-flash")
 const session = require("express-session")
 const get_connection = require("./Backend/mysql-config")
 const user_router = require("./Backend/routes/user_router");
+const port = 4500;
 
 // Configuraciones del servidor
 const app = express();
@@ -69,7 +70,10 @@ function check_not_authenticated(req, res, next){
 }
 
 // Asignación de atención de los routers a las rutas
-app.use("/user", user_router);
+app.use(user_router);
 
 // Configuración del puerto
-app.listen(4500)
+
+app.listen(port,() => {
+    console.log('Server is up!');
+})
