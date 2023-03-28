@@ -28,7 +28,25 @@ initialize_passport(
 )
 
 // Funciones de atención de peticiones
-app.get("/dgnjtfnhbg", check_not_authenticated, async (req, res) => {
+app.get("/", check_not_authenticated, async (req, res) => {
+    //res.render("client_hotel_list", {hotels: [{name: "Hotel Maracuyá", classification: "4 Estrellas", province: "Guanacaste" }, {name: "Hotel Vista Buena", classification: "3 Estrellas", province: "Puntarenas"}]})
+    /*
+    res.render("client_hotel_main", {hotel_id: "", hotel_name: "Hotel Linda Vista", hotel_classification: "4 Estrellas", 
+                                     hotel_address: "Playa Tamarindo, Tamarindo, Guanacaste", amenities: ["Piscina", "Restaurante", "Gimnasio", "Campo de golf"],
+                                     hotel_review_avg: 4.6, 
+                                     offers: [{id: "", name: "40% Descuento en Habitaciones Doble", 
+                                               initial_date: "2023-03-25", ending_date: "2023-03-30"},
+                                               {id: "", name: "50% Descuento en Habitaciones Sencillas", 
+                                               initial_date: "2023-03-25", ending_date: "2023-03-30"}],
+                                     rooms: [{id: "", name: "Habitación sencilla", price: 150, capacity: 2},
+                                             {id: "", name: "Habitación doble", price: 290, capacity: 4},
+                                             {id: "", name: "Habitación deluxe", price: 350, capacity: 2},
+                                             {id: "", name: "Habitación deluxe doble", price: 600, capacity: 4},
+                                             {id: "", name: "Habitación royal", price: 750, capacity: 2}] })
+    */
+   res.render("user_data_edition_2")
+                                             
+
 })
 
 app.post("/logout", async (req, res) => {

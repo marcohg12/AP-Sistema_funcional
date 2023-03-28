@@ -5,13 +5,14 @@
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
         <title>Hoteles</title>
     </head>
 
     <body>
 
-        <nav class="navbar navbar-expand-lg" style="background-color: #523a34;">
+        <nav class="navbar navbar-expand-lg" style="background-color: #283618;">
             <div class="container">
               <div class="collapse navbar-collapse" id="navbarButtonsExample" >
                 
@@ -35,7 +36,7 @@
                 
                 <form method="POST" action="">
                   <div class="d-flex align-items-center">
-                    <button type="submit" class="btn me-3" style="background-color: #f2dd6e;">Cerrar sesión</button>
+                    <button type="submit" class="btn me-3" style="background-color: #dda15e;">Cerrar sesión</button>
                   </div>
                 </form>
               
@@ -43,7 +44,50 @@
             </div>
         </nav>
 
-        <section class="mb-4">
+        <section class="mt-4 mb-4" id="content">
+
+          <div class="container">
+
+            <% hotels.forEach(hotel => { %>
+
+            <div class="card mb-4">
+
+              <div class="row no-gutters">
+                <div class="col-md-4">
+
+                  <div class="carousel slide"  data-bs-ride="carousel">
+                    <div class="carousel-inner">
+
+                      <div class="carousel-item active">
+                        <img class="d-block w-100 card-img" style="width:200px; height: 200px;" src="../Photos/download.jpg" alt="First slide">
+                      </div>
+                      <div class="carousel-item">
+                        <img class="d-block w-100 card-img" style="width:200px; height: 200px;" src="../Photos/hotel-presidente-4s.jpg" alt="Second slide">
+                      </div>
+
+                    </div>
+                  </div>
+
+                </div>
+
+                <div class="col-md-8">
+                  <div class="card-body">
+
+                    <h5 class="card-title"><%= hotel.name %></h5>
+                    <p class="card-text"><%= hotel.classification%></p>
+                    <p class="card-text"><small class="text-muted"><%= hotel.province%></small></p>
+                    <a href="" class="btn text-white" style="background-color: #606c38;">Ver más</a>
+
+                  </div>
+                </div>
+              </div>    
+            </div>
+
+            <% }) %>
+
+            </div>
+          </div>
+
         </section>
 
     </body>
