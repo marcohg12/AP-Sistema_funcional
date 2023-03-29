@@ -53,7 +53,7 @@ SIGNAL CUSTOM_EXCEPTION;
 END IF;
 
 INSERT INTO user_table (username, user_type_ref, photo, user_password, hotel_ref)
-VALUES (pusername, 1, pphoto, ppassword, 1);
+VALUES (pusername, 1, pphoto, ppassword, null);
 
 INSERT INTO person(id, birthdate, first_name, second_name, first_surname, second_surname, identification_number, gender_ref, id_type_ref, user_ref)
 VALUES(default, pbirthday, pfirst_name, psecond_name, pfirst_surname, psecond_surname, pidentification, pgender_id, pid_type_id, pusername);
