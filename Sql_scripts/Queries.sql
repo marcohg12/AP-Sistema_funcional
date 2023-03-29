@@ -166,3 +166,86 @@ SET executionCode = -8;
 END IF;
 
 END
+
+/*
+Funcion add_phone
+Recibe un username y el telefono
+Si con el usuario brindado no se encuentra, devuelve -5
+Si se encuentra, agarra el id de person y agrega telefono y person_ref(id) a telephone 
+Devuelve 0 si se agrego exitosamente
+*/
+DELIMITER //
+DROP PROCEDURE IF EXISTS add_phone; // 
+CREATE PROCEDURE add_phone(IN p_username VARCHAR(50), IN p_phone int, OUT execution_code INT)
+BEGIN
+DECLARE CUSTOM_EXCEPTION CONDITION FOR SQLSTATE '45000';
+DECLARE p_id int;
+DECLARE EXIT HANDLER FOR SQLSTATE '45000'
+  BEGIN
+  ROLLBACK;
+  END;
+DECLARE EXIT HANDLER FOR SQLEXCEPTION
+BEGIN
+    SET execution_code = -5;
+    ROLLBACK;
+END;
+
+
+SELECT id into p_id from person where user_ref = p_username;
+INSERT INTO telephone(telephone_number, person_ref)
+VALUES(p_phone, p_id);
+SET execution_code = 0;
+COMMIT;
+
+END; // 
+
+/*
+Funcion add_email
+Recibe un username y el email
+Se busca el usuario, si no se encuentra, devuelve -5
+Si el correo esta repetido, devuelve -3
+Finalmente, se agrega y devuelve 0 de exito
+*/
+DELIMITER //
+DROP PROCEDURE IF EXISTS add_email; // 
+CREATE PROCEDURE add_email(IN p_username VARCHAR(50), IN p_email varchar(50), OUT execution_code INT)
+BEGIN
+DECLARE p_id int;
+DECLARE id_check int;
+DECLARE email_check int;
+DECLARE CUSTOM_EXCEPTION CONDITION FOR SQLSTATE '45000';
+DECLARE EXIT HANDLER FOR SQLSTATE '45000'
+  BEGIN
+  ROLLBACK;
+  END;
+DECLARE EXIT HANDLER FOR SQLEXCEPTION
+BEGIN
+    SET execution_code = -5;
+    ROLLBACK;
+END;
+
+SELECT id into p_id from person where user_ref = p_username;
+SELECT COUNT(*) INTO id_check FROM person WHERE user_ref = p_username;
+SELECT COUNT(*) INTO email_check FROM email WHERE email = p_email;
+
+if(id_check = 0) then
+	SET execution_code = -5;
+	SIGNAL CUSTOM_EXCEPTION;
+END IF;
+
+if(email_check > 0) then
+	SET execution_code = -3;
+	SIGNAL CUSTOM_EXCEPTION;
+END IF;
+
+INSERT INTO EMAIL(email, person_ref)
+VALUES(p_email, p_id);
+SET execution_code = 0;
+
+END; // 
+
+
+
+
+
+
