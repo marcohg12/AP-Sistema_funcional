@@ -5,13 +5,14 @@
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
         <title></title>
     </head>
 
     <body>
 
-        <nav class="navbar navbar-expand-lg" style="background-color: #523a34;">
+        <nav class="navbar navbar-expand-lg" style="background-color: #283618;">
             <div class="container">
               <div class="collapse navbar-collapse" id="navbarButtonsExample" >
                 
@@ -35,7 +36,7 @@
                 
                 <form method="POST" action="">
                   <div class="d-flex align-items-center">
-                    <button type="submit" class="btn me-3" style="background-color: #f2dd6e;">Cerrar sesión</button>
+                    <button type="submit" class="btn me-3" style="background-color: #dda15e;">Cerrar sesión</button>
                   </div>
                 </form>
               
@@ -44,6 +45,75 @@
         </nav>
 
         <section class="mb-4">
+          <div class="container">
+
+            <div class="card mt-5">
+              <div class="card-body">
+                <h5 class="card-title"><%= name %></h5>
+                <p class="card-text">Capacidad: <%= capacity %></p>
+                <p class="card-text">Precio por noche: <%= price %></p>
+                <% if (discount_code){ %>
+                  <p class="card-text">Código de descuento: <%= discount_code %> &nbsp;&nbsp;&nbsp; Descuento aplicable: <%= discount_rate %>%</p>
+                <% }%>
+
+                <button class="btn btn-outline-secondary me-2" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_amenities" aria-expanded="false" aria-controls="collapse_amenities">Amenidades</button>
+
+                <div class="collapse" id="collapse_amenities">
+                <div class="row mb-3 mt-3 text-center">
+                  <% for (i in amenities){ %>
+                    <div class="col-lg-3 col-md-6 mb-5 mb-md-5 mb-lg-0 position-relative">
+                      <h6 class="fw-normal mb-4"><%= amenities[i] %></h6>
+                      <% if (i == 0 || i % 3 != 0){ %>
+                      <div class="vr vr-blurry position-absolute my-0 h-50 d-none d-md-block top-0 end-0"></div>
+                      <% } %>
+                    </div>
+                <% } %>
+                </div>
+              </div>
+
+              <% if (discount_code){ %>
+                <form>
+                  <div class="row row-cols-2 mt-4">
+                    <div class="col-lg-2">
+                      
+                      <div class="form-outline me-2" style="width:200px;">
+                        <input type="text" id="discount_code" name="discount_code" class="form-control" />
+                        <label class="form-label">Código de descuento</label>
+                      </div>
+                    </div>
+  
+                    <div class="col-lg-0">
+                      <button class="btn text-white" style="background-color: #606c38;" type="submit">Reservar</button>
+                    </div>
+                  </div>
+                </form>
+              <% } else { %>
+                <a class="btn text-white" style="background-color: #606c38;" href="">Reservar</a>
+              <% } %>
+              
+              </div>
+            </div>
+
+            <!--------------------------------------------------------------------------------------------------------------->
+
+            <% if (is_in_offer) { %>
+
+              <div class="card mt-4">
+                <h5 class="card-header">Oferta disponible</h5>
+                <div class="card-body">
+                  <h5 class="card-title"><%= offer_data.name %></h5>
+                  <div class="card-text">
+                    Desde el: <%= offer_data.initial_date%> &nbsp;&nbsp;&nbsp;
+                    Hasta el: <%= offer_data.ending_date%>
+                  </div>
+                  <p class="card-text mt-2">Porcentaje de descuento: <%= offer_data.discount_rate %>%</p>
+                  <a href="#" class="btn btn-outline-secondary">Ver detalles</a>
+                </div>
+              </div>
+
+            <% } %>
+
+          </div>
         </section>
 
     </body>

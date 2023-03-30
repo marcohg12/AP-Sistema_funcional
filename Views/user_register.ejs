@@ -19,7 +19,7 @@
 
                         <div class="card" style="border-radius: 1rem;">
 
-                            <form method="POST" action="/home">                    
+                            <form method="POST" action="/register">                    
                                 <div class="row g-0">
 
                                     <div class="col-md-6 col-lg-6 d-none d-md-block">       
@@ -54,28 +54,28 @@
 
                                                 <select class="form-select me-4" style="width:200px" name="id_type" id="id_type" required>
                                                   <option value="">Tipo de identificación</option>
-                                                  <option value="volvo">Volvo</option>
-                                                  <option value="saab">Saab</option>
-                                                  <option value="mercedes">Mercedes</option>
-                                                  <option value="audi">Audi</option>
+                                                  <option value="1">Volvo</option>
+                                                  <option value="2">Saab</option>
+                                                  <option value="3">Mercedes</option>
+                                                  <option value="4">Audi</option>
                                                 </select>
 
                                                 <select class="form-select" style="width:200px" name="nationality" id="nationality" required>
                                                   <option value="">Nacionalidad</option>
-                                                  <option value="volvo">Volvo</option>
-                                                  <option value="saab">Saab</option>
-                                                  <option value="mercedes">Mercedes</option>
-                                                  <option value="audi">Audi</option>
+                                                  <option value="1">Volvo</option>
+                                                  <option value="2">Saab</option>
+                                                  <option value="3">Mercedes</option>
+                                                  <option value="4">Audi</option>
                                                 </select>
 
                                             </div>
 
                                             <select class="form-select mt-4" style="width:200px" name="gender" id="gender" required>
                                               <option value="">Género</option>
-                                              <option value="volvo">Volvo</option>
-                                              <option value="saab">Saab</option>
-                                              <option value="mercedes">Mercedes</option>
-                                              <option value="audi">Audi</option>
+                                              <option value="1">Volvo</option>
+                                              <option value="2">Saab</option>
+                                              <option value="3">Mercedes</option>
+                                              <option value="4">Audi</option>
                                             </select>
 
                                         </div>                         
@@ -85,11 +85,15 @@
                                         <div class="card-body p-4 p-lg-5 text-black">
 
                                             <div class="d-flex align-items-center mb-3 pb-1">
-                                                <span class="h1 fw-bold mb-0">&nbsp;</span>
+                                                <% if (locals.error) { %>
+                                                  <p class="fw-bold mb-4 text-danger"><%= message %></p>
+                                                <% } else { %>
+                                                  <span class="h1 fw-bold mb-0">&nbsp;</span>
+                                                <% } %>
                                             </div>
                                                        
                                             <div class="form-outline mb-4">
-                                                <input type="text" id="phone" name="phone" required oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" 
+                                                <input type="text" id="telephone" name="telephone" required oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" 
                                                        maxlength="8" class="form-control form-control-lg" />
                                                 <label class="form-label">Teléfono</label>
                                             </div>
@@ -122,7 +126,7 @@
                                             </div>
                           
                                             <p class="align-self-center pb-lg-2">¿Ya tiene una cuenta? 
-                                                <a href="#!">Iniciar sesión</a>
+                                                <a href="/login">Iniciar sesión</a>
                                             </p>
 
                                           </div>

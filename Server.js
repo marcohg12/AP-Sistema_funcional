@@ -7,6 +7,8 @@ const flash = require("express-flash")
 const session = require("express-session")
 const get_connection = require("./Backend/mysql-config")
 const user_router = require("./Backend/routes/user_router");
+const client_router = require("./Backend/routes/client_router");
+const { get_user_by_username } = require("./Backend/controllers/user_controller")
 const port = 4500;
 
 // Configuraciones del servidor
@@ -24,35 +26,30 @@ app.use(passport.initialize())
 app.use(passport.session())
 initialize_passport(
     passport, 
-    (username) => {},
-    (id) => {}
+    (username) => {
+        return get_user_by_username(username)
+    }
 )
 
 // Funciones de atención de peticiones
-app.get("/", check_not_authenticated, async (req, res) => {
-    //res.render("client_hotel_list", {hotels: [{name: "Hotel Maracuyá", classification: "4 Estrellas", province: "Guanacaste" }, {name: "Hotel Vista Buena", classification: "3 Estrellas", province: "Puntarenas"}]})
-    /*
-    res.render("client_hotel_main", {hotel_id: "", hotel_name: "Hotel Linda Vista", hotel_classification: "4 Estrellas", 
-                                     hotel_address: "Playa Tamarindo, Tamarindo, Guanacaste", amenities: ["Piscina", "Restaurante", "Gimnasio", "Campo de golf"],
-                                     hotel_review_avg: 4.6, 
-                                     offers: [{id: "", name: "40% Descuento en Habitaciones Doble", 
-                                               initial_date: "2023-03-25", ending_date: "2023-03-30"},
-                                               {id: "", name: "50% Descuento en Habitaciones Sencillas", 
-                                               initial_date: "2023-03-25", ending_date: "2023-03-30"}],
-                                     rooms: [{id: "", name: "Habitación sencilla", price: 150, capacity: 2},
-                                             {id: "", name: "Habitación doble", price: 290, capacity: 4},
-                                             {id: "", name: "Habitación deluxe", price: 350, capacity: 2},
-                                             {id: "", name: "Habitación deluxe doble", price: 600, capacity: 4},
-                                             {id: "", name: "Habitación royal", price: 750, capacity: 2}] })
-    */
-   res.render("user_data_edition_2")
-                                             
-
+app.get("/", check_not_authenticated, async (req, res) => {    
+    res.redirect("/clients/hotel_list")              
 })
 
+app.get("/login", (req, res) => {
+    res.render("user_login")
+})
+
+app.post("/login", passport.authenticate("local", {
+    successRedirect: "/clients/hotel_list",
+    failureRedirect: "/",
+    failureFlash: true
+}))
+
 app.post("/logout", async (req, res) => {
-    req.logOut()
-    req.redirect("/")
+    req.logOut(function(){
+        res.redirect("/clients/hotel_list")
+    })
 })
 
 function check_authenticated(req, res, next){
@@ -70,10 +67,9 @@ function check_not_authenticated(req, res, next){
 }
 
 // Asignación de atención de los routers a las rutas
-app.use(user_router);
+app.use("/register", user_router);
+app.use("/clients", client_router)
 
 // Configuración del puerto
 
-app.listen(port,() => {
-    console.log('Server is up!');
-})
+app.listen(port,() => {})

@@ -1,10 +1,10 @@
 const local_strategy = require("passport-local").Strategy
 const bcrypt = require("bcrypt")
 
-function initialize(passport, get_user_by_username, get_user_by_id){
+function initialize(passport, get_user_by_username){
 
     const authenticate_user = async (username, password, done) => {
-        const user = get_user_by_username(username)
+        const user = await get_user_by_username(username)
     
         if (user == null){
             return done(null, false, {message: "Usuario no encontrado"})
@@ -23,11 +23,10 @@ function initialize(passport, get_user_by_username, get_user_by_id){
         }
     }
 
-    passport.use(new local_strategy({usernameField: "username"}, 
-                 authenticate_user))
-    passport.serializeUser((user, done) => done(null, user.id))
-    passport.deserializeUser((id, done) => {
-        return done(null, get_user_by_id(id))
+    passport.use(new local_strategy({usernameField: "username"}, authenticate_user))
+    passport.serializeUser((user, done) => done(null, user.username))
+    passport.deserializeUser(async (username, done) => {
+        return done(null, await get_user_by_username(username))
     })
 }
 

@@ -6,7 +6,8 @@ async function get_connection(){
         host: "localhost",
         user: "root",
         password: "1203",
-        database: "reservation_system"
+        database: "reservation_system",
+        multipleStatements: true
     })
     connection.connect()
     return connection

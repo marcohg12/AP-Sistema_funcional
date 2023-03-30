@@ -102,8 +102,8 @@ CREATE TABLE IF NOT EXISTS User_table(
 	username       VARCHAR(50) NOT NULL,
     user_type_ref  INT NOT NULL,
     photo          MEDIUMBLOB,
-    user_password  VARCHAR(35) NOT NULL, 
-    hotel_ref	   INT NOT NULL,
+    user_password  VARCHAR(100) NOT NULL, 
+    hotel_ref	   INT,
     
     CONSTRAINT username_pk PRIMARY KEY (username),
     FOREIGN KEY (user_type_ref) REFERENCES User_type(id),

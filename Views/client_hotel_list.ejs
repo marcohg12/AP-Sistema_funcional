@@ -34,11 +34,19 @@
                   </li>
                 </ul>
                 
-                <form method="POST" action="">
-                  <div class="d-flex align-items-center">
-                    <button type="submit" class="btn me-3" style="background-color: #dda15e;">Cerrar sesión</button>
-                  </div>
-                </form>
+                <% if (is_authenticated) { %>
+                  <form method="POST" action="/logout">
+                    <div class="d-flex align-items-center">
+                      <button type="submit" class="btn me-3" style="background-color: #dda15e;">Cerrar sesión</button>
+                    </div>
+                  </form>
+                <% } else { %>
+                  <form method="GET" action="/login">
+                    <div class="d-flex align-items-center">
+                      <button type="submit" class="btn me-3" style="background-color: #dda15e;">Iniciar sesión</button>
+                    </div>
+                  </form>
+                <% } %>  
               
               </div>
             </div>
