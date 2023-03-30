@@ -30,23 +30,23 @@
                                             </div>
             
                                               <div class="form-outline mb-4">
-                                                <input type="text" id="name" name="name" required class="form-control form-control-lg" />
+                                                <input type="text" id="name" name="name" required class="form-control form-control-lg" value="<%= user_data.name %>"/>
                                                 <label class="form-label">Nombre (s)</label>
                                               </div>
             
                                               <div class="form-outline mb-4">
-                                                <input type="text" id="last_name" name="last_name" required class="form-control form-control-lg" />
+                                                <input type="text" id="last_name" name="last_name" required class="form-control form-control-lg" value="<%= user_data.last_name %>"/>
                                                 <label class="form-label">Apellido (s)</label>
                                               </div>
             
                                               <div class="form-outline mb-4">
-                                                <input type="date" id="birthdate" name="birthdate" required class="form-control form-control-lg" />
+                                                <input type="date" id="birthdate" name="birthdate" required class="form-control form-control-lg" value="<%= user_data.birthdate %>"/>
                                                 <label class="form-label">Fecha de nacimiento</label>
                                               </div>
             
                                               <div class="form-outline mb-4">
                                                 <input type="text" name="identification_number" required oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"
-                                                       id="identification_number" maxlength="15" class="form-control form-control-lg" />
+                                                       id="identification_number" maxlength="15" class="form-control form-control-lg" value="<%= user_data.identification_number %>"/>
                                                 <label class="form-label">Número de identificación</label>
                                               </div>
 
@@ -54,18 +54,16 @@
 
                                                 <select class="form-select me-4" style="width:200px" name="id_type" id="id_type" required>
                                                   <option value="">Tipo de identificación</option>
-                                                  <option value="volvo">Volvo</option>
-                                                  <option value="saab">Saab</option>
-                                                  <option value="mercedes">Mercedes</option>
-                                                  <option value="audi">Audi</option>
+                                                  <% id_types.forEach( id_type => { %>
+                                                    <option value="<%= id_type.id %>"><%= id_type.name %></option>
+                                                  <% }) %>
                                                 </select>
 
                                                 <select class="form-select" style="width:200px" name="gender" id="gender" required>
                                                   <option value="">Género</option>
-                                                  <option value="volvo">Volvo</option>
-                                                  <option value="saab">Saab</option>
-                                                  <option value="mercedes">Mercedes</option>
-                                                  <option value="audi">Audi</option>
+                                                  <% genders.forEach( gender => { %>
+                                                    <option value="<%= gender.id %>"><%= gender.name %></option>
+                                                  <% }) %>
                                                 </select>
 
                                             </div>
@@ -81,7 +79,7 @@
                                             </div>
             
                                             <div class="form-outline mb-4">
-                                              <input type="text" id="username" name="username" disabled class="form-control form-control-lg" />
+                                              <input type="text" id="username" name="username" disabled class="form-control form-control-lg" value="<%= user_data.username %>"/>
                                               <label class="form-label">Nombre de usuario</label>
                                             </div>
                           
@@ -103,7 +101,7 @@
                                             </div>
 
                                             <div class="pt-1 mb-4 me-4">
-                                              <a href="" class="btn btn-outline-secondary btn-lg btn-block" style="width:200px">Ver más</a>
+                                              <a href="/my_account/my_profile_2" class="btn btn-outline-secondary btn-lg btn-block" style="width:200px">Ver más</a>
                                             </div>
             
                                           </div>
@@ -124,5 +122,11 @@
     </body>
     <script>
         birthdate.max = new Date().toISOString().split("T")[0];
+
+        gender_id = "<%= user_data.gender_ref %>"
+        id_type_id = "<%= user_data.id_type_ref %>"
+
+        document.getElementById('gender').value = gender_id;
+        document.getElementById('id_type').value = id_type_id;
     </script> 
 </html>

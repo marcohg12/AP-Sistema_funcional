@@ -14,8 +14,5 @@ router.get("/hotel_list", async (req, res) => {
                                      is_authenticated: is_authenticated})
 })
 
-router.get("/register", async (req, res) => {
-    res.render("user_register")
-})
 
 module.exports = router;

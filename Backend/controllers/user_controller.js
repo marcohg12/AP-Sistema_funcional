@@ -26,6 +26,71 @@ function get_user_by_username(username){
         connection.end()
     })
 }
+
+// Función para obtener todas las nacionalidades
+function get_nationalities(){
+    return new Promise(async (resolve, reject) => {
+        const connection = await get_connection()
+        const query = "CALL get_nationalities()"
+        connection.query(query, (error, result) => {
+            if (error){
+                return null
+            }
+            const nationalities = result[0]
+            return resolve(nationalities);
+        })
+        connection.end()
+    })
+}
+
+// Función para obtener todos los géneros
+function get_genders(){
+    return new Promise(async (resolve, reject) => {
+        const connection = await get_connection()
+        const query = "CALL get_genders()"
+        connection.query(query, (error, result) => {
+            if (error){
+                return null
+            }
+            const genders = result[0]
+            return resolve(genders);
+        })
+        connection.end()
+    })
+}
+
+// Función para obtener todos los tipos de identificación
+function get_id_types(){
+    return new Promise(async (resolve, reject) => {
+        const connection = await get_connection()
+        const query = "CALL get_id_types()"
+        connection.query(query, (error, result) => {
+            if (error){
+                return null
+            }
+            const id_types = result[0]
+            return resolve(id_types);
+        })
+        connection.end()
+    })
+}
+
+// Función para obtener los datos de una persona por su nombre de usuario
+function get_user_data(username){
+    return new Promise(async (resolve, reject) => {
+        const connection = await get_connection()
+        const query = "CALL get_person_data(?)"
+        connection.query(query, [username], (error, result) => {
+            if (error){
+                return null
+            }
+            const user_data = result[0][0]
+            return resolve(user_data);
+        })
+        connection.end()
+    })
+}
+
 // Función para registrar un usuario
 function register_user_in_db(fields){
     return new Promise(async (resolve, reject) => {
@@ -72,5 +137,9 @@ async function register_user(first_name, second_name, first_surname, second_surn
 module.exports = {
     login,
     register_user,
-    get_user_by_username
+    get_user_by_username,
+    get_nationalities,
+    get_genders,
+    get_id_types,
+    get_user_data
 }
