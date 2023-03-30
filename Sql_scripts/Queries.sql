@@ -244,6 +244,68 @@ SET execution_code = 0;
 
 END; // 
 
+/* 
+	PROCESO: Actualizar email
+    Retorna 
+    -6 : el old_email no existe
+    -3 : el new_email que se quiere registrar ya existe
+    -5 : el usuario dado no tiene asociado el old_email dado
+    -1 : error generico base
+     0 : éxito
+     
+     call update_email('ADG2023', 'marco.herrera@gmail.com', 'marco.h@gmail.com', @executionCode);
+
+*/
+
+drop procedure if exists update_email;
+delimiter //
+CREATE DEFINER='root'@'localhost' PROCEDURE update_email (IN pusername VARCHAR(50), IN pold_email VARCHAR(50), IN pnew_email VARCHAR(50), OUT executionCode INT) 	 
+BODY: BEGIN
+	DECLARE check_email bool;
+    DECLARE check_username bool;
+	DECLARE CUSTOM_EXCEPTION CONDITION FOR SQLSTATE '45000';
+	DECLARE EXIT HANDLER FOR SQLSTATE '45000'
+	  BEGIN
+	  ROLLBACK;
+	  END;
+	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+	BEGIN
+		SET executionCode = -1;
+		ROLLBACK;
+	END;
+    
+    select if(count(email) = 1, true, false) into check_email from email where email = pold_email;
+    if check_email = false then
+		SET executionCode = -6; -- old_email no existe
+        SIGNAL CUSTOM_EXCEPTION;
+	else
+		select if(count(email) = 1, true, false) into check_email from email where email = pnew_email;
+        if check_email = true then
+			SET executionCode = -3; -- el nuevo email ya existe
+            SIGNAL CUSTOM_EXCEPTION;
+		else
+			select if(count(email) = 1, true, false) into check_username from email 
+			WHERE person_ref = (SELECT id FROM person  JOIN user_table ON person.user_ref = user_table.username
+				WHERE user_table.username = pusername) 
+			AND   email = pold_email;
+            
+			if check_username = false then
+				SET executionCode = -5; --  el usuario no tiene asociado el telefono dado 
+                SIGNAL CUSTOM_EXCEPTION;
+			else
+				UPDATE email set email = pnew_email WHERE email = pold_email;
+				SET executionCode = 0; -- exito 
+                COMMIT;
+			end if;
+		end if;
+	end if;
+END//
+
+
+
+
+
+delimiter ;
 
 
 
