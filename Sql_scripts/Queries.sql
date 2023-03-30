@@ -14,7 +14,7 @@
 -- FUNCIÓN Registra usuario si este no tiene el mismo username, email o numero de identificacion que otro -------------------------------------
 CREATE DEFINER=`root`@`localhost` PROCEDURE `register_user`(IN pfirst_name VARCHAR(50), IN psecond_name VARCHAR(50), IN pfirst_surname VARCHAR(50),
                                          IN psecond_surname VARCHAR(50), IN pbirthday DATE, IN pidentification INT, IN pusername VARCHAR(50), 
-                                         IN ppassword VARCHAR(35), IN pphoto MEDIUMBLOB, IN pnationality_id INT, IN ptelephone INT,
+                                         IN ppassword VARCHAR(100), IN pphoto MEDIUMBLOB, IN pnationality_id INT, IN ptelephone INT,
                                          IN pemail VARCHAR(50), IN pgender_id INT, IN pid_type_id INT, OUT executionCode INT)
 BODY: BEGIN
 DECLARE check_username INT;
