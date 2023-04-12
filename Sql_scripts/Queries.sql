@@ -302,6 +302,57 @@ BODY: BEGIN
 END//
 
 
+/* 
+    PROCESO: Actualizar telefono
+    Retorna 
+    -7: el id de telefono no existe
+    -5 : el usuario dado no tiene asociado el id de telefono dado
+    -1 : error generico base
+     0 : éxito
+     
+     call update_phone('ADG2023',1,60987000, @executionCode);
+
+*/
+drop procedure if exists update_phone;
+delimiter //
+CREATE DEFINER='root'@'localhost' PROCEDURE update_phone(IN pusername VARCHAR(50), IN pphone_id VARCHAR(50), IN pnew_phone VARCHAR(50), OUT executionCode INT) 	 
+BODY: BEGIN
+	DECLARE id_exists bool;
+    DECLARE check_username bool;
+    
+	DECLARE CUSTOM_EXCEPTION CONDITION FOR SQLSTATE '45000';
+	DECLARE EXIT HANDLER FOR SQLSTATE '45000'
+	  BEGIN
+	  ROLLBACK;
+	  END;
+	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+	BEGIN
+		SET executionCode = -1;
+		ROLLBACK;
+	END;
+
+	select if(count(id) = 1, true, false) into id_exists from telephone where id = pphone_id;
+    if(id_exists) = false then
+		SET executionCode = -7;
+        SIGNAL CUSTOM_EXCEPTION;
+	else
+		select if(count(telephone_number) = 1, true, false) into check_username from telephone 
+			WHERE person_ref = (SELECT id FROM person  JOIN user_table 
+            ON person.user_ref = user_table.username
+			WHERE user_table.username = pusername) 
+			AND   id = pphone_id;
+            
+		if(check_username) = false then
+			SET executionCode = -5;
+            SIGNAL CUSTOM_EXCEPTION;
+		else
+			UPDATE telephone set telephone_number = pnew_phone where id = pphone_id;
+            SET executionCode = 0;
+            COMMIT;
+		end if;
+    end if;
+END//
+
 
 
 
