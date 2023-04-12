@@ -19,7 +19,7 @@
 
                         <div class="card" style="border-radius: 1rem;">
 
-                            <form method="POST" action="/register">                    
+                            <form enctype="multipart/form-data" method="POST" action="/register">                    
                                 <div class="row g-0">
 
                                     <div class="col-md-6 col-lg-6 d-none d-md-block">       
@@ -30,12 +30,12 @@
                                             </div>
             
                                               <div class="form-outline mb-4">
-                                                <input type="text" id="name" name="name" required class="form-control form-control-lg" />
+                                                <input type="text" id="name" name="name" maxlength="100" required class="form-control form-control-lg" />
                                                 <label class="form-label">Nombre (s)</label>
                                               </div>
             
                                               <div class="form-outline mb-4">
-                                                <input type="text" id="last_name" name="last_name" required class="form-control form-control-lg" />
+                                                <input type="text" id="last_name" name="last_name" maxlength="100" required class="form-control form-control-lg" />
                                                 <label class="form-label">Apellido (s)</label>
                                               </div>
             
@@ -46,7 +46,7 @@
             
                                               <div class="form-outline mb-4">
                                                 <input type="text" name="identification_number" required oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"
-                                                       id="identification_number" maxlength="15" class="form-control form-control-lg" />
+                                                       id="identification_number" maxlength="15" class="form-control form-control-lg"/>
                                                 <label class="form-label">Número de identificación</label>
                                               </div>
             
@@ -91,7 +91,7 @@
                                                        
                                             <div class="form-outline mb-4">
                                                 <input type="text" id="telephone" name="telephone" required oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" 
-                                                       maxlength="8" class="form-control form-control-lg" />
+                                                       pattern=".{8,8}" maxlength="8" class="form-control form-control-lg" placeholder="00000000"/>
                                                 <label class="form-label">Teléfono</label>
                                             </div>
             
@@ -101,17 +101,17 @@
                                             </div>
             
                                             <div class="form-outline mb-4">
-                                              <input type="text" id="username" name="username" required class="form-control form-control-lg" />
+                                              <input type="text" id="username" name="username" maxlength="50" required class="form-control form-control-lg" />
                                               <label class="form-label">Nombre de usuario</label>
                                             </div>
                           
                                             <div class="form-outline mb-4">
-                                              <input type="password" id="password" name="password" required class="form-control form-control-lg" />
+                                              <input type="password" id="password" name="password" maxlength="30" required class="form-control form-control-lg" />
                                               <label class="form-label">Contraseña</label>
                                             </div>
 
                                             <div class="form-outline mb-4">
-                                              <input type="file" id="photo" name="photo" class="form-control form-control-lg" />
+                                              <input type="file" id="photo" name="photo" accept=".jpg,.png" class="form-control form-control-lg" />
                                               <label class="form-label">Foto de perfil</label>
                                           </div>
 

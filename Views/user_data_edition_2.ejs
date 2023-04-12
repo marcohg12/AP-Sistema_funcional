@@ -7,7 +7,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
-        <title>Registro</title>
+        <title>Mi Perfil</title>
     </head>
 
     <body>
@@ -27,44 +27,45 @@
                                                 <span class="h1 fw-bold mb-0">Mi perfil</span>
                                             </div>
 
-                                                <select class="form-select mt-4" style="width:400px; height:50px;" name="user_nationalities" id="user_nationalities">
-                                                  <option value="">Nacionalidad</option>
-                                                  <option value="volvo">Volvo</option>
-                                                  <option value="saab">Saab</option>
-                                                  <option value="mercedes">Mercedes</option>
-                                                  <option value="audi">Audi</option>
+                                                <form method="POST" action="/my_account/delete_nationality">
+                                                <select class="form-select mt-4" style="width:400px; height:50px;" name="user_nationality" id="user_nationality">
+                                                  <% user_nationalities.forEach( nationality => { %>
+                                                    <option value="<%= nationality.id %>"><%= nationality.name %></option>
+                                                  <% }) %>
                                                 </select>
-                                                <label class="form-label">Nacionalidades</label>
+                                                <label class="form-label">Mis nacionalidades</label>
 
                                                 <div class="pt-1 mb-5">
                                                   <button class="btn btn-outline-secondary btn-lg btn-block" style="width:400px;">Eliminar nacionalidad</button>
                                                 </div>
+                                                </form>
 
-                                                <select class="form-select mt-4" style="width:400px; height:50px;" name="user_emails" id="user_emals">
-                                                  <option value="">Email</option>
-                                                  <option value="volvo">Volvo</option>
-                                                  <option value="saab">Saab</option>
-                                                  <option value="mercedes">Mercedes</option>
-                                                  <option value="audi">Audi</option>
+                                                <form method="POST" action="/my_account/delete_email">
+                                                <select class="form-select mt-4" style="width:400px; height:50px;" name="email" id="email">
+                                                  <% emails.forEach( email => { %>
+                                                    <option value="<%= email.email %>"><%= email.email %></option>
+                                                  <% }) %>
                                                 </select>
                                                 <label class="form-label">Emails</label>
 
                                                 <div class="pt-1 mb-5">
                                                   <button class="btn btn-outline-secondary btn-lg btn-block" style="width:400px;">Eliminar email</button>
                                                 </div>
+                                              </form>
 
-                                                <select class="form-select mt-4" style="width:400px; height:50px;" name="user_phones" id="user_phones">
-                                                  <option value="">Teléfono</option>
-                                                  <option value="volvo">Volvo</option>
-                                                  <option value="saab">Saab</option>
-                                                  <option value="mercedes">Mercedes</option>
-                                                  <option value="audi">Audi</option>
+
+                                                <form method="POST" action="/my_account/delete_phone">
+                                                <select class="form-select mt-4" style="width:400px; height:50px;" name="phone" id="phone">
+                                                  <% telephones.forEach( telephone => { %>
+                                                    <option value="<%= telephone.id %>"><%= telephone.telephone_number %></option>
+                                                  <% }) %>
                                                 </select>
                                                 <label class="form-label">Teléfonos</label>
 
                                                 <div class="pt-1 mb-4">
                                                   <button class="btn btn-outline-secondary btn-lg btn-block" style="width:400px;">Eliminar teléfono</button>
                                                 </div>
+                                              </form>
 
                                                 <div class="btn-group">
                                                   <div class="pt-1 mb-4 me-4">
@@ -78,57 +79,72 @@
                                       <div class="col-md-6 col-lg-6 d-flex d-md-block">
                                         <div class="card-body p-4 p-lg-5 text-black">
 
-                                            <div class="d-flex align-items-center mb-3 pb-1">
-                                                <span class="h1 fw-bold mb-0">&nbsp;</span>
-                                            </div>
+                                          <div class="d-flex align-items-center mb-3 pb-1">
+                                            <% if (locals.message) { %>
+
+                                                <% if (locals.error) { %>
+                                                  <p class="fw-bold mb-4 text-danger"><%= message %></p>
+                                                <% } else { %>
+                                                  <p class="fw-bold mb-4"><%= message %></p>
+                                                <% } %>
+                          
+                                            <% } else { %>
+                                              <span class="h1 fw-bold mb-0">&nbsp;</span>
+                                            <% } %>
+                                          </div>
             
-                                            <select class="form-select mt-4" style="width:400px; height:50px;" name="nationalities" id="nationalities" required>
+                                            <form method="POST" action="/my_account/add_nationality">
+                                            <select class="form-select mt-4" style="width:400px; height:50px;" name="new_nationality" id="new_nationality" required>
                                               <option value="">Nacionalidad</option>
-                                              <option value="volvo">Volvo</option>
-                                              <option value="saab">Saab</option>
-                                              <option value="mercedes">Mercedes</option>
-                                              <option value="audi">Audi</option>
+                                              <% nationalities.forEach( nationality => { %>
+                                                <option value="<%= nationality.id %>"><%= nationality.name %></option>
+                                              <% }) %>
                                             </select>
                                             <label class="form-label">Nacionalidades</label>
 
                                             <div class="pt-1 mb-5">
                                               <button class="btn btn-outline-secondary btn-lg btn-block" style="width:400px;">Agregar nacionalidad</button>
                                             </div>
+                                          </form>
                           
+                                          <form method="POST">
                                             <div class="form-outline mt-4">
-                                              <input type="email" id="email" name="email" required style="width:400px;" class="form-control form-control-lg" />
+                                              <input type="email" id="new_email" name="new_email" required maxlength="50" style="width:400px;" class="form-control form-control-lg" />
                                               <label class="form-label">Email</label>
                                             </div>
 
                                             <div class="btn-group">
 
                                               <div class="pt-1 mb-4 me-4">
-                                                <button class="btn btn-outline-secondary btn-lg btn-block">Actualizar</button>
+                                                <button formaction="/my_account/update_email/<%= emails[0].email %>" id="update_email_b" class="btn btn-outline-secondary btn-lg btn-block">Actualizar</button>
                                               </div>
 
                                               <div class="pt-1 mb-4">
-                                                <button class="btn btn-outline-secondary btn-lg btn-block">Agregar</button>
+                                                <button formaction="/my_account/add_email" class="btn btn-outline-secondary btn-lg btn-block">Agregar</button>
                                               </div>
 
                                             </div>
+                                          </form>
 
+                                          <form method="POST">
                                             <div class="form-outline mt-4">
-                                              <input type="text" id="phone" name="phone" required oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" 
-                                                     maxlength="8" style="width:400px;" class="form-control form-control-lg" />
+                                              <input type="text" id="new_phone" name="new_phone" required oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" 
+                                                     pattern=".{8,8}" maxlength="8" style="width:400px;" class="form-control form-control-lg" placeholder="00000000"/>
                                               <label class="form-label">Teléfono</label>
                                           </div>
 
                                           <div class="btn-group">
 
                                             <div class="pt-1 mb-5 me-4">
-                                              <button class="btn btn-outline-secondary btn-lg btn-block">Actualizar</button>
+                                              <button formaction="/my_account/update_phone/<%= telephones[0].id %>" id="update_phone_b" class="btn btn-outline-secondary btn-lg btn-block">Actualizar</button>
                                             </div>
 
                                             <div class="pt-1 mb-5">
-                                              <button class="btn btn-outline-secondary btn-lg btn-block">Agregar</button>
+                                              <button formaction="/my_account/add_phone" class="btn btn-outline-secondary btn-lg btn-block">Agregar</button>
                                             </div>
 
                                           </div>
+                                        </form>
 
                                         </div>
                                       </div>
@@ -144,6 +160,19 @@
 
     </body>
     <script>
-        birthdate.max = new Date().toISOString().split("T")[0];
+        const phone_select = document.getElementById('phone');
+        phone_select.addEventListener('change', (e) => {
+          const value = e.target.value;
+          const phone_b = document.getElementById('update_phone_b')
+          phone_b.setAttribute('formaction', '/my_account/update_phone/' + value)
+        });
+
+        const email_select = document.getElementById('email');
+        email_select.addEventListener('change', (e) => {
+          const value = e.target.value;
+          const email_b = document.getElementById('update_email_b')
+          email_b.setAttribute('formaction', '/my_account/update_email/' + value)
+        });
+
     </script> 
 </html>

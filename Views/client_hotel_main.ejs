@@ -7,7 +7,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
-        <title></title>
+        <title>Hotel</title>
     </head>
 
     <body>
@@ -16,29 +16,55 @@
             <div class="container">
               <div class="collapse navbar-collapse" id="navbarButtonsExample" >
                 
+                <% if (is_authenticated) { %>
+                  <div class="flex-shrink-0 me-4">
+                    <% if (profile.length != 0) { %>
+                      <img src="data:image/png;base64, <%= profile %>"
+                      class="img-fluid rounded-circle border border-white border-3"
+                      style="width: 50px;">
+                    <% } else {%>
+                      <img src="/Photos/default_profile.png"
+                      class="img-fluid rounded-circle border border-white border-3"
+                      style="width: 50px;">
+                    <% } %>
+                  </div>
+                <% } %>
+                
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0 ">
                   <li class="nav-item me-4">
-                    <a class="nav-link text-white" href="">Hoteles</a>
+                    <a class="nav-link text-white" href="/">Hoteles</a>
                   </li>
                   <li class="nav-item me-4">
-                    <a class="nav-link text-white" href="">Ofertas</a>
+                    <a class="nav-link text-white" href="/clients/deal_list">Ofertas</a>
                   </li>
-                  <li class="nav-item me-4">
-                    <a class="nav-link text-white" href="">Mis reservas</a>
-                  </li>
-                  <li class="nav-item me-4">
-                    <a class="nav-link text-white" href="">Hoteles favoritos</a>
-                  </li>
-                  <li class="nav-item me-4">
-                    <a class="nav-link text-white" href="">Mi perfil</a>
-                  </li>
+                  
+                  <% if (is_authenticated) { %>
+                    <li class="nav-item me-4">
+                      <a class="nav-link text-white" href="/clients/my_bookings">Mis reservas</a>
+                    </li>
+                    <li class="nav-item me-4">
+                      <a class="nav-link text-white" href="/clients/favorite_hotels">Hoteles favoritos</a>
+                    </li>
+                    <li class="nav-item me-4">
+                      <a class="nav-link text-white" href="/my_account/my_profile_1">Mi perfil</a>
+                    </li>
+                  <% } %>
+
                 </ul>
                 
-                <form method="POST" action="">
-                  <div class="d-flex align-items-center">
-                    <button type="submit" class="btn me-3" style="background-color: #dda15e;">Cerrar sesión</button>
-                  </div>
-                </form>
+                <% if (is_authenticated) { %>
+                  <form method="POST" action="/logout">
+                    <div class="d-flex align-items-center">
+                      <button type="submit" class="btn me-3" style="background-color: #dda15e;">Cerrar sesión</button>
+                    </div>
+                  </form>
+                <% } else { %>
+                  <form method="GET" action="/login">
+                    <div class="d-flex align-items-center">
+                      <button type="submit" class="btn me-3" style="background-color: #dda15e;">Iniciar sesión</button>
+                    </div>
+                  </form>
+                <% } %>
               
               </div>
             </div>
@@ -56,10 +82,10 @@
                 <div class="carousel-inner">
 
                   <div class="carousel-item active">
-                    <img class="d-block w-100 card-img" style="height: 400px" src="../Photos/download.jpg" alt="First slide">
+                    <img class="d-block w-100 card-img" style="height: 400px" src="../Photos/download.jpg">
                   </div>
                   <div class="carousel-item">
-                    <img class="d-block w-100 card-img" style="height: 400px" src="../Photos/hotel-presidente-4s.jpg" alt="Second slide">
+                    <img class="d-block w-100 card-img" style="height: 400px" src="../Photos/hotel-presidente-4s.jpg">
                   </div>
 
                 </div>
@@ -136,7 +162,7 @@
                               Desde el: <%= offer.initial_date%> &nbsp;&nbsp;&nbsp;
                               Hasta el: <%= offer.ending_date%>
                             </div>
-                            <a href="" class="btn btn-outline-secondary mt-2">Ver Detalles</a>
+                            <a href="/clients/deal_info/<%= offer.id %>" class="btn btn-outline-secondary mt-2">Ver Detalles</a>
                         </div>
                       </div>
                     </div>
@@ -171,7 +197,7 @@
                   <h5 class="card-title"><%= room.name %></h5>
                   <p class="card-text">Precio por noche: <%= room.price%></p>
                   <p class="card-text"><small class="text-muted">Capacidad: <%= room.capacity%></small></p>
-                  <a href="" class="btn text-white" style="background-color: #606c38;">Ver más</a>
+                  <a href="/clients/room_info/<%= room.id %>" class="btn text-white" style="background-color: #606c38;">Ver más</a>
   
                 </div>
               </div>

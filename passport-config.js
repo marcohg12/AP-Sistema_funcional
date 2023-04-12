@@ -7,14 +7,14 @@ function initialize(passport, get_user_by_username){
         const user = await get_user_by_username(username)
     
         if (user == null){
-            return done(null, false, {message: "Usuario no encontrado"})
+            return done(null, false, {message: "Usuario y/o contraseña incorrectos"})
         }
     
         try {
             if (await bcrypt.compare(password, user.password)){
                 return done(null, user)
             } else {
-                return done(null, false, {message: "Contraseña incorrecta"})
+                return done(null, false, {message: "Usuario y/o contraseña incorrectos"})
             }
     
         } catch (error){

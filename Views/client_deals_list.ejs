@@ -11,33 +11,59 @@
 
     <body>
 
-        <nav class="navbar navbar-expand-lg" style="background-color: #523a34;">
+        <nav class="navbar navbar-expand-lg" style="background-color: #283618;">
             <div class="container">
               <div class="collapse navbar-collapse" id="navbarButtonsExample" >
                 
+                <% if (is_authenticated) { %>
+                  <div class="flex-shrink-0 me-4">
+                    <% if (profile.length != 0) { %>
+                      <img src="data:image/png;base64, <%= profile %>"
+                      class="img-fluid rounded-circle border border-white border-3"
+                      style="width: 50px;">
+                    <% } else {%>
+                      <img src="/Photos/default_profile.png"
+                      class="img-fluid rounded-circle border border-white border-3"
+                      style="width: 50px;">
+                    <% } %>
+                  </div>
+                <% } %>
+                
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0 ">
                   <li class="nav-item me-4">
-                    <a class="nav-link text-white" href="">Hoteles</a>
+                    <a class="nav-link text-white" href="/">Hoteles</a>
                   </li>
                   <li class="nav-item me-4">
-                    <a class="nav-link text-white fw-bold" href="">Ofertas</a>
+                    <a class="nav-link text-white fw-bold" href="/clients/deal_list">Ofertas</a>
                   </li>
-                  <li class="nav-item me-4">
-                    <a class="nav-link text-white" href="">Mis reservas</a>
-                  </li>
-                  <li class="nav-item me-4">
-                    <a class="nav-link text-white" href="">Hoteles favoritos</a>
-                  </li>
-                  <li class="nav-item me-4">
-                    <a class="nav-link text-white" href="">Mi perfil</a>
-                  </li>
+                  
+                  <% if (is_authenticated) { %>
+                    <li class="nav-item me-4">
+                      <a class="nav-link text-white" href="/clients/my_bookings">Mis reservas</a>
+                    </li>
+                    <li class="nav-item me-4">
+                      <a class="nav-link text-white" href="/clients/favorite_hotels">Hoteles favoritos</a>
+                    </li>
+                    <li class="nav-item me-4">
+                      <a class="nav-link text-white" href="/my_account/my_profile_1">Mi perfil</a>
+                    </li>
+                  <% } %>
+
                 </ul>
                 
-                <form method="POST" action="">
-                  <div class="d-flex align-items-center">
-                    <button type="submit" class="btn me-3" style="background-color: #f2dd6e;">Cerrar sesión</button>
-                  </div>
-                </form>
+                <% if (is_authenticated) { %>
+                  <form method="POST" action="/logout">
+                    <div class="d-flex align-items-center">
+                      <button type="submit" class="btn me-3" style="background-color: #dda15e;">Cerrar sesión</button>
+                    </div>
+                  </form>
+                <% } else { %>
+                  <form method="GET" action="/login">
+                    <div class="d-flex align-items-center">
+                      <button type="submit" class="btn me-3" style="background-color: #dda15e;">Iniciar sesión</button>
+                    </div>
+                  </form>
+                <% } %>
               
               </div>
             </div>

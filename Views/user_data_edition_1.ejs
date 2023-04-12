@@ -7,7 +7,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
-        <title>Registro</title>
+        <title>Mi Perfil</title>
     </head>
 
     <body>
@@ -19,23 +19,36 @@
 
                         <div class="card" style="border-radius: 1rem;">
 
-                            <form method="POST" action="/home">                    
+                            <form action="/my_account/update_data" enctype="multipart/form-data" method="POST">                    
                                 <div class="row g-0">
 
                                     <div class="col-md-6 col-lg-6 d-none d-md-block">       
                                         <div class="card-body p-4 p-lg-5 text-black">
 
                                             <div class="d-flex align-items-center mb-3 pb-1">
+                                              
+                                              <div class="flex-shrink-0 me-4 mb-0">
+                                                <% if (user_data.photo.length != 0) { %>
+                                                  <img src="data:image/png;base64, <%= user_data.photo %>"
+                                                  class="img-fluid rounded-circle border border-white border-3"
+                                                  style="width: 70px;">
+                                                <% } else {%>
+                                                  <img src="/Photos/default_profile.png"
+                                                  class="img-fluid rounded-circle border border-white border-3"
+                                                  style="width: 70px;">
+                                                <% } %>
+                                              </div>
+
                                                 <span class="h1 fw-bold mb-0">Mi perfil</span>
                                             </div>
             
                                               <div class="form-outline mb-4">
-                                                <input type="text" id="name" name="name" required class="form-control form-control-lg" value="<%= user_data.name %>"/>
+                                                <input type="text" id="name" name="name" maxlength="100" required class="form-control form-control-lg" value="<%= user_data.name %>"/>
                                                 <label class="form-label">Nombre (s)</label>
                                               </div>
             
                                               <div class="form-outline mb-4">
-                                                <input type="text" id="last_name" name="last_name" required class="form-control form-control-lg" value="<%= user_data.last_name %>"/>
+                                                <input type="text" id="last_name" name="last_name" maxlength="100" required class="form-control form-control-lg" value="<%= user_data.last_name %>"/>
                                                 <label class="form-label">Apellido (s)</label>
                                               </div>
             
@@ -72,11 +85,21 @@
                                       </div>
             
                                       <div class="col-md-6 col-lg-6 d-flex d-md-block">
-                                        <div class="card-body p-4 p-lg-5 text-black">
+                                        <div class="card-body p-4 p-lg-5 text-black mt-4">
 
-                                            <div class="d-flex align-items-center mb-3 pb-1">
-                                                <span class="h1 fw-bold mb-0">&nbsp;</span>
-                                            </div>
+                                          <div class="d-flex align-items-center mb-3 pb-1">
+                                            <% if (locals.message) { %>
+
+                                                <% if (locals.error) { %>
+                                                  <p class="fw-bold mb-4 text-danger"><%= message %></p>
+                                                <% } else { %>
+                                                  <p class="fw-bold mb-4"><%= message %></p>
+                                                <% } %>
+                          
+                                            <% } else { %>
+                                              <span class="h1 fw-bold mb-0">&nbsp;</span>
+                                            <% } %>
+                                          </div>
             
                                             <div class="form-outline mb-4">
                                               <input type="text" id="username" name="username" disabled class="form-control form-control-lg" value="<%= user_data.username %>"/>
@@ -84,12 +107,12 @@
                                             </div>
                           
                                             <div class="form-outline mb-4">
-                                              <input type="password" id="password" name="password" required class="form-control form-control-lg" />
+                                              <input type="password" id="password" name="password" maxlength="30" class="form-control form-control-lg" />
                                               <label class="form-label">Contraseña</label>
                                             </div>
 
                                             <div class="form-outline mb-4">
-                                              <input type="file" id="photo" name="photo" class="form-control form-control-lg" />
+                                              <input type="file" id="photo" name="photo" accept=".jpg,.png" class="form-control form-control-lg" />
                                               <label class="form-label">Foto de perfil</label>
                                           </div>
 
@@ -104,6 +127,10 @@
                                               <a href="/my_account/my_profile_2" class="btn btn-outline-secondary btn-lg btn-block" style="width:200px">Ver más</a>
                                             </div>
             
+                                          </div>
+
+                                          <div class="pt-1 mb-0 me-4">
+                                            <a href="/user_logged_in" class="btn btn-outline-secondary btn-lg btn-block" style="width:200px">Regresar</a>
                                           </div>
 
                                         </div>
@@ -125,7 +152,6 @@
 
         gender_id = "<%= user_data.gender_ref %>"
         id_type_id = "<%= user_data.id_type_ref %>"
-
         document.getElementById('gender').value = gender_id;
         document.getElementById('id_type').value = id_type_id;
     </script> 
