@@ -1271,6 +1271,12 @@ VALUES(default,'Hotel Playa Westfalia', STR_TO_DATE('12/4/2023', '%d/%m/%Y'), '2
 INSERT INTO hotel(id,name,registration_date,address,classification_ref,district_ref)
 VALUES(default,'Pura Vida', STR_TO_DATE('12/4/2023', '%d/%m/%Y'), 'Corner of Tuetal Sur y Tuetal Norte, Tuetal Sur, 20102', 1, 17);
 
+INSERT INTO hotel(id,name,registration_date,address,classification_ref,district_ref)
+VALUES(default,'Luisiana', STR_TO_DATE('18/6/2013', '%d/%m/%Y'), '46km del Volcán Poás', 5, 3);
+
+INSERT INTO hotel(id,name,registration_date,address,classification_ref,district_ref)
+VALUES(default,'Wyndham', STR_TO_DATE('02/11/2015', '%d/%m/%Y'), 'Frente al Mall Real Cariari', 5, 5);
+
 -- CREACIÓN DE nationality --------------------------------------------------------
 INSERT INTO nationality(id,name)
 VALUES(default,'Costarricense');
