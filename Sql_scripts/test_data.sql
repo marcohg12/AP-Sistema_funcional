@@ -1262,6 +1262,7 @@ VALUES(default,'Barceló San José', STR_TO_DATE('12/4/2023', '%d/%m/%Y'), 'Resi
 INSERT INTO hotel(id,name,registration_date,address,classification_ref,district_ref)
 VALUES(default,'Hotel Aldea Chorotega Puntarenas', STR_TO_DATE('02/8/2002', '%d/%m/%Y'), 'El Hotel Aldea Chorotega Puntarenas se encuentra en Puntarenas, cerca de la playa de Puntarenas y de la playa Pochote', 3 , 456);
 
+INSERT INTO hotel(id,name,registration_date,address,classification_ref,district_ref)
 VALUES(default,'La Punta', STR_TO_DATE('12/4/2023', '%d/%m/%Y'), '75 m. oeste de San Lucas Beach Club', 3, 53);
 
 INSERT INTO hotel(id,name,registration_date,address,classification_ref,district_ref)
