@@ -1251,6 +1251,16 @@ VALUES(default,'Muy alto');
 -- CREACIÓN DE HOTEL --------------------------------------------------------
 INSERT INTO hotel(id,name,registration_date,address,classification_ref,district_ref)
 VALUES(default,'Maracuyá', STR_TO_DATE('27/3/2023', '%d/%m/%Y'), 'Contiguo al parque Morazán', 5, 1);
+
+INSERT INTO hotel(id,name,registration_date,address,classification_ref,district_ref)
+VALUES(default,'La Punta', STR_TO_DATE('12/4/2023', '%d/%m/%Y'), '75 m. oeste de San Lucas Beach Club', 3, 53);
+
+INSERT INTO hotel(id,name,registration_date,address,classification_ref,district_ref)
+VALUES(default,'Hotel Playa Westfalia', STR_TO_DATE('12/4/2023', '%d/%m/%Y'), '2 Kilómetros al sur del aeropuerto de Limón', 4, 24);
+
+INSERT INTO hotel(id,name,registration_date,address,classification_ref,district_ref)
+VALUES(default,'Pura Vida', STR_TO_DATE('12/4/2023', '%d/%m/%Y'), 'Corner of Tuetal Sur y Tuetal Norte, Tuetal Sur, 20102', 1, 17);
+
 -- CREACIÓN DE nationality --------------------------------------------------------
 INSERT INTO nationality(id,name)
 VALUES(default,'Costarricense');
