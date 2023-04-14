@@ -123,7 +123,6 @@ router.post("/delete_nationality", check_authenticated, async (req, res) => {
 
 // Responde a la solicitud de registro de tipo de identificación
 router.post("/register_id_type", check_authenticated, async (req, res) => {
-    console.log("AQUI")
     const response = await master_admin_controller.register_id_type(req.body.name)
     res.status(200)
     res.send(JSON.stringify(response));
