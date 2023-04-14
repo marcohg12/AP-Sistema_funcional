@@ -74,10 +74,32 @@ async function delete_room(room_id){
 // RUD de amenidades   ----------------------------------------------------------------------------------------- //
 
 // Función para registrar una amenidad
+async function register_amenity(name){
+    const fields = [name]
+    const query = "CALL register_amenity(?,@execution_code); SELECT @execution_code AS execution_code;"
+    const execution_code = await execute_operation(query, fields)
 
+    // Generación de la respuesta
+    if (execution_code == -1) {
+        return resolve({error: true, message: "Ocurrió un error inesperado"})
+    } else {
+        return resolve({error: false, message: "Amenidad registrada exitosamente"})
+    }
+}
 
 // Función para actualizar una amenidad
+async function update_amenity(amenity_id, new_name){
+    const fields = [amenity_id, new_name]
+    const query = "CALL update_amenity(?,?,@execution_code); SELECT @execution_code AS execution_code;"
+    const execution_code = await execute_operation(query, fields)
 
+    // Generación de respuesta
+    if (execution_code == -1){
+        return ({error: true, message: "Ocurrió un error inesperado"})
+    } else {
+        return ({error: false, message: "Amenidad actualizada correctamente"})
+    }
+}
 
 // Función para eliminar una amenidad
 async function delete_amenity(amenity_id){
@@ -99,10 +121,32 @@ async function delete_amenity(amenity_id){
 // RUD de ofertas      ----------------------------------------------------------------------------------------- //
 
 // Función para registrar una oferta
+async function register_deal(name, start_date, ending_date, discount_rate, minimum_days, hotel_id){
+    const fields = [name, start_date, ending_date, discount_rate, minimum_days, hotel_id]
+    const query = "CALL register_deal(?,?,?,?,?,?,@execution_code); SELECT @execution_code AS execution_code;"
+    const execution_code = await execute_operation(query, fields)
 
+    // Generación de la respuesta
+    if (execution_code == -1) {
+        return resolve({error: true, message: "Ocurrió un error inesperado"})
+    } else {
+        return resolve({error: false, message: "Oferta registrada exitosamente"})
+    }
+}
 
 // Función para actualizar una oferta
+async function update_deal(deal_id, new_name, new_start_date, new_ending_date, new_discount_rate, new_minimum_days){
+    const fields = [deal_id, new_name, new_start_date, new_ending_date, new_discount_rate, new_minimum_days]
+    const query = "CALL update_deal(?,?,?,?,?,?,@execution_code); SELECT @execution_code AS execution_code;"
+    const execution_code = await execute_operation(query, fields)
 
+    // Generación de respuesta
+    if (execution_code == -1){
+        return ({error: true, message: "Ocurrió un error inesperado"})
+    } else {
+        return ({error: false, message: "Oferta actualizada correctamente"})
+    }
+}
 
 // Función para eliminar una oferta
 async function delete_deal(deal_id){
@@ -124,10 +168,32 @@ async function delete_deal(deal_id){
 // RUD de métodos de pago -------------------------------------------------------------------------------------- //
 
 // Función para registrar un método de pago
+async function register_payment_method(name){
+    const fields = [name]
+    const query = "CALL register_payment_method(?,@execution_code); SELECT @execution_code AS execution_code;"
+    const execution_code = await execute_operation(query, fields)
 
+    // Generación de la respuesta
+    if (execution_code == -1) {
+        return resolve({error: true, message: "Ocurrió un error inesperado"})
+    } else {
+        return resolve({error: false, message: "Método de pago registrado exitosamente"})
+    }
+}
 
 // Función para actualizar un método de pago
+async function update_payment_method(payment_method_id, new_name){
+    const fields = [payment_method_id, new_name]
+    const query = "CALL update_payment_method(?,?,@execution_code); SELECT @execution_code AS execution_code;"
+    const execution_code = await execute_operation(query, fields)
 
+    // Generación de respuesta
+    if (execution_code == -1){
+        return ({error: true, message: "Ocurrió un error inesperado"})
+    } else {
+        return ({error: false, message: "Método de pago actualizado correctamente"})
+    }
+}
 
 // Función para eliminar un método de pago
 async function delete_payment_method(payment_method_id){
@@ -150,10 +216,32 @@ async function delete_payment_method(payment_method_id){
 // RUD de políticas de cancelación ----------------------------------------------------------------------------- //
 
 // Función para registrar una política de cancelación
+async function register_cancelation_policy(name, anticipation_time, cancelation_fee, hotel_id){
+    const fields = [name, anticipation_time, cancelation_fee, hotel_id]
+    const query = "CALL register_cancelation_policy(?,@execution_code); SELECT @execution_code AS execution_code;"
+    const execution_code = await execute_operation(query, fields)
 
+    // Generación de la respuesta
+    if (execution_code == -1) {
+        return resolve({error: true, message: "Ocurrió un error inesperado"})
+    } else {
+        return resolve({error: false, message: "Política de cancelación registrado exitosamente"})
+    }
+}
 
 // Función para actualizar una política de cancelación
+async function update_cancelation_policy(policy_id, new_name, new_anticipation_time, new_cancelation_fee){
+    const fields = [policy_id, new_name, new_anticipation_time, new_cancelation_fee]
+    const query = "CALL update_cancelation_policy(?,?,?,?,@execution_code); SELECT @execution_code AS execution_code;"
+    const execution_code = await execute_operation(query, fields)
 
+    // Generación de respuesta
+    if (execution_code == -1){
+        return ({error: true, message: "Ocurrió un error inesperado"})
+    } else {
+        return ({error: false, message: "Política de cancelación actualizada correctamente"})
+    }
+}
 
 // Función para eliminar una política de cancelación
 async function delete_cancelation_policy(policy_id){
@@ -179,10 +267,19 @@ async function delete_cancelation_policy(policy_id){
 
 // Nombres de cada funcion que hay arriba
 module.exports = {
+    register_room,
+    update_room,
     delete_room,
+    register_amenity,
+    update_amenity,
     delete_amenity,
+    register_deal,
+    update_deal,
     delete_deal,
+    register_cancelation_policy,
+    update_cancelation_policy,
     delete_cancelation_policy,
+    register_payment_method,
+    update_payment_method,
     delete_payment_method
-
 }
