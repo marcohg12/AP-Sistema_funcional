@@ -354,7 +354,7 @@ async function add_phone_to_user(username, phone){
     }
 }
 
-//nombres de cada funcion que hay arriba
+// Nombres de cada funcion que hay arriba
 module.exports = {
     register_user,
     get_user_by_username,

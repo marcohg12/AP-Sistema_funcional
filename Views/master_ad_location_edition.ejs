@@ -54,7 +54,7 @@
             <div class="container">
 
               <div class="d-flex align-items-center pb-1">
-                <span class="h3 fw-bold mb-0 me-4">Cantones</span>
+                <span class="h3 fw-bold mb-0 me-4">Países</span>
 
                 <button type="button" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#registration_modal">
                     Registrar
@@ -74,26 +74,27 @@
 
                 <tbody>
 
-                  <% cantons.forEach(canton => {%>
+                  <% countries.forEach(country => {%>
 
-                    <tr id="<%= canton.id %>">
+                    <tr id="<%= country.id %>">
                         <td style="width: 50%">
-                          <p class="fw-normal mb-1"><%= canton.name %></p>
+                          <p class="fw-normal mb-1"><%= country.name %></p>
                         </td>
                         
                         <td id="buttons-1">
                             
-                            <button type="button" class="btn btn-link btn-sm btn-rounded" onclick="javascript:edit_row('<%= canton.id %>', '<%= canton.name %>')">
+                            <button type="button" class="btn btn-link btn-sm btn-rounded" onclick="javascript:edit_row('<%= country.id %>', '<%= country.name %>')">
                                 Editar
                             </button>
 
-                            <button type="button" class="btn btn-link btn-sm btn-rounded" onclick="javascript:delete_canton('<%= canton.id %>')">
+                            <button type="button" class="btn btn-link btn-sm btn-rounded" onclick="javascript:delete_country('<%= country.id %>')">
                                Eliminar
                             </button>
 
-                            <a href="/master_admins/district_catalog/<%= canton.id %>" class="btn btn-link btn-sm btn-rounded">
-                              Ver distritos
+                            <a href="/master_admins/province_catalog/<%= country.id %>" class="btn btn-link btn-sm btn-rounded">
+                              Ver provincias
                             </a>
+
                         </td>
                     </tr>
                     
@@ -105,13 +106,13 @@
 
             <!-------------------------------------------------------------------------------------------------------->
 
-                  <!-- Pop up para la edición de cantón -->
+                  <!-- Pop up para la edición de país -->
                   <div class="modal fade" id="edition_modal" tabindex="-1" aria-labelledby="edition_modal" aria-hidden="true">
                     <div class="modal-dialog">
                         <div class="modal-content">
                             
                             <div class="modal-header">
-                                <h1 class="modal-title fs-5">Editar cantón</h1>
+                                <h1 class="modal-title fs-5">Editar país</h1>
                                 
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
@@ -123,18 +124,18 @@
                     </div>
                  </div>
 
-                 <!-- Pop up para el registro de cantón -->
+                 <!-- Pop up para el registro de país -->
                  <div class="modal fade" id="registration_modal" tabindex="-1" aria-labelledby="registration_modal" aria-hidden="true">
                     <div class="modal-dialog">
                         <div class="modal-content">
                             
                             <div class="modal-header">
-                                <h1 class="modal-title fs-5">Registrar cantón</h1>
+                                <h1 class="modal-title fs-5">Registrar país</h1>
                                 
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
 
-                            <form onsubmit="javascript:register_canton('<%= province_id %>')">
+                            <form onsubmit="javascript:register_country()">
                                 <div class="modal-body">
 
                                     <div class="form-outline mb-4">
@@ -161,16 +162,16 @@
     </body>
     <script>
 
-      // Habilita el pop up para editar un cantón
-        function edit_row(canton_id, canton_name){
+      // Habilita el pop up para editar un país
+        function edit_row(country_id, country_name){
 
             const modal_content = `         
             
-            <form onsubmit="javascript:update_canton(${canton_id})">       
+            <form onsubmit="javascript:update_country(${country_id})">       
                 <div class="modal-body">
 
                     <div class="form-outline mb-4">
-                        <input type="text" id="new_name" name="new_name" value="${canton_name}" required class="form-control"/>
+                        <input type="text" id="new_name" name="new_name" value="${country_name}" required class="form-control"/>
                         <label class="form-label">Nombre</label>
                     </div>
 
@@ -208,35 +209,35 @@
             })
         }
 
-        // Envía la petición para editar el cantón
-        async function update_canton(canton_id){
+        // Envía la petición para editar el país
+        async function update_country(country_id){
             
-            const url = "http://localhost:4500/master_admins/update_canton"
+            const url = "http://localhost:4500/master_admins/update_country"
             const new_name = document.getElementById("new_name").value
-            const request_body = {canton_id: canton_id, new_name: new_name}
+            const request_body = {country_id: country_id, new_name: new_name}
             const response = await send_request("POST", url, request_body)
 
             alert(response.message)
         }
 
-        // Envía la petición para eliminar un cantón
-        async function delete_canton(canton_id) {
+        // Envía la petición para eliminar un país
+        async function delete_country(country_id) {
 
-            const url = "http://localhost:4500/master_admins/delete_canton"
-            const request_body = {canton_id: canton_id}
+            const url = "http://localhost:4500/master_admins/delete_country"
+            const request_body = {country_id: country_id}
             const response = await send_request("POST", url, request_body)
             
             alert(response.message)
             if (!response.error){
-                document.getElementById(canton_id).remove()
+                document.getElementById(country_id).remove()
             }    
         }
 
-        // Envía la petición para registrar un cantón
-        async function register_canton(province_id) {
-            const url = "http://localhost:4500/master_admins/register_canton"
+        // Envía la petición para registrar un país
+        async function register_country() {
+            const url = "http://localhost:4500/master_admins/register_country"
             const name = document.getElementById("register_name").value
-            const request_body = {province_id: province_id, name: name}
+            const request_body = {name: name}
             const response = await send_request("POST", url, request_body)
 
             alert(response.message)
