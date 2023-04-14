@@ -218,7 +218,7 @@
         }
 
         // Envía la petición para eliminar un tipo de identificación
-        async function delete_id_type_id(id_type_id) {
+        async function delete_id_type(id_type_id) {
 
             const url = "http://localhost:4500/master_admins/delete_id_type"
             const request_body = {id_type_id: id_type_id}
@@ -231,7 +231,7 @@
         }
 
         // Envía la petición para registrar un tipo de identificación
-        async function register_id_type_id() {
+        async function register_id_type() {
             const url = "http://localhost:4500/master_admins/register_id_type"
             const name = document.getElementById("register_name").value
             const request_body = {name: name}

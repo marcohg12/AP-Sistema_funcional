@@ -1405,8 +1405,8 @@ INSERT INTO offer(id,name, start_date, ending_date, discount_rate, minimun_reser
 VALUES(default,'2X1',STR_TO_DATE('12/02/2023', '%d/%m/%Y'), STR_TO_DATE('12/06/2023', '%d/%m/%Y'),50,10,1);
 
 -- CREACIÓN DE cancellation_policy --------------------------------------------------------
-INSERT INTO cancellation_policy(id, anticipation_time, value, hotel_ref)
-VALUES(default,5,60,1);
+INSERT INTO cancellation_policy(id, name, anticipation_time, value, hotel_ref)
+VALUES(default,'Política 1',5,60,1);
 
 -- CREACIÓN DE admin --------------------------------------------------------
 INSERT INTO admin(username, hotel_ref)
@@ -1419,8 +1419,8 @@ INSERT INTO admin(username, hotel_ref)
 VALUES('MariaAra',1);
 
 -- CREACIÓN DE room --------------------------------------------------------
-INSERT INTO room(id, name, capacity, recommended_price, discount_code, discount_rate, hotel_ref)
-VALUES(default, 'Habitación 404', 2, 400, 0, 0,1);
+INSERT INTO room(id, name, capacity, units, recommended_price, discount_code, discount_rate, hotel_ref)
+VALUES(default, 'Habitación 404', 10, 2, 400, 0, 0,1);
 
 -- CREACIÓN DE amenity_x_room -------------------------------------------------------------------------
 

@@ -89,7 +89,7 @@ CREATE TABLE IF NOT EXISTS Hotel(
 id                 INT NOT NULL AUTO_INCREMENT,
 name               VARCHAR(50) NOT NULL,
 registration_date  DATE NOT NULL,
-address	           VARCHAR(100) NOT NULL,
+address	           VARCHAR(150) NOT NULL,
 classification_ref INT NOT NULL,
 district_ref	   INT NOT NULL,
 
@@ -179,6 +179,7 @@ capacity   	      INT NOT NULL,
 recommended_price INT NOT NULL,
 discount_code	  INT(8),
 discount_rate	  INT,
+units             INT NOT NULL,
 hotel_ref	      INT NOT NULL,
 
 CONSTRAINT room_pk PRIMARY KEY (id),
@@ -200,6 +201,7 @@ FOREIGN KEY (hotel_ref) REFERENCES Hotel(id)
 
 CREATE TABLE IF NOT EXISTS Cancellation_policy(
 id                INT NOT NULL AUTO_INCREMENT,
+name              VARCHAR(50) NOT NULL,
 anticipation_time INT NOT NULL,
 value             INT NOT NULL,
 hotel_ref		  INT NOT NULL,
