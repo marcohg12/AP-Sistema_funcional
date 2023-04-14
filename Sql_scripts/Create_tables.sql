@@ -298,3 +298,13 @@ CONSTRAINT reservation_x_room_pk PRIMARY KEY (reservation_ref, room_ref),
 FOREIGN KEY (reservation_ref) REFERENCES Reservation(id),
 FOREIGN KEY (room_ref) REFERENCES Room(id)
 );
+
+CREATE TABLE IF NOT EXISTS log(
+        id INT NOT NULL AUTO_INCREMENT,
+        username VARCHAR(50) NOT NULL,
+        old_price INT NOT NULL,
+        new_price INT NOT NULL,
+        modification_date DATE,
+        
+        CONSTRAINT log_pk PRIMARY KEY (id)
+);

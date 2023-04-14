@@ -1219,7 +1219,11 @@ VALUES (default, 'Otro');
 -- CREACIÓN DE USER TYPE---------------------------------------------------------
 
 INSERT INTO user_type(id,name)
-VALUES(default,'Administrador');
+VALUES(default,'Administrador de hotel');
+INSERT INTO user_type(id,name)
+VALUES(default,'Administrador máster');
+INSERT INTO user_type(id,name)
+VALUES(default,'Cliente');
 
 -- CREACIÓN DE ID TYPE ---------------------------------------------------------
 
@@ -1251,6 +1255,34 @@ VALUES(default,'Muy alto');
 -- CREACIÓN DE HOTEL --------------------------------------------------------
 INSERT INTO hotel(id,name,registration_date,address,classification_ref,district_ref)
 VALUES(default,'Maracuyá', STR_TO_DATE('27/3/2023', '%d/%m/%Y'), 'Contiguo al parque Morazán', 5, 1);
+
+INSERT INTO hotel(id,name,registration_date,address,classification_ref,district_ref)
+VALUES(default,'Barceló San José', STR_TO_DATE('12/4/2023', '%d/%m/%Y'), 'Residencial, Diag. 23A, Robledal, San José, 10107', 4 , 7);
+
+INSERT INTO hotel(id,name,registration_date,address,classification_ref,district_ref)
+VALUES(default,'Hotel Aldea Chorotega Puntarenas', STR_TO_DATE('02/8/2002', '%d/%m/%Y'), 'El Hotel Aldea Chorotega Puntarenas se encuentra en Puntarenas, cerca de la playa de Puntarenas y de la playa Pochote', 3 , 456);
+
+INSERT INTO hotel(id,name,registration_date,address,classification_ref,district_ref)
+VALUES(default,'La Punta', STR_TO_DATE('12/4/2023', '%d/%m/%Y'), '75 m. oeste de San Lucas Beach Club', 3, 53);
+
+INSERT INTO hotel(id,name,registration_date,address,classification_ref,district_ref)
+VALUES(default,'Hotel Playa Westfalia', STR_TO_DATE('12/4/2023', '%d/%m/%Y'), '2 Kilómetros al sur del aeropuerto de Limón', 4, 24);
+
+INSERT INTO hotel(id,name,registration_date,address,classification_ref,district_ref)
+VALUES(default,'Pura Vida', STR_TO_DATE('12/4/2023', '%d/%m/%Y'), 'Corner of Tuetal Sur y Tuetal Norte, Tuetal Sur, 20102', 1, 17);
+
+INSERT INTO hotel(id,name,registration_date,address,classification_ref,district_ref)
+VALUES(default,'Luisiana', STR_TO_DATE('18/6/2013', '%d/%m/%Y'), '46km del Volcán Poás', 5, 3);
+
+INSERT INTO hotel(id,name,registration_date,address,classification_ref,district_ref)
+VALUES(default,'Wyndham', STR_TO_DATE('02/11/2015', '%d/%m/%Y'), 'Frente al Mall Real Cariari', 5, 5);
+
+INSERT INTO hotel(id,name,registration_date,address,classification_ref,district_ref)
+VALUES(default,'Hotel Del Rey', STR_TO_DATE('12/4/2023', '%d/%m/%Y'), 'Av. 1, El Carmen', 5, 7);
+
+INSERT INTO hotel(id,name,registration_date,address,classification_ref,district_ref)
+VALUES(default,'La Castella', STR_TO_DATE('12/4/2023', '%d/%m/%Y'), 'Calle 8 Avenida 10, Diagonal a la Bomba La Castella, Edif Esquinero', 4, 9);
+
 -- CREACIÓN DE nationality --------------------------------------------------------
 INSERT INTO nationality(id,name)
 VALUES(default,'Costarricense');
@@ -1261,30 +1293,103 @@ VALUES(default,'Pañameño');
 -- CREACIÓN DE user_table --------------------------------------------------------
 INSERT INTO user_table(username, user_type_ref, photo, user_password, hotel_ref)
 VALUES('ADG2023',1, null,'1234', 1);
+
+INSERT INTO user_table(username, user_type_ref, photo, user_password, hotel_ref)
+VALUES('Mario123',2, null,'1234', 1);
+
+INSERT INTO user_table(username, user_type_ref, photo, user_password, hotel_ref)
+VALUES('MariaAra',3, null,'1234', 1);
+
+INSERT INTO user_table(username, user_type_ref, photo, user_password, hotel_ref)
+VALUES('User1243',3, null,'1234', 3);
+
 -- CREACIÓN DE PERSONAS --------------------------------------------------------
 INSERT INTO person (id,first_name,second_name,first_surname,second_surname,birthdate,gender_ref,identification_number, id_type_ref, user_ref)
-VALUES (default, 'Marco', null, 'Herrera', 'González', STR_TO_DATE('12/10/2003', '%d/%m/%Y'), 2, 118760722,2, 'ADG2023');
+VALUES (default, 'Marco', null, 'Herrera', 'González', STR_TO_DATE('12/10/2003', '%d/%m/%Y'), 2, 118760722, 2, 'ADG2023');
+
+INSERT INTO person (id,first_name,second_name,first_surname,second_surname,birthdate,gender_ref,identification_number, id_type_ref, user_ref)
+VALUES (default, 'Mario', null, 'Bustamante', 'Martinez', STR_TO_DATE('24/3/1996', '%d/%m/%Y'), 2, 132465653, 1, 'Mario123');
+
+INSERT INTO person (id,first_name,second_name,first_surname,second_surname,birthdate,gender_ref,identification_number, id_type_ref, user_ref)
+VALUES (default, 'Maria', null, 'Araya', 'Fernandez', STR_TO_DATE('06/7/1980', '%d/%m/%Y'), 1, 170115740, 2, 'MariaAra');
+
+INSERT INTO person (id,first_name,second_name,first_surname,second_surname,birthdate,gender_ref,identification_number, id_type_ref, user_ref)
+VALUES (default, 'Pablo', null, 'Nuñez', 'Perez', STR_TO_DATE('24/2/1984', '%d/%m/%Y'), 2, 16412465, 2, 'User1243');
+
 
 -- CREACIÓN DE person_x_nationality --------------------------------------------------------
 INSERT INTO person_x_nationality(nationality_ref,person_ref)
 VALUES(1,1);
+
+INSERT INTO person_x_nationality(nationality_ref,person_ref)
+VALUES(2,2);
+
+INSERT INTO person_x_nationality(nationality_ref,person_ref)
+VALUES(1,3);
+
+INSERT INTO person_x_nationality(nationality_ref,person_ref)
+VALUES(1,4);
+
 -- CREACIÓN DE telephone --------------------------------------------------------
 INSERT INTO telephone(id,telephone_number,person_ref)
 VALUES(default,60987448,1); 
+
+INSERT INTO telephone(id,telephone_number,person_ref)
+VALUES(default,73265653,2);
+
+INSERT INTO telephone(id,telephone_number,person_ref)
+VALUES(default,87342864,3);
+
+INSERT INTO telephone(id,telephone_number,person_ref)
+VALUES(default,94681253,4);
+
 -- CREACIÓN DE payment_method --------------------------------------------------------
 INSERT INTO payment_method(id,name,hotel_ref)
 VALUES(default,'Tarjeta',1);
+INSERT INTO payment_method(id,name,hotel_ref)
+VALUES(default,'SINPE MÓVIL',1);
+
+INSERT INTO payment_method(id,name,hotel_ref)
+VALUES(default,'Tarjeta',2);
+INSERT INTO payment_method(id,name,hotel_ref)
+VALUES(default,'SINPE MÓVIL',2);
+
+INSERT INTO payment_method(id,name,hotel_ref)
+VALUES(default,'Tarjeta',3);
+INSERT INTO payment_method(id,name,hotel_ref)
+VALUES(default,'SINPE MÓVIL',3);
 
 
 -- CREACIÓN DE email --------------------------------------------------------
 INSERT INTO email(email,person_ref)
 VALUES('marco.herrera@gmail.com',1);
 
+INSERT INTO email(email,person_ref)
+VALUES('mario12@gmail.com',2);
+
+INSERT INTO email(email,person_ref)
+VALUES('mari.04@gmail.com',3);
+
+INSERT INTO email(email,person_ref)
+VALUES('pablito@gmail.com',4);
+
 -- CREACIÓN DE amenity --------------------------------------------------------
 INSERT INTO amenity(id,name, hotel_ref)
 VALUES(default,'Vista al mar',1);
 INSERT INTO amenity(id,name, hotel_ref)
 VALUES(default,'Cerca de la playa',1);
+
+
+INSERT INTO amenity(id,name, hotel_ref)
+VALUES(default,'Piscina disponible 24/7',2);
+INSERT INTO amenity(id,name, hotel_ref)
+VALUES(default,'Buffet incluido',2);
+
+
+INSERT INTO amenity(id,name, hotel_ref)
+VALUES(default,'Vista al mar',3);
+INSERT INTO amenity(id,name, hotel_ref)
+VALUES(default,'Cerca de la playa',3);
  
 -- CREACIÓN DE reservation status --------------------------------------------------------
 INSERT INTO reservation_status(id,name)
@@ -1307,6 +1412,12 @@ VALUES(default,5,60,1);
 INSERT INTO admin(username, hotel_ref)
 VALUES('ADG2023',1);
 
+INSERT INTO admin(username, hotel_ref)
+VALUES('Mario123',1);
+
+INSERT INTO admin(username, hotel_ref)
+VALUES('MariaAra',1);
+
 -- CREACIÓN DE room --------------------------------------------------------
 INSERT INTO room(id, name, capacity, recommended_price, discount_code, discount_rate, hotel_ref)
 VALUES(default, 'Habitación 404', 2, 400, 0, 0,1);
@@ -1322,6 +1433,12 @@ VALUES(2, 1);
 
 INSERT INTO hotel_x_user(hotel_ref, user_ref)
 VALUES(1, 'ADG2023');
+
+INSERT INTO hotel_x_user(hotel_ref, user_ref)
+VALUES(1, 'Mario123');
+
+INSERT INTO hotel_x_user(hotel_ref, user_ref)
+VALUES(1, 'MariaAra');
 
 -- CREACIÓN DE reservation -------------------------------------------------------------------------
 
