@@ -27,13 +27,34 @@ function execute_query(query, fields){
 // RUD de habitaciones ----------------------------------------------------------------------------------------- //
 
 // Función para registrar una habitación
+async function register_room(name, capacity, units, price, discount_code, discount_rate, hotel_id){
+    const fields = [name, capacity, units, price, discount_code, discount_rate, hotel_id]
+    const query = "CALL register_room(?,?,?,?,?,?,?,@execution_code); SELECT @execution_code AS execution_code;"
+    const execution_code = await execute_operation(query, fields)
 
+    // Generación de la respuesta
+    if (execution_code == -1) {
+        return resolve({error: true, message: "Ocurrió un error inesperado"})
+    } else {
+        return resolve({error: false, message: "Habitación registrada exitosamente"})
+    }
+}
 
 // Función para actualizar una habitación
+async function update_room(room_id, new_name, new_capacity, new_units, new_price, new_discount_code, new_discount_rate){
+    const fields = [room_id, new_name, new_capacity, new_units, new_price, new_discount_code, new_discount_rate]
+    const query = "CALL update_room(?,?,?,?,?,?,?,@execution_code); SELECT @execution_code AS execution_code;"
+    const execution_code = await execute_operation(query, fields)
 
+    // Generación de respuesta
+    if (execution_code == -1){
+        return ({error: true, message: "Ocurrió un error inesperado"})
+    } else {
+        return ({error: false, message: "Habitación actualizada correctamente"})
+    }
+}
 
 // Función para eliminar una habitación
-
 async function delete_room(room_id){
 
     const fields = [room_id]
