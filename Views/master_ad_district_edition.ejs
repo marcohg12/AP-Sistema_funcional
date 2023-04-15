@@ -18,7 +18,7 @@
               <div class="collapse navbar-collapse" id="navbarButtonsExample" >
 
                 <div class="flex-shrink-0 me-4">
-                  <% if (profile.length != 0) { %>
+                  <% if (profile) { %>
                     <img src="data:image/png;base64, <%= profile %>"
                     class="img-fluid rounded-circle border border-white border-3"
                     style="width: 50px;">
@@ -130,7 +130,7 @@
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
 
-                            <form onsubmit="javascript:register_district('<%= canton_id %>')">
+                            <form onsubmit="javascript:register_district(event, '<%= canton_id %>')">
                                 <div class="modal-body">
 
                                     <div class="form-outline mb-4">
@@ -162,7 +162,7 @@
 
             const modal_content = `         
             
-            <form onsubmit="javascript:update_district(${district_id})">       
+            <form onsubmit="javascript:update_district(event, ${district_id})">       
                 <div class="modal-body">
 
                     <div class="form-outline mb-4">
@@ -205,14 +205,16 @@
         }
 
         // Envía la petición para editar el distrito
-        async function update_district(district_id){
+        async function update_district(event, district_id){
             
+            event.preventDefault()
             const url = "http://localhost:4500/master_admins/update_district"
             const new_name = document.getElementById("new_name").value
             const request_body = {district_id: district_id, new_name: new_name}
             const response = await send_request("POST", url, request_body)
 
             alert(response.message)
+            location.reload()
         }
 
         // Envía la petición para eliminar un distrito
@@ -229,13 +231,16 @@
         }
 
         // Envía la petición para registrar un distrito
-        async function register_district(canton_id) {
+        async function register_district(event, canton_id) {
+
+            event.preventDefault()
             const url = "http://localhost:4500/master_admins/register_district"
             const name = document.getElementById("register_name").value
             const request_body = {canton_id: canton_id, name: name}
             const response = await send_request("POST", url, request_body)
 
             alert(response.message)
+            location.reload()
         }
 
     </script>

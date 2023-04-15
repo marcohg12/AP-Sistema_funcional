@@ -488,6 +488,37 @@ async function delete_classification(classification_id){
 
 // UD de usuario ---------------------------------------------------------------------------------------------------- //
 
+// Función para actualizar el rol de un usuario
+async function update_user_role(username, user_type_id, hotel_id){
+    const fields = [username, user_type_id, hotel_id]
+    const query = "CALL update_user_role(?,?,?,@execution_code); SELECT @execution_code AS execution_code;"
+    const execution_code = await execute_operation(query, fields)
+
+    // Generación de la respuesta
+    if (execution_code == -1){
+        return ({error: true, message: "Ocurrió un error inesperado"})
+    } else {
+        return ({error: false, message: "Usuario actualizado exitosamente"})
+    }
+}
+// Función para obtener los usuarios del sistema
+async function get_users(username){
+    const query = "CALL get_users(?);"
+    return await execute_query(query, [username])
+}
+
+// Función para obtener los tipos de usuario
+async function get_user_types(){
+    const query = "CALL get_user_types();"
+    return await execute_query(query, [])
+}
+
+// Función para obtener los hoteles para administrar
+async function get_hotels_to_admin(){
+    const query = "CALL get_hotels_to_admin();"
+    return await execute_query(query, [])
+}
+
 // Nombres de cada funcion que hay arriba
 module.exports = {
     register_gender,
@@ -522,5 +553,9 @@ module.exports = {
     get_cantons,
     get_districts,
     get_classifications,
-    get_parameters 
+    get_parameters,
+    get_users,
+    get_user_types,
+    get_hotels_to_admin,
+    update_user_role
 }

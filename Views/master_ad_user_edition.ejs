@@ -18,7 +18,7 @@
               <div class="collapse navbar-collapse" id="navbarButtonsExample" >
 
                 <div class="flex-shrink-0 me-4">
-                  <% if (profile.length != 0) { %>
+                  <% if (profile) { %>
                     <img src="data:image/png;base64, <%= profile %>"
                     class="img-fluid rounded-circle border border-white border-3"
                     style="width: 50px;">
@@ -52,8 +52,225 @@
 
         <section class="mb-4 mt-4">
             <div class="container">
+
+              <div class="d-flex align-items-center pb-1">
+                <span class="h3 fw-bold mb-0 me-4">Usuarios</span>
+              </div>
+
+            <div style="height: 600px; display: block; overflow: auto; position: relative;">
+
+            <table class="table mt-4 table-striped table-bordered">
+                <thead class="bg-light">
+                  <tr>
+                    <th>Nombre de usuario</th>
+                    <th>Tipo de usuario</th>
+                    <th>Hotel</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+
+                  <% users.forEach(user => {%>
+
+                    <tr id="<%= user.username %>">
+
+                        <td>
+                          <p class="fw-normal mb-1"><%= user.username %></p>
+                        </td>
+
+                        <td>
+                          <p class="fw-normal mb-1"><%= user.user_type %></p>
+                        </td>
+
+                        <td>
+                          <p class="fw-normal mb-1"><%= user.hotel %></p>
+                        </td>
+                        
+                        <td id="buttons-1">
+                            
+                            <button type="button" class="btn btn-link btn-sm btn-rounded" onclick="javascript:edit_row('<%= user.username %>', '<%= user.user_type_id %>', '<%= user.hotel_id %>')">
+                                Editar
+                            </button>
+
+                            <button type="button" class="btn btn-link btn-sm btn-rounded" onclick="javascript:delete_user('<%= user.username %>')">
+                               Eliminar
+                            </button>
+
+                        </td>
+                    </tr>
+                    
+                  <%})%>
+
+                </tbody>
+              </table>
+            </div>
+
+            <!-------------------------------------------------------------------------------------------------------->
+
+                  <!-- Pop up para la edición de usuario -->
+                  <div class="modal fade" id="edition_modal" tabindex="-1" aria-labelledby="edition_modal" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            
+                            <div class="modal-header" id="edition_modal_header">
+                            </div>
+                            
+                            <div id="edition_modal_body">
+                            </div> 
+
+                        </div>
+                    </div>
+                 </div>
+
             </div>
         </section>
 
     </body>
+    <script>
+    
+      // Genera el form con el selector de tipo de usuario
+      async function generate_user_type_selector(hotel_id){
+
+        const url = "http://localhost:4500/master_admins/get_user_types"
+        user_types = await send_request("GET", url, {})
+
+        var form_body =  `
+                <select class="form-select me-4" style="width:220px" name="user_type_id" id="user_type_selector" required onChange="javascript:user_type_selected(${hotel_id})">
+                    <option value="">Tipo de usuario</option>
+            `
+
+            for (i = 0; i < user_types.length; i++){
+              form_body += `<option value=${user_types[i].id}>${user_types[i].name}</option>`
+            }
+            form_body += `</select>`
+        
+            return form_body
+      }
+
+      // Genera el form con el selector de hoteles
+      async function generate_hotel_selector(){
+        
+        const url = "http://localhost:4500/master_admins/get_hotels_to_admin"
+        hotels = await send_request("GET", url, {})
+
+        var hotel_selector =  `
+            <select class="form-select" style="width:220px" name="hotel_id" id="hotel_selector" required>
+              <option value="">Hoteles</option>
+        `
+
+        for (i = 0; i < hotels.length; i++){
+          hotel_selector += `<option value=${hotels[i].id}>${hotels[i].name}</option>`
+        }
+        hotel_selector += `</select>`
+        return hotel_selector
+      }
+
+      // Habilita el pop up para editar un usuario
+        async function edit_row(username, user_type_id, hotel_id){
+
+            const modal_header = `
+                <h1 class="modal-title fs-5">Editar rol de ${username}</h1>         
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            `
+
+            const modal_content = `         
+            
+            <form onsubmit="javascript:update_user_role(event, '${username}')"> 
+
+                <div class="modal-body btn-group" id="form-body">
+                </div>
+                            
+                <div class="modal-footer">        
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn text-white" style="background-color: #606c38;">Guardar</button>
+                </div>
+            </form>
+            `
+
+            document.getElementById("edition_modal_body").innerHTML = modal_content
+            document.getElementById("edition_modal_header").innerHTML = modal_header
+            document.getElementById("form-body").innerHTML = await generate_user_type_selector(hotel_id)
+            $('#edition_modal').modal('show')
+
+            document.getElementById("user_type_selector").value = user_type_id
+
+            if (user_type_id == 1){
+              user_type_selected(hotel_id)
+            }
+        }
+
+        // Función que se activa cuando el valor del selector es cambiado
+        async function user_type_selected(hotel_id){
+
+          user_type_id = document.getElementById("user_type_selector").value
+
+          if (user_type_id == 1){
+
+            if (!document.getElementById("hotel_selector")){
+              document.getElementById("form-body").innerHTML += await generate_hotel_selector()
+              document.getElementById("user_type_selector").value = 1
+
+              if (hotel_id){
+              document.getElementById("hotel_selector").value = hotel_id
+              }
+            }
+
+          } else {
+            if (document.getElementById("hotel_selector")){
+              document.getElementById("hotel_selector").remove()
+            }
+          }
+        }
+
+        // Envía una petición http al servidor y retorna la respuesta si hubo éxito
+        function send_request(request_type, url, request_body){
+            
+            return new Promise(async (resolve, reject) => {
+
+                const http = new XMLHttpRequest()
+                
+                http.onreadystatechange = function(){
+                    
+                    if (this.readyState == 4 && this.status == 200){
+                        const response = JSON.parse(this.response)
+                        return resolve(response)    
+                    }
+                }
+
+                http.open(request_type, url)
+                http.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
+                http.send(JSON.stringify(request_body))
+            })
+        }
+
+        // Envía la petición para editar un usuario
+        async function update_user_role(event, username){
+            event.preventDefault()
+            const url = "http://localhost:4500/master_admins/update_user_role"
+            const user_type_id = document.getElementById("user_type_selector").value
+            var hotel_id = -1
+            if (document.getElementById("hotel_selector")){
+              hotel_id = document.getElementById("hotel_selector").value
+            }
+
+            const request_body = {username: username, user_type_id: user_type_id, hotel_id: hotel_id}
+            const response = await send_request("POST", url, request_body)
+            await alert(response.message)
+            location.reload()
+        }
+
+        // Envía la petición para eliminar un usuario
+        async function delete_user(username) {
+
+            const url = "http://localhost:4500/master_admins/delete_user"
+            const request_body = {province_id: province_id}
+            const response = await send_request("POST", url, request_body)
+            
+            alert(response.message)
+            if (!response.error){
+                document.getElementById(province_id).remove()
+            }    
+        }
+    </script>
 </html>

@@ -18,7 +18,7 @@
               <div class="collapse navbar-collapse" id="navbarButtonsExample" >
 
                 <div class="flex-shrink-0 me-4">
-                  <% if (profile.length != 0) { %>
+                  <% if (profile) { %>
                     <img src="data:image/png;base64, <%= profile %>"
                     class="img-fluid rounded-circle border border-white border-3"
                     style="width: 50px;">
@@ -135,7 +135,7 @@
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
 
-                            <form onsubmit="javascript:register_province('<%= country_id %>')">
+                            <form onsubmit="javascript:register_province(event, '<%= country_id %>')">
                                 <div class="modal-body">
 
                                     <div class="form-outline mb-4">
@@ -167,7 +167,7 @@
 
             const modal_content = `         
             
-            <form onsubmit="javascript:update_province(${province_id})">       
+            <form onsubmit="javascript:update_province(event, ${province_id})">       
                 <div class="modal-body">
 
                     <div class="form-outline mb-4">
@@ -210,14 +210,16 @@
         }
 
         // Envía la petición para editar una provincia
-        async function update_province(province_id){
+        async function update_province(event, province_id){
             
+            event.preventDefault()
             const url = "http://localhost:4500/master_admins/update_province"
             const new_name = document.getElementById("new_name").value
             const request_body = {province_id: province_id, new_name: new_name}
             const response = await send_request("POST", url, request_body)
 
             alert(response.message)
+            location.reload()
         }
 
         // Envía la petición para eliminar una provincia
@@ -234,13 +236,16 @@
         }
 
         // Envía la petición para registrar una provincia
-        async function register_province(country_id) {
+        async function register_province(event, country_id) {
+
+            event.preventDefault()
             const url = "http://localhost:4500/master_admins/register_province"
             const name = document.getElementById("register_name").value
             const request_body = {country_id, country_id, name: name}
             const response = await send_request("POST", url, request_body)
 
             alert(response.message)
+            location.reload()
         }
 
     </script>

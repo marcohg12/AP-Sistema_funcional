@@ -18,7 +18,7 @@
               <div class="collapse navbar-collapse" id="navbarButtonsExample" >
 
                 <div class="flex-shrink-0 me-4">
-                  <% if (profile.length != 0) { %>
+                  <% if (profile) { %>
                     <img src="data:image/png;base64, <%= profile %>"
                     class="img-fluid rounded-circle border border-white border-3"
                     style="width: 50px;">
@@ -134,7 +134,7 @@
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
 
-                            <form onsubmit="javascript:register_canton('<%= province_id %>')">
+                            <form onsubmit="javascript:register_canton(event,'<%= province_id %>')">
                                 <div class="modal-body">
 
                                     <div class="form-outline mb-4">
@@ -166,7 +166,7 @@
 
             const modal_content = `         
             
-            <form onsubmit="javascript:update_canton(${canton_id})">       
+            <form onsubmit="javascript:update_canton(event, ${canton_id})">       
                 <div class="modal-body">
 
                     <div class="form-outline mb-4">
@@ -209,14 +209,16 @@
         }
 
         // Envía la petición para editar el cantón
-        async function update_canton(canton_id){
-            
+        async function update_canton(event, canton_id){
+
+            event.preventDefault()  
             const url = "http://localhost:4500/master_admins/update_canton"
             const new_name = document.getElementById("new_name").value
             const request_body = {canton_id: canton_id, new_name: new_name}
             const response = await send_request("POST", url, request_body)
 
             alert(response.message)
+            location.reload()
         }
 
         // Envía la petición para eliminar un cantón
@@ -233,13 +235,15 @@
         }
 
         // Envía la petición para registrar un cantón
-        async function register_canton(province_id) {
+        async function register_canton(event, province_id) {
+            event.preventDefault()
             const url = "http://localhost:4500/master_admins/register_canton"
             const name = document.getElementById("register_name").value
             const request_body = {province_id: province_id, name: name}
             const response = await send_request("POST", url, request_body)
 
             alert(response.message)
+            location.reload()
         }
 
     </script>

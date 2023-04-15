@@ -234,7 +234,7 @@ commentary      VARCHAR(100) NOT NULL,
 reservation_ref  INT NOT NULL,
 
 CONSTRAINT idy_pk PRIMARY KEY (id),
-FOREIGN KEY (reservation_ref) REFERENCES Reservation(id)
+FOREIGN KEY (reservation_ref) REFERENCES Reservation(id)  ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS Review(
@@ -243,7 +243,7 @@ stars 		    INT NOT NULL,
 reservation_ref INT NOT NULL,
 
 CONSTRAINT review_pk PRIMARY KEY (id),
-FOREIGN KEY (reservation_ref) REFERENCES RESERVATION(id)
+FOREIGN KEY (reservation_ref) REFERENCES RESERVATION(id)  ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS Admin (
@@ -294,10 +294,10 @@ FOREIGN KEY (person_ref) REFERENCES Person(id)
 CREATE TABLE Reservation_X_Room(
 reservation_ref INT NOT NULL,
 room_ref        INT NOT NULL,
-prince          INT NOT NULL,
+price          INT NOT NULL,
   
 CONSTRAINT reservation_x_room_pk PRIMARY KEY (reservation_ref, room_ref),
-FOREIGN KEY (reservation_ref) REFERENCES Reservation(id),
+FOREIGN KEY (reservation_ref) REFERENCES Reservation(id) ON DELETE CASCADE,
 FOREIGN KEY (room_ref) REFERENCES Room(id)
 );
 

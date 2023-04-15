@@ -4,6 +4,8 @@ const user_controller = require("../controllers/user_controller")
 const multer = require("multer");
 const upload = multer({storage:multer.memoryStorage()});
 
+// Despliegues de ventanas ------------------------------------------------------------------------------------------------- //
+
 // Renderiza la ventana de actualización de datos generales del usuario
 async function render_update_user_data_window(response = false, req, res){
 
@@ -41,6 +43,8 @@ async function render_update_user_data_2_window(response = false, req, res){
                                               telephones: telephones, emails: emails})
 }
 
+// ---------------------------------------------------------------------------------------------------------------- //
+
 // Atiende la petición de ventana de registro
 router.get("/register", check_not_authenticated,async (req, res) => {
     const nationalities = await user_controller.get_nationalities()
@@ -71,7 +75,10 @@ router.post("/", check_not_authenticated, upload.single("photo"), async (req, re
     const first_last_name = last_names.shift()
     const second_last_name = last_names.join(" ")
 
-    const photo = req.file.buffer.toString("base64");
+    var photo = null
+    if (req.file){
+        photo = req.file.buffer.toString("base64");
+    }
 
     response = await user_controller.register_user(first_name, second_name, first_last_name, second_last_name,
                   req.body.birthdate, req.body.identification_number, req.body.username,

@@ -18,7 +18,7 @@
               <div class="collapse navbar-collapse" id="navbarButtonsExample" >
 
                 <div class="flex-shrink-0 me-4">
-                  <% if (profile.length != 0) { %>
+                  <% if (profile) { %>
                     <img src="data:image/png;base64, <%= profile %>"
                     class="img-fluid rounded-circle border border-white border-3"
                     style="width: 50px;">
@@ -59,6 +59,10 @@
                     <button type="button" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#registration_modal">
                         Registrar
                     </button>
+
+                    <div id="message_container">
+
+                    </div>
 
                 </div>
 
@@ -131,7 +135,7 @@
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
 
-                            <form onsubmit="javascript:register_nationality()">
+                            <form onsubmit="javascript:register_nationality(event)">
                                 <div class="modal-body">
 
                                     <div class="form-outline mb-4">
@@ -158,13 +162,13 @@
     </body>
 
     <script>
-    
+        
         // Habilita el pop up para editar una nacionalidad
         function edit_row(nationality_id, nationality_name){
 
             const modal_content = `         
             
-            <form onsubmit="javascript:update_nationality(${nationality_id})">       
+            <form onsubmit="javascript:update_nationality(event, ${nationality_id})">       
                 <div class="modal-body">
 
                     <div class="form-outline mb-4">
@@ -207,14 +211,15 @@
         }
 
         // Envía la petición para editar una nacionalidad
-        async function update_nationality(nationality_id){
-            
+        async function update_nationality(event, nationality_id){
+            event.preventDefault()
             const url = "http://localhost:4500/master_admins/update_nationality"
             const new_name = document.getElementById("new_name").value
             const request_body = {nationality_id: nationality_id, new_name: new_name}
             const response = await send_request("POST", url, request_body)
 
             alert(response.message)
+            location.reload()
         }
 
         // Envía la petición para eliminar una nacionalidad
@@ -231,13 +236,15 @@
         }
 
         // Envía la petición para registrar una nacionalidad
-        async function register_nationality() {
+        async function register_nationality(event) {
+            event.preventDefault()
             const url = "http://localhost:4500/master_admins/register_nationality"
             const name = document.getElementById("register_name").value
             const request_body = {name: name}
             const response = await send_request("POST", url, request_body)
 
             alert(response.message)
+            location.reload()
         }
 
     </script>

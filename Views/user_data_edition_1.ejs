@@ -28,7 +28,7 @@
                                             <div class="d-flex align-items-center mb-3 pb-1">
                                               
                                               <div class="flex-shrink-0 me-4 mb-0">
-                                                <% if (user_data.photo.length != 0) { %>
+                                                <% if (user_data.photo) { %>
                                                   <img src="data:image/png;base64, <%= user_data.photo %>"
                                                   class="img-fluid rounded-circle border border-white border-3"
                                                   style="width: 70px;">
