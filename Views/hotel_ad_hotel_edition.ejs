@@ -50,7 +50,172 @@
         <!--------------------------------------------------------------------------------------------------------------------------->
 
         <section class="mb-4">
+          <div class="container mt-4">
+
+            <div class="d-flex align-items-center mb-3 pb-1">
+              <span class="h1 fw-bold mb-0">Edición de hotel</span>
+            </div>
+
+            <form action="/hotel_admins/update_hotel" method="POST">
+
+              <div class="row">
+
+                <div class="col">
+
+                  <div class="form-group mb-4">
+                    <input required type="text" name="name" value="<%= hotel_data.name %>" class="form-control">
+                    <label  class="form-label">Nombre</label>
+                  </div>
+  
+                  <div class="form-group mb-4">
+                    <input required  name="address" value="<%= hotel_data.address %>" class="form-control">
+                    <label  class="form-label">Dirección</label>
+                  </div>
+
+                  <div class="form-group mb-4">
+                  <select class="form-select" name="classification" id="classification_selector" required>
+                    <option value="">Clasificación</option>
+                    <% classifications.forEach( classification => { %>
+                      <option value="<%= classification.id %>"><%= classification.name %></option>
+                    <% }) %>
+                  </select>
+                  <label  class="form-label">Clasificación</label>
+                </div>
+
+                </div>
+
+                <div class="col">
+
+                  <div class="form-group mb-4">
+                    <select class="form-select" name="country" id="country_selector" onchange="javascript:country_selected(value)" required>
+                      <option value="">País</option>
+                      <% countries.forEach( country => { %>
+                        <option value="<%= country.id %>"><%= country.name %></option>
+                      <% }) %>
+                    </select>
+                    <label  class="form-label">País</label>
+                  </div>
+
+                  <div class="form-group mb-4">
+                    <select class="form-select" name="province" id="province_selector" onchange="javascript:province_selected(value)" required>
+                      <option value="">Provincia</option>
+                      <% provinces.forEach( province => { %>
+                        <option value="<%= province.id %>"><%= province.name %></option>
+                      <% }) %>
+                    </select>
+                    <label  class="form-label">Provincia</label>
+                  </div>
+
+                  <div class="form-group mb-4">
+                    <select class="form-select" name="canton" id="canton_selector" onchange="javascript:canton_selected(value)" required>
+                      <option value="">Cantón</option>
+                      <% cantons.forEach( canton => { %>
+                        <option value="<%= canton.id %>"><%= canton.name %></option>
+                      <% }) %>
+                    </select>
+                    <label  class="form-label">Cantón</label>
+                  </div>
+
+                  <div class="form-group mb-4">
+                    <select class="form-select" name="district" id="district_selector" required>
+                      <option value="">Distrito</option>
+                      <% districts.forEach( district => { %>
+                        <option value="<%= district.id %>"><%= district.name %></option>
+                      <% }) %>
+                    </select>
+                    <label  class="form-label">Distrito</label>
+                  </div>
+
+                </div>
+
+              </div>
+              
+                <button type="submit" class="btn btn-dark btn-block mb-4">Guardar</button>
+            </form>
+
+          </div>
         </section>
 
     </body>
+    <script>
+
+      document.getElementById("country_selector").value = "<%= hotel_data.country_id %>"
+      document.getElementById("province_selector").value = "<%= hotel_data.province_id %>"
+      document.getElementById("canton_selector").value = "<%= hotel_data.canton_id %>"
+      document.getElementById("district_selector").value = "<%= hotel_data.district_id %>"
+      document.getElementById("classification_selector").value = "<%= hotel_data.classification_id %>"
+
+      // Función para actualizar el selector de distrito
+      function update_district_selector(districts){
+        var content = `<option value="">Distrito</option>`
+        for (i = 0; i < districts.length; i++){
+          content += `<option value="${districts[i].id}">${districts[i].name}</option>`
+        }
+        document.getElementById("district_selector").innerHTML = content
+      }
+
+      // Función para actualizar el selector de cantón
+      function update_canton_selector(cantons){
+        var content = `<option value="">Cantón</option>`
+        for (i = 0; i < cantons.length; i++){
+          content += `<option value="${cantons[i].id}">${cantons[i].name}</option>`
+        }
+        document.getElementById("canton_selector").innerHTML = content
+      }
+      
+      // Función para actualizar el selector de provincia
+      function update_province_selector(provinces){
+        var content = `<option value="">Provincia</option>`
+        for (i = 0; i < provinces.length; i++){
+          content += `<option value="${provinces[i].id}">${provinces[i].name}</option>`
+        }
+        document.getElementById("province_selector").innerHTML = content
+      }
+
+      // Envía una petición http al servidor y retorna la respuesta si hubo éxito
+      function send_request(request_type, url, request_body){
+            
+            return new Promise(async (resolve, reject) => {
+
+                const http = new XMLHttpRequest()
+                
+                http.onreadystatechange = function(){
+                    
+                    if (this.readyState == 4 && this.status == 200){
+                        const response = JSON.parse(this.response)
+                        return resolve(response)    
+                    }
+                }
+
+                http.open(request_type, url)
+                http.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
+                http.send(JSON.stringify(request_body))
+            })
+        }
+
+      // Función que se activa cuando se cambia el país
+      async function country_selected(country_id){
+        const url = "http://localhost:4500/hotel_admins/get_provinces/" + country_id
+        const provinces = await send_request("GET", url, {})
+        update_province_selector(provinces)
+        update_canton_selector([])
+        update_district_selector([])
+      }
+
+      // Función que se activa cuando se cambia la provincia
+      async function province_selected(province_id){
+        const url = "http://localhost:4500/hotel_admins/get_cantons/" + province_id
+        const cantons = await send_request("GET", url, {})
+        update_canton_selector(cantons)
+        update_district_selector([])
+      }
+
+      // Función que se activa cuando se cambia el cantón
+      async function canton_selected(canton_id){
+        const url = "http://localhost:4500/hotel_admins/get_districts/" + canton_id
+        const districts = await send_request("GET", url, {})
+        update_district_selector(districts)
+      }
+
+    </script>
 </html>

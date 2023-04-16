@@ -5,6 +5,7 @@
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
         <title>Habitación</title>
@@ -50,7 +51,356 @@
         <!--------------------------------------------------------------------------------------------------------------------------->
 
         <section class="mb-4">
+          <div class="container mt-4">
+
+            <div class="d-flex align-items-center pb-1">
+              <span class="h3 fw-bold mb-0 me-4">Habitaciones</span>
+
+              <button type="button" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#registration_modal">
+                  Registrar
+              </button>
+
+            </div>
+
+          <div style="height: 600px; display: block; overflow: auto; position: relative;">
+
+          <table class="table mt-4 table-striped table-bordered">
+              <thead class="bg-light">
+                <tr>
+                  <th>Nombre</th>
+                  <th>Capacidad</th>
+                  <th>Precio recomendado por noche</th>
+                  <th>Unidades</th>
+                  <th>Código de descuento</th>
+                  <th>Descuento</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+
+              <tbody>
+
+                <% rooms.forEach(room => {%>
+
+                  <tr id="<%= room.id %>">
+
+                      <td>
+                        <p class="fw-normal mb-1"><%= room.name %></p>
+                      </td>
+
+                      <td>
+                        <p class="fw-normal mb-1"><%= room.capacity %></p>
+                      </td>
+
+                      <td>
+                        <p class="fw-normal mb-1"><%= room.price %></p>
+                      </td>
+
+                      <td>
+                        <p class="fw-normal mb-1"><%= room.units %></p>
+                      </td>
+
+                      <td>
+                        <p class="fw-normal mb-1"><%= room.discount_code %></p>
+                      </td>
+
+                      <td>
+                        <p class="fw-normal mb-1"><%= room.discount_rate %></p>
+                      </td>
+                      
+                      <td id="buttons-1">
+                          
+                          <button type="button" class="btn btn-link btn-sm btn-rounded" onclick="javascript:edit_row('<%= room.id %>', '<%= room.name %>', '<%= room.capacity %>', 
+                                                                                                                     '<%= room.price %>', '<%= room.units %>', '<%= room.discount_code %>', '<%= room.discount_rate %>')">
+                              Editar
+                          </button>
+
+                          <button type="button" class="btn btn-link btn-sm btn-rounded" onclick="javascript:edit_amenities('<%= room.id %>', '<%= room.name %>')">
+                            Amenidades
+                          </button>
+
+                          <button type="button" class="btn btn-link btn-sm btn-rounded" onclick="javascript:delete_room('<%= room.id %>')">
+                             Eliminar
+                          </button>
+
+                      </td>
+                  </tr>
+                  
+                <%})%>
+
+              </tbody>
+            </table>
+          </div>
+
+          
+                 <!-- Pop up para el registro de habitación -->
+                 <div class="modal fade" id="registration_modal" tabindex="-1" aria-labelledby="registration_modal" aria-hidden="true">
+                  <div class="modal-dialog">
+                      <div class="modal-content">
+                          
+                          <div class="modal-header">
+                              <h1 class="modal-title fs-5">Registrar habitación</h1>
+                              
+                              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                          </div>
+
+                          <form onsubmit="javascript:register_room(event)">
+                            <div class="modal-body">
+
+                              <div class="row">
+                                <div class="col">
+            
+                                  <div class="form-outline mb-4">
+                                    <input type="text" id="name" name="name" required class="form-control"/>
+                                    <label class="form-label">Nombre</label>
+                                  </div>
+            
+                                  <div class="form-outline mb-4">
+                                    <input type="text" id="capacity" name="capacity" required class="form-control"/>
+                                    <label class="form-label">Capacidad</label>
+                                  </div>
+            
+                                  <div class="form-outline mb-4">
+                                    <input type="text" id="price" name="price" required class="form-control"/>
+                                    <label class="form-label">Precio por noche</label>
+                                  </div>
+            
+                                </div>
+            
+                                <div class="col">
+            
+                                  <div class="form-outline mb-4">
+                                    <input type="text" id="units" name="units" required class="form-control"/>
+                                    <label class="form-label">Unidades</label>
+                                  </div>
+            
+                                  <div class="form-outline mb-4">
+                                    <input type="text" id="discount_code" name="discount_code" class="form-control"/>
+                                    <label class="form-label">Código de descuento</label>
+                                  </div>
+            
+                                  <div class="form-outline mb-4">
+                                    <input type="text" id="discount_rate" name="discount_rate" class="form-control"/>
+                                    <label class="form-label">Porcentaje de descuento</label>
+                                  </div>
+            
+                                </div>
+                              </div>
+            
+                            </div>
+                                          
+                              <div class="modal-footer">
+                                  
+                                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                  <button type="submit" class="btn text-white" style="background-color: #606c38;">Registrar</button>
+                              </div>
+
+                          </form>
+                      </div>
+                  </div>
+               </div>
+
+          <!-- Pop up para la edición de la habitación -->
+          <div class="modal fade" id="edition_modal" tabindex="-1" aria-labelledby="edition_modal" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5">Editar habitación</h1>
+                        
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    
+                    <section id="edition_modal_body">
+                    </section> 
+
+                </div>
+            </div>
+         </div>
+
+          <!-- Pop up para la edición de amenidades de una habitación -->
+          <div class="modal fade" id="amenity_modal" tabindex="-1" aria-labelledby="amenity_modal" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="amenity_modal_title"></h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    
+                    <div class="modal-body row">
+
+                      <div class="col">
+                        <form onsubmit="javascript:delete_amenity_from_room(event)" id="delete_amenity_form">
+                        </form>
+                      </div>
+
+                      <div class="col">
+                        <form onsubmit="javascript:add_amenity_to_room(event)" id="add_amenity_form">
+                        </form>
+                      </div>
+
+                    </div> 
+
+                    <div class="modal-footer">        
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                  </div>
+
+                </div>
+            </div>
+         </div>
+
+          </div>
         </section>
 
     </body>
+    <script>
+
+        // Habilita el pop up para editar una habitación
+        function edit_row(room_id, room_name, room_capacity, room_price, room_units, room_discount_code, room_discount_rate){
+
+            const modal_content = `         
+            
+            <form onsubmit="javascript:update_room(event, ${room_id})">       
+                <div class="modal-body">
+
+                  <div class="row">
+                    <div class="col">
+
+                      <div class="form-outline mb-4">
+                        <input type="text" id="new_name" name="new_name" value="${room_name}" required class="form-control"/>
+                        <label class="form-label">Nombre</label>
+                      </div>
+
+                      <div class="form-outline mb-4">
+                        <input type="text" id="new_capacity" name="new_capacity" value="${room_capacity}" required class="form-control"/>
+                        <label class="form-label">Capacidad</label>
+                      </div>
+
+                      <div class="form-outline mb-4">
+                        <input type="text" id="new_price" name="new_price" value="${room_price}" required class="form-control"/>
+                        <label class="form-label">Precio por noche</label>
+                      </div>
+
+                    </div>
+
+                    <div class="col">
+
+                      <div class="form-outline mb-4">
+                        <input type="text" id="new_units" name="new_units" value="${room_units}" required class="form-control"/>
+                        <label class="form-label">Unidades</label>
+                      </div>
+
+                      <div class="form-outline mb-4">
+                        <input type="text" id="new_discount_code" name="new_discount_code" value="${room_discount_code}" class="form-control"/>
+                        <label class="form-label">Código de descuento</label>
+                      </div>
+
+                      <div class="form-outline mb-4">
+                        <input type="text" id="new_discount_rate" name="new_discount_rate" value="${room_discount_rate}" class="form-control"/>
+                        <label class="form-label">Porcentaje de descuento</label>
+                      </div>
+
+                    </div>
+                  </div>
+
+                </div>
+                            
+                <div class="modal-footer">        
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn text-white" style="background-color: #606c38;">Guardar</button>
+                </div>
+            </form>
+            `
+
+            document.getElementById("edition_modal_body").innerHTML = modal_content
+            $('#edition_modal').modal('show')
+        }
+
+      // Envía una petición http al servidor y retorna la respuesta si hubo éxito
+      function send_request(request_type, url, request_body){
+            
+            return new Promise(async (resolve, reject) => {
+
+                const http = new XMLHttpRequest()
+                
+                http.onreadystatechange = function(){
+                    
+                    if (this.readyState == 4 && this.status == 200){
+                        const response = JSON.parse(this.response)
+                        return resolve(response)    
+                    }
+                }
+
+                http.open(request_type, url)
+                http.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
+                http.send(JSON.stringify(request_body))
+            })
+        }
+
+      // Función que construye los formularios para editar las amenidades de una habitación
+      async function edit_amenities(room_id, room_name){
+
+        // Obtenemos las amenidades
+        const room_amenities = await send_request("GET", "http://localhost:4500/hotel_admins/get_amenities_in_room/" + room_id, {})
+        const amenities_not_in_room = await send_request("GET", "http://localhost:4500/hotel_admins/get_amenities_not_in_room/" + room_id, {})
+
+        // Se construyen los formularios
+        var add_amenity_form = `
+
+            <label  class="form-label">Amenidades disponibles</label>
+            <select class="form-select" name="new_ameniy" id="add_amenity_selector" required>
+              <option value="">Amenidades</option>`
+
+        for (i = 0; i < amenities_not_in_room.length; i++){
+          add_amenity_form += `<option value="${amenities_not_in_room[i].id}">${amenities_not_in_room[i].name}</option>`
+        }
+        add_amenity_form += `
+            </select> 
+            <button type="submit" class="btn btn-outline-secondary mt-3">Agregar</button>`
+
+        var delete_amenity_form = `
+
+            <label  class="form-label">Amenidades de la habitación</label>
+            <select class="form-select" name="new_ameniy" id="add_amenity_selector" required>
+              <option value="">Amenidades</option>`
+
+        for (i = 0; i < room_amenities.length; i++){
+          delete_amenity_form += `<option value="${room_amenities[i].id}">${room_amenities[i].name}</option>`
+        }
+        delete_amenity_form += `
+            </select>
+            <button type="submit" class="btn btn-outline-secondary mt-3">Eliminar</button>`
+
+        // Se colocan los formularios
+        document.getElementById("amenity_modal_title").innerHTML = "Amenidades de " + room_name
+        document.getElementById("delete_amenity_form").innerHTML = delete_amenity_form
+        document.getElementById("add_amenity_form").innerHTML = add_amenity_form
+        $('#amenity_modal').modal('show')
+      }
+
+      // Función para agregar una amenidad a la habitación
+      async function add_amenity_to_room(event){
+        event.preventDefault()  
+      }
+
+      // Función para eliminar una amenidad de la habitación
+      async function delete_amenity_from_room(event){
+        event.preventDefault()  
+      }
+
+      // Función para registrar una habitación
+      async function register_room(event, room_id){
+        event.preventDefault()  
+      }
+
+      // Función para actualizar una habitación
+      async function update_room(event, room_id){
+        event.preventDefault()  
+      }
+
+      // Función para eliminar una habitación
+      async function delete_room(room_id){
+      }
+
+    </script>
 </html>

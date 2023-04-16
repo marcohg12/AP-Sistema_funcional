@@ -435,7 +435,7 @@ async function delete_parameter(parameter_id){
 
 // RUD de clasificación de hotel ---------------------------------------------------------------------------------------------------- //
 
-// Función para obtener las provincias de un país
+// Función para obtener las clasificaciones de un hotel
 async function get_classifications(){
     const query = "CALL get_classifications();"
     return await execute_query(query, [])

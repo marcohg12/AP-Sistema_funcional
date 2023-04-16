@@ -8,7 +8,7 @@
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
-        <title>Oferta</title>
+        <title>Reservas</title>
     </head>
 
     <body>
@@ -54,11 +54,11 @@
           <div class="container mt-4">
 
             <div class="d-flex align-items-center pb-1">
-              <span class="h3 fw-bold mb-0 me-4">Ofertas</span>
+              <span class="h3 fw-bold mb-0 me-4">Reservas</span>
 
-              <button type="button" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#registration_modal">
+              <a href="/hotel_admins/register_bookin_step_1" class="btn btn-dark">
                   Registrar
-              </button>
+              </a>
 
             </div>
 
@@ -67,48 +67,47 @@
           <table class="table mt-4 table-striped table-bordered">
               <thead class="bg-light">
                 <tr>
-                  <th>Nombre</th>
-                  <th>Fecha de inicio</th>
-                  <th>Fecha de fin</th>
-                  <th>Descuento</th>
-                  <th>Días de reserva mínimos</th>
+                  <th>Usuario</th>
+                  <th>Fecha de check-in</th>
+                  <th>Fecha de check-out</th>
+                  <th>Estado</th>
                   <th>Acciones</th>
                 </tr>
               </thead>
 
               <tbody>
 
-                <% deals.forEach(deal => {%>
+                <% bookins.forEach(bookin => {%>
 
-                  <tr id="<%= deal.id %>">
+                  <tr id="<%= bookin.id %>">
 
                       <td>
-                        <p class="fw-normal mb-1"><%= deal.name %></p>
+                        <p class="fw-normal mb-1"><%= bookin.username %></p>
                       </td>
 
                       <td>
-                        <p class="fw-normal mb-1"><%= deal.start_date.toLocaleDateString() %></p>
+                        <p class="fw-normal mb-1"><%= bookin.check_in_date.toLocaleDateString() %></p>
                       </td>
 
                       <td>
-                        <p class="fw-normal mb-1"><%= deal.ending_date.toLocaleDateString() %></p>
+                        <p class="fw-normal mb-1"><%= bookin.check_out_date.toLocaleDateString() %></p>
                       </td>
 
                       <td>
-                        <p class="fw-normal mb-1"><%= deal.discount_rate %>%</p>
-                      </td>
-
-                      <td>
-                        <p class="fw-normal mb-1"><%= deal.minimun_reservation_days %></p>
+                        <p class="fw-normal mb-1"><%= bookin.status %></p>
                       </td>
 
                       <td id="buttons-1">
                           
-                          <a href="" class="btn btn-link btn-sm btn-rounded">
-                              Editar
+                          <a href="/hotel_admins/" class="btn btn-link btn-sm btn-rounded">
+                             Confirmar / cancelar
                           </a>
 
-                          <button type="button" class="btn btn-link btn-sm btn-rounded" onclick="javascript:delete_deal('<%= deal.id %>')">
+                          <a href="/hotel_admins/edit_bookin_rooms/<%= bookin.id %>" class="btn btn-link btn-sm btn-rounded">
+                            Habitaciones
+                          </a>
+
+                          <button type="button" class="btn btn-link btn-sm btn-rounded" onclick="javascript:delete_bookin('<%= bookin.id %>')">
                              Eliminar
                           </button>
 
@@ -121,72 +120,12 @@
             </table>
           </div>
 
-          <!-- Pop up para el registro de una oferta  -->
-          <div class="modal fade" id="registration_modal" tabindex="-1" aria-labelledby="registration_modal" aria-hidden="true">
-            <div class="modal-dialog">
-              <div class="modal-content">
-                                    
-                <div class="modal-header">
-                  <h1 class="modal-title fs-5">Registrar oferta</h1>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                              
-                <form onsubmit="javascript:register_deal(event)">
-                  <div class="modal-body">
-
-                    <div class="row">
-                      <div class="col">
-
-                        <div class="form-outline mb-4">
-                          <input type="text" id="name" name="name" class="form-control" required/>
-                          <label class="form-label">Nombre</label>
-                        </div> 
-
-                        <div class="form-outline mb-4">
-                          <input type="date" id="start_date" name="start_date" class="form-control" required/>
-                          <label class="form-label">Fecha de inicio</label>
-                        </div> 
-
-                        <div class="form-outline mb-4">
-                          <input type="date" id="ending_date" name="ending_date" class="form-control" required/>
-                          <label class="form-label">Fecha de fin</label>
-                        </div> 
-
-                      </div>
-
-                      <div class="col">
-
-                        <div class="form-outline mb-4">
-                          <input type="text" id="discount" name="discount" class="form-control" required/>
-                          <label class="form-label">Descuento</label>
-                        </div> 
-
-                        <div class="form-outline mb-4">
-                          <input type="text" id="minimun_days" name="minimun_days" class="form-control" required/>
-                          <label class="form-label">Días mínimos de reserva</label>
-                        </div> 
-                        
-                      </div>
-                    </div>
-
-                  </div>
-                                                                          
-                  <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn text-white" style="background-color: #606c38;">Registrar</button>
-                  </div>
-                              
-                </form>
-              </div>
-            </div>
-          </div>
-
           </div>
         </section>
 
     </body>
     <script>
-      
+
       // Envía una petición http al servidor y retorna la respuesta si hubo éxito
       function send_request(request_type, url, request_body){
             
@@ -208,15 +147,11 @@
             })
         }
 
-        // Función para registrar una oferta
-        async function register_deal(event){
-          event.preventDefault()
-        }
 
-        // Función para eliminar una oferta
-        async function delete_deal(deal_id){
+        // Función para eliminar una reserva
+        async function delete_bookin(bookin_id){
 
         }
-        
+      
     </script>
 </html>

@@ -1292,16 +1292,16 @@ VALUES(default,'Pañameño');
 
 -- CREACIÓN DE user_table --------------------------------------------------------
 INSERT INTO user_table(username, user_type_ref, photo, user_password, hotel_ref)
-VALUES('ADG2023',1, null,'1234', 1);
+VALUES('ADG2023',2, null,'$2b$10$zD2GW7YRmFyFlLaSo.s9XutH77GVogVWlJzeNugRhwiP1TmDVmfJy', 1);
 
 INSERT INTO user_table(username, user_type_ref, photo, user_password, hotel_ref)
-VALUES('Mario123',2, null,'1234', 1);
+VALUES('Mario123',2, null,'$2b$10$zD2GW7YRmFyFlLaSo.s9XutH77GVogVWlJzeNugRhwiP1TmDVmfJy', 1);
 
 INSERT INTO user_table(username, user_type_ref, photo, user_password, hotel_ref)
-VALUES('MariaAra',3, null,'1234', 1);
+VALUES('MariaAra',3, null,'$2b$10$zD2GW7YRmFyFlLaSo.s9XutH77GVogVWlJzeNugRhwiP1TmDVmfJy', 1);
 
 INSERT INTO user_table(username, user_type_ref, photo, user_password, hotel_ref)
-VALUES('User1243',3, null,'1234', 3);
+VALUES('User1243',3, null,'$2b$10$zD2GW7YRmFyFlLaSo.s9XutH77GVogVWlJzeNugRhwiP1TmDVmfJy', 3);
 
 -- CREACIÓN DE PERSONAS --------------------------------------------------------
 INSERT INTO person (id,first_name,second_name,first_surname,second_surname,birthdate,gender_ref,identification_number, id_type_ref, user_ref)
@@ -1393,7 +1393,11 @@ VALUES(default,'Cerca de la playa',3);
  
 -- CREACIÓN DE reservation status --------------------------------------------------------
 INSERT INTO reservation_status(id,name)
-VALUES(default,'Reservado');
+VALUES(default,'Confirmada');
+INSERT INTO reservation_status(id,name)
+VALUES(default,'Cancelada');
+INSERT INTO reservation_status(id,name)
+VALUES(default,'En espera');
 
 -- CREACIÓN DE photo --------------------------------------------------------
 INSERT INTO photo(id,photo, hotel_ref)
@@ -1462,5 +1466,5 @@ VALUES(default, 4, 1);
 
 -- CREACIÓN DE reservation_x_room -------------------------------------------------------------------------
 
-INSERT INTO reservation_x_room(reservation_ref, room_ref, prince)
+INSERT INTO reservation_x_room(reservation_ref, room_ref, price)
 VALUES(1, 1, 400);

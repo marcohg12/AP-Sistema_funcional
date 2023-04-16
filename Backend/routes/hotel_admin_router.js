@@ -1,39 +1,113 @@
 // Importación de dependencias
 const router = require("express").Router()
+const user_controller = require("../controllers/user_controller")
+const master_admin_controller = require("../controllers/master_admin_controller")
+const hotel_admin_controller = require("../controllers/hotel_admin_controller")
 
 // Atiende la petición de ventana de menú principal
 router.get("/", check_authenticated, async (req, res) => {
-    res.render("hotel_ad_main", {hotel_id: req.user.hotel_id, profile:req.user.photo})
+    res.render("hotel_ad_main", {profile:req.user.photo})
 })
 
 // Atiende la petición de ventana de edición del hotel
-router.get("/edit_hotel/:hotel_id", check_authenticated, async (req, res) => {
-    res.render("hotel_ad_hotel_edition", {hotel_id: req.user.hotel_id, profile:req.user.photo})
+router.get("/edit_hotel", check_authenticated, async (req, res) => {
+    const hotel_data = await hotel_admin_controller.get_hotel_data(req.user.hotel_admin_id)
+    const classifications = await master_admin_controller.get_classifications()
+    const countries = await master_admin_controller.get_countries()
+    const provinces = await master_admin_controller.get_provinces(hotel_data[0].country_id)
+    const cantons = await master_admin_controller.get_cantons(hotel_data[0].province_id)
+    const districts = await master_admin_controller.get_districts(hotel_data[0].canton_id)
+    res.render("hotel_ad_hotel_edition", {hotel_data: hotel_data[0], classifications: classifications, 
+                                          countries: countries, provinces: provinces,
+                                          cantons: cantons, districts: districts, profile:req.user.photo})
 })
 
 // Responde a la solicitud de vista del catálogo de habitaciones
-router.get("/room_catalog/:hotel_id", check_authenticated, async (req, res) => {
-    res.render("hotel_ad_room_edition", {hotel_id: req.user.hotel_id, profile:req.user.photo})
+router.get("/room_catalog", check_authenticated, async (req, res) => {
+    const rooms = await hotel_admin_controller.get_rooms(req.user.hotel_admin_id)
+    res.render("hotel_ad_room_edition", {rooms: rooms, profile:req.user.photo})
 })
 
 // Responde a la solicitud de vista del catálogo de ofertas
-router.get("/deal_catalog/:hotel_id", check_authenticated, async (req, res) => {
-    res.render("hotel_ad_deal_edition", {hotel_id: req.user.hotel_id, profile:req.user.photo})
+router.get("/deal_catalog", check_authenticated, async (req, res) => {
+    const deals = await hotel_admin_controller.get_deals(req.user.hotel_admin_id)
+    res.render("hotel_ad_deal_edition", {deals: deals, profile:req.user.photo})
 })
 
 // Responde a la solicitud de vista del catálogo de amenidades
-router.get("/amenity_catalog/:hotel_id", check_authenticated, async (req, res) => {
-    res.render("hotel_ad_amenity_edition", {hotel_id: req.user.hotel_id, profile:req.user.photo})
+router.get("/amenity_catalog", check_authenticated, async (req, res) => {
+    const amenities = await hotel_admin_controller.get_amenities(req.user.hotel_admin_id)
+    res.render("hotel_ad_amenity_edition", {amenities: amenities, profile:req.user.photo})
 })
 
 // Responde a la solicitud de vista del catálogo de métodos de pago
-router.get("/payment_method_catalog/:hotel_id", check_authenticated, async (req, res) => {
-    res.render("hotel_ad_payment_method_edition", {hotel_id: req.user.hotel_id, profile:req.user.photo})
+router.get("/payment_method_catalog", check_authenticated, async (req, res) => {
+    const payment_methods = await hotel_admin_controller.get_payment_methods(req.user.hotel_admin_id)
+    res.render("hotel_ad_payment_method_edition", {payment_methods: payment_methods, profile:req.user.photo})
 })
 
 // Responde a la solicitud de vista del catálogo de políticas de cancelación
-router.get("/cancelation_policy_catalog/:hotel_id", check_authenticated, async (req, res) => {
-    res.render("hotel_ad_cancelation_policy_edition", {hotel_id: req.user.hotel_id, profile:req.user.photo})
+router.get("/cancelation_policy_catalog", check_authenticated, async (req, res) => {
+    const policies = await hotel_admin_controller.get_cancelation_policies(req.user.hotel_admin_id)
+    res.render("hotel_ad_cancelation_policy_edition", {policies: policies, profile:req.user.photo})
+})
+
+// Responde a la solicitud de vista del catálogo de políticas de cancelación
+router.get("/bookin_catalog", check_authenticated, async (req, res) => {
+    const bookins = await hotel_admin_controller.get_bookins(req.user.hotel_admin_id)
+    res.render("hotel_ad_bookin_edition", {bookins: bookins, profile:req.user.photo})
+})
+
+// Response a la solicitud de vista de la ventana de creación de reserva, paso 1
+router.get("/register_bookin_step_1", check_authenticated, async (req, res) => {
+    res.render("hotel_ad_register_reservation_step_1", {profile:req.user.photo})
+})
+
+
+// Response a la solicitud de vista de la ventana de edición de habitaciones para la reserva
+router.get("/edit_bookin_rooms/:bookin_id", check_authenticated, async (req, res) => {
+    const rooms = await hotel_admin_controller.get_rooms(req.user.hotel_admin_id)
+    res.render("hotel_ad_register_reservation_step_2", {rooms: rooms, profile:req.user.photo})
+})
+
+// Response a la solicitud de vista de la ventana de creación de reserva, paso 3 
+router.get("/register_bookin_step_3", check_authenticated, async (req, res) => {
+    res.render("hotel_ad_register_reservation_step_3", {profile:req.user.photo})
+})
+
+// Responde a la solicitud de distritos de un cantón
+router.get("/get_districts/:canton_id", check_authenticated, async (req, res) => {
+    const districts = await master_admin_controller.get_districts(req.params.canton_id)
+    res.status(200)
+    res.send(JSON.stringify(districts))
+})
+
+// Responde a la solicitud de cantones de una provincia
+router.get("/get_cantons/:province_id", check_authenticated, async (req, res) => {
+    const cantons = await master_admin_controller.get_cantons(req.params.province_id)
+    res.status(200)
+    res.send(JSON.stringify(cantons))
+})
+
+// Responde a la solicitud de provincias de un país
+router.get("/get_provinces/:country_id", check_authenticated, async (req, res) => {
+    const provinces = await master_admin_controller.get_districts(req.params.country_id)
+    res.status(200)
+    res.send(JSON.stringify(provinces))
+})
+
+// Responde a la solicitud de amenidades de una habitación
+router.get("/get_amenities_in_room/:room_id", check_authenticated, async (req, res) => {
+    const amenities = await hotel_admin_controller.get_amenities_in_room(req.params.room_id)
+    res.status(200)
+    res.send(JSON.stringify(amenities))
+})
+
+// Responde a la solicitud de amenidades que no pertenecen
+router.get("/get_amenities_not_in_room/:room_id", check_authenticated, async (req, res) => {
+    const amenities = await hotel_admin_controller.get_amenities_not_in_room(req.params.room_id, req.user.hotel_admin_id)
+    res.status(200)
+    res.send(JSON.stringify(amenities))
 })
 
 // RUD de habitaciones ----------------------------------------------------------------------------------------- //

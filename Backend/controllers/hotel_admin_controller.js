@@ -26,6 +26,13 @@ function execute_query(query, fields){
 
 // RUD de habitaciones ----------------------------------------------------------------------------------------- //
 
+// Función para obtener las habitaciones de in hotel
+async function get_rooms(hotel_id){
+    const fields = [hotel_id]
+    const query = "CALL get_rooms(?);"
+    return await execute_query(query, fields)
+}
+
 // Función para registrar una habitación
 async function register_room(name, capacity, units, price, discount_code, discount_rate, hotel_id){
     const fields = [name, capacity, units, price, discount_code, discount_rate, hotel_id]
@@ -71,7 +78,28 @@ async function delete_room(room_id){
     }
 }
 
+// Función para obtener las amenidades de una habitación
+async function get_amenities_in_room(room_id){
+    const fields = [room_id]
+    const query = "CALL get_amenities_in_room(?);"
+    return await execute_query(query, fields)
+}
+
+// Función para obtener las amenidades que no son de una habitación
+async function get_amenities_not_in_room(room_id, hotel_id){
+    const fields = [room_id, hotel_id]
+    const query = "CALL get_amenities_not_in_room(?,?);"
+    return await execute_query(query, fields)
+}
+
 // RUD de amenidades   ----------------------------------------------------------------------------------------- //
+
+// Función para obtener las amenidades de un hotel
+async function get_amenities(hotel_id){
+    const fields = [hotel_id]
+    const query = "CALL get_amenities(?);"
+    return await execute_query(query, fields)
+}
 
 // Función para registrar una amenidad
 async function register_amenity(name){
@@ -120,6 +148,13 @@ async function delete_amenity(amenity_id){
 
 // RUD de ofertas      ----------------------------------------------------------------------------------------- //
 
+// Función para obtener las ofertas de un hotel
+async function get_deals(hotel_id){
+    const fields = [hotel_id]
+    const query = "CALL get_deals(?);"
+    return await execute_query(query, fields)
+}
+
 // Función para registrar una oferta
 async function register_deal(name, start_date, ending_date, discount_rate, minimum_days, hotel_id){
     const fields = [name, start_date, ending_date, discount_rate, minimum_days, hotel_id]
@@ -166,6 +201,13 @@ async function delete_deal(deal_id){
 }
 
 // RUD de métodos de pago -------------------------------------------------------------------------------------- //
+
+// Función para obtener los métodos de pago de un hotel
+async function get_payment_methods(hotel_id){
+    const fields = [hotel_id]
+    const query = "CALL get_payment_methods(?);"
+    return await execute_query(query, fields)
+}
 
 // Función para registrar un método de pago
 async function register_payment_method(name){
@@ -215,6 +257,13 @@ async function delete_payment_method(payment_method_id){
 
 // RUD de políticas de cancelación ----------------------------------------------------------------------------- //
 
+// Función para obtener las políticas de cancelación de un hotel
+async function get_cancelation_policies(hotel_id){
+    const fields = [hotel_id]
+    const query = "CALL get_cancelation_policies(?);"
+    return await execute_query(query, fields)
+}
+
 // Función para registrar una política de cancelación
 async function register_cancelation_policy(name, anticipation_time, cancelation_fee, hotel_id){
     const fields = [name, anticipation_time, cancelation_fee, hotel_id]
@@ -260,13 +309,28 @@ async function delete_cancelation_policy(policy_id){
     }
 }
 
+// RUD de reservas --------------------------------------------------------------------------------------------- //
+
+// Función para obtener las reservas de un hotel
+async function get_bookins(hotel_id){
+    const fields = [hotel_id]
+    const query = "CALL get_bookins(?);"
+    return await execute_query(query, fields)
+}
 
 // Edición del hotel ------------------------------------------------------------------------------------------- //
+
+// Función que retorna los datos de un hotel
+async function get_hotel_data(hotel_id){
+    const query = "CALL get_hotel_data(?);"
+    return await execute_query(query, [hotel_id])
+}
 
 // Función para actualizar un hotel
 
 // Nombres de cada funcion que hay arriba
 module.exports = {
+    get_rooms,
     register_room,
     update_room,
     delete_room,
@@ -281,5 +345,13 @@ module.exports = {
     delete_cancelation_policy,
     register_payment_method,
     update_payment_method,
-    delete_payment_method
+    delete_payment_method,
+    get_hotel_data,
+    get_amenities,
+    get_payment_methods,
+    get_cancelation_policies,
+    get_deals,
+    get_bookins,
+    get_amenities_in_room,
+    get_amenities_not_in_room
 }
