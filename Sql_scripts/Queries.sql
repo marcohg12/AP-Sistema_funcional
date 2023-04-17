@@ -1,7 +1,7 @@
 -- Autores: Britnney Murillo, Jefry Cuendiz, Sharon Chacon,Paula Bolaños
 -- Fecha de creación: 28/03/2023
 --------------------------------------Códigos--------------------------------------
---      0- éxito
+--      0-  éxito
 --     -1 - error en base
 --     -2 - key-id ya existente
 --     -3 - email repetido
@@ -353,11 +353,116 @@ BODY: BEGIN
     end if;
 END//
 
-
-
-
 delimiter ;
 
+-- Proceso: registra una nueva amenidad
+-- Recibe el nombre y el id del hotel
+-- Retorna 0 si se registro con éxito 
+-- Retorna -1 si ocurrio algún error y no se registro
+CREATE DEFINER=`root`@`localhost` PROCEDURE `register_amenity`(IN pName VARCHAR(50), IN pHotel_id INT, OUT executionCode INT)
+BEGIN
+DECLARE exitCode INT DEFAULT 0;
+
+DECLARE EXIT HANDLER FOR SQLEXCEPTION
+BEGIN
+	SET executionCode = -1;
+	ROLLBACK;
+END;
+
+INSERT INTO amenity(id, name, hotel_ref)
+VALUES(default, pName, pHotel_id);
+
+SET executionCode = exitCode;
+COMMIT;
+END
+
+-- Proceso: actualiza el nombre de una amenidad
+-- Recibe el id de la amenidad y el nuevo nombre
+-- Retorna 0 si se actualizo
+-- Retorna -1 si ocurrió algún error 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `update_amenity`(IN pAmenity_id INT, IN pNew_name VARCHAR (50), OUT executionCode INT)
+BEGIN
+DECLARE exitCode INT DEFAULT 0;
+
+DECLARE EXIT HANDLER FOR SQLEXCEPTION
+BEGIN
+	SET executionCode = -1;
+	ROLLBACK;
+END;
+
+UPDATE amenity SET name = pNew_name
+WHERE id = pAmenity_id; 
+IF ROW_COUNT() = 0 THEN
+        SET executionCode = -1;
+        ROLLBACK;
+    ELSE
+        SET executionCode = exitCode;
+        COMMIT;
+    END IF;
+COMMIT;
+END
+
+-- Proceso: eliminar una amenidad
+-- Recibe el id de la amenidad
+-- Retorna 0 si se elimino con éxito
+-- Retorna -1 si ocurrio algún problema
+-- Retorna -8 si esta relacionada la amenidad con alguna habitación 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `delete_amenity`(IN p_amenity_id INT, OUT execution_code INT)
+BEGIN
+
+DECLARE check_ussage INT;
+
+DECLARE CUSTOM_EXCEPTION CONDITION FOR SQLSTATE '45000';
+DECLARE EXIT HANDLER FOR SQLSTATE '45000'
+  BEGIN
+      ROLLBACK;
+  END;
+
+DECLARE EXIT HANDLER FOR SQLEXCEPTION
+BEGIN
+    SET execution_code = -1;
+    ROLLBACK;
+END;
+
+SELECT COUNT(*) 
+INTO check_ussage 
+FROM amenity_x_room
+WHERE amenity_ref =  p_amenity_id;
+
+IF (check_ussage > 0) THEN
+    SET execution_code = -8;
+    SIGNAL CUSTOM_EXCEPTION;
+END IF;
+
+DELETE FROM amenity
+WHERE id = p_amenity_id;
+
+COMMIT;
+SET execution_code = 0;
+END
+
+--Proceso: registrar un nuevo hotel
+-- Recibe el nombre, la dirección, el id del distrito y el id de la clasificacion
+-- Retorna 0 si se registro 
+-- Retorna -1 si ocurrió algún error 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `register_hotel`(IN pName VARCHAR(50), IN pAdress VARCHAR (50), IN pDistrict_id INT, 
+															IN pClassification_id INT,  OUT executionCode INT)
+BEGIN
+DECLARE exitCode INT DEFAULT 0;
+
+DECLARE EXIT HANDLER FOR SQLEXCEPTION
+BEGIN
+	SET executionCode = -1;
+	ROLLBACK;
+END;
+
+INSERT INTO hotel
+VALUES (default, pName, CURDATE(), pAdress, pDistrict_id, pClassification_id);
+
+SET executionCode = exitCode;
+
+COMMIT;
+END
 
 
 
