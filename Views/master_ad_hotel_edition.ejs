@@ -52,8 +52,201 @@
 
         <section class="mb-4 mt-4">
             <div class="container">
+
+              <!-- Encabezo ----------------------------------------------------------------------->
+
+              <div class="d-flex align-items-center pb-1">
+                <span class="h3 fw-bold mb-0 me-4">Hoteles</span>
+
+                <button type="button" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#registration_modal">
+                    Registrar
+                </button>
+
+            </div>
+
+              <!-- Tabla -------------------------------------------------------------------------->
+
+              <div style="height: 600px; display: block; overflow: auto; position: relative;">
+
+                <table class="table mt-4 table-striped table-bordered">
+                    <thead class="bg-light">
+                      <tr>
+                        <th>Nombre</th>
+                        <th>Acciones</th>
+                      </tr>
+                    </thead>
+
+                    <tbody>
+
+                      <% hotels.forEach(hotel => {%>
+
+                        <tr id="<%= hotel.id %>">
+
+                            <td>
+                              <p class="fw-normal mb-1"><%= hotel.name %></p>
+                            </td>
+                            
+                            <td id="buttons-1">
+                                
+                                <button type="button" class="btn btn-link btn-sm btn-rounded" onclick="javascript:edit_row('<%= hotel.id %>', '<%= hotel.name %>')">
+                                    Editar
+                                </button>
+
+                                <button type="button" class="btn btn-link btn-sm btn-rounded" onclick="javascript:delete_hotel('<%= hotel.id %>')">
+                                   Eliminar
+                                </button>
+                            </td>
+                        </tr>
+                        
+                      <%})%>
+
+                    </tbody>
+                  </table>
+
+                </div>
+
+                <!-- Pop ups ------------------------------------------------------------------------>
+              
+              <!-- Pop up para la edición de hotel -->
+              <div class="modal fade" id="edition_modal" tabindex="-1" aria-labelledby="edition_modal" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5">Editar hotel</h1>
+                            
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        
+                        <section id="edition_modal_body">
+                        </section> 
+
+                    </div>
+                </div>
+             </div>
+
+             <!-- Pop up para el registro de hotel ---------------------------------------------------------------------------->
+             <div class="modal fade" id="registration_modal" tabindex="-1" aria-labelledby="registration_modal" aria-hidden="true">
+              <div class="modal-dialog">
+                  <div class="modal-content">
+                      
+                      <div class="modal-header">
+                          <h1 class="modal-title fs-5">Registrar hotel</h1>
+                          
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+
+                      <form onsubmit="javascript:register_hotel(event)">
+                          <div class="modal-body">
+
+                              <div class="form-outline mb-4">
+                                  <input type="text" id="register_name" name="register_name" class="form-control" required/>
+                                  <label class="form-label">Nombre</label>
+                              </div>
+          
+                          </div>
+                                      
+                          <div class="modal-footer">
+                              
+                              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                              <button type="submit" class="btn text-white" style="background-color: #606c38;">Registrar</button>
+                          </div>
+
+                      </form>
+                  </div>
+              </div>
+           </div>
+
+
             </div>
         </section>
 
     </body>
+    <script>
+      // Habilita el pop up para editar un hotel
+        function edit_row(hotel_id, hotel_name, hotel_value){
+
+            const modal_content = `         
+            
+            <form onsubmit="javascript:update_hotel(event, ${hotel_id})">       
+                <div class="modal-body">
+
+                  <div class="form-outline mb-4">
+                    <input type="text" id="new_name" name="new_name" value="${hotel_name}" class="form-control" required/>
+                     <label class="form-label">Nombre</label>
+                  </div>
+
+                </div>
+                            
+                <div class="modal-footer">        
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn text-white" style="background-color: #606c38;">Guardar</button>
+                </div>
+            </form>
+            `
+
+            document.getElementById("edition_modal_body").innerHTML = modal_content
+            $('#edition_modal').modal('show')
+        }
+
+        // Envía una petición http al servidor y retorna la respuesta si hubo éxito
+        function send_request(request_type, url, request_body){
+            
+            return new Promise(async (resolve, reject) => {
+
+                const http = new XMLHttpRequest()
+                
+                http.onreadystatechange = function(){
+                    
+                    if (this.readyState == 4 && this.status == 200){
+                        const response = JSON.parse(this.response)
+                        return resolve(response)    
+                    }
+                }
+
+                http.open(request_type, url)
+                http.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
+                http.send(JSON.stringify(request_body))
+            })
+        }
+
+        // Envía la petición para editar el hotel
+        async function update_hotel(event, hotel_id){
+            
+            event.preventDefault()
+            const url = "http://localhost:4500/master_admins/update_hotel"
+            const new_name = document.getElementById("new_name").value
+            const request_body = {hotel_id: hotel_id, new_name: new_name}
+            const response = await send_request("POST", url, request_body)
+
+            alert(response.message)
+            location.reload()
+        }
+
+        // Envía la petición para eliminar un hotel
+        async function delete_hotel(hotel_id) {
+
+            const url = "http://localhost:4500/master_admins/delete_hotel"
+            const request_body = {hotel_id: hotel_id}
+            const response = await send_request("POST", url, request_body)
+            
+            alert(response.message)
+            if (!response.error){
+                document.getElementById(hotel_id).remove()
+            }    
+        }
+
+        // Envía la petición para registrar un hotel
+        async function register_hotel(event) {
+
+            event.preventDefault()
+            const url = "http://localhost:4500/master_admins/register_hotel"
+            const name = document.getElementById("register_name").value
+            const request_body = {name: name}
+            const response = await send_request("POST", url, request_body)
+
+            alert(response.message)
+            location.reload()
+        }
+    </script>
 </html>
