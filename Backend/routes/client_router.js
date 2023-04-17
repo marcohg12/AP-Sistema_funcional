@@ -67,7 +67,7 @@ router.get("/deal_info/:deal_id", async (req, res) => {
                                      initial_date: "2023-03-25", ending_date: "2023-03-30", discount_rate: 50,
                                      minimun_days: 5,
                                      rooms: [{id: "0", name: "Habitación sencilla", price: 150, current_price: 75, capacity: 2},
-                                     {id: "1", name: "Habitación doble", price: 290, capacity: 4},
+                                     {id: "1", name: "Habitación doble", price: 290, current_price: 145, capacity: 4},
                                      {id: "2", name: "Habitación deluxe", price: 350, current_price: 175, capacity: 2},
                                      {id: "3", name: "Habitación deluxe doble", price: 600, current_price: 300, capacity: 4},
                                      {id: "4", name: "Habitación royal", price: 750, current_price: 375, capacity: 2}],

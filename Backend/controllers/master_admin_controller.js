@@ -384,9 +384,9 @@ async function delete_district(district_id){
 
 // RUD de parámetro ---------------------------------------------------------------------------------------------------- //
 
-// Función para obtener las provincias de un país
+// Función para obtener los parámetros del sistema
 async function get_parameters(){
-    const query = "CALL get_parameters(?);"
+    const query = "CALL get_parameters();"
     return await execute_query(query, [])
 }
 
