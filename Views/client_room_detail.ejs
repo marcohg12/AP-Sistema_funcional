@@ -5,6 +5,7 @@
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css"> 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
         <title>Habitación</title>
@@ -73,11 +74,13 @@
         <section class="mb-4">
           <div class="container">
 
-            <div class="card mt-5">
+            <a href="/clients/hotel_info/1" class="btn btn-light mt-2"><span class="bi bi-arrow-left"></span></a>
+
+            <div class="card mt-2">
               <div class="card-body">
                 <h5 class="card-title"><%= name %></h5>
-                <p class="card-text">Capacidad: <%= capacity %></p>
-                <p class="card-text">Precio por noche: <%= price %></p>
+                <p class="card-text">Capacidad: <%= capacity %> personas</p>
+                <p class="card-text">Precio por noche: <%= price %>$</p>
                 <% if (discount_code){ %>
                   <p class="card-text">Código de descuento: <%= discount_code %> &nbsp;&nbsp;&nbsp; Descuento aplicable: <%= discount_rate %>%</p>
                 <% }%>
@@ -96,26 +99,6 @@
                 <% } %>
                 </div>
               </div>
-
-              <% if (discount_code){ %>
-                <form>
-                  <div class="row row-cols-2 mt-4">
-                    <div class="col-lg-2">
-                      
-                      <div class="form-outline me-2" style="width:200px;">
-                        <input type="text" id="discount_code" name="discount_code" class="form-control" />
-                        <label class="form-label">Código de descuento</label>
-                      </div>
-                    </div>
-  
-                    <div class="col-lg-0">
-                      <button class="btn text-white" style="background-color: #606c38;" type="submit">Reservar</button>
-                    </div>
-                  </div>
-                </form>
-              <% } else { %>
-                <a class="btn text-white" style="background-color: #606c38;" href="">Reservar</a>
-              <% } %>
               
               </div>
             </div>

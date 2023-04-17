@@ -86,7 +86,7 @@ function check_not_authenticated(req, res, next){
     }
     next()
 }
-
+ 
 // Asignación de atención de los routers a las rutas
 app.use("/register", user_router)
 app.use("/my_account", user_router)

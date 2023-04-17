@@ -6,7 +6,8 @@ const hotel_admin_controller = require("../controllers/hotel_admin_controller")
 
 // Atiende la petición de ventana de menú principal
 router.get("/", check_authenticated, async (req, res) => {
-    res.render("hotel_ad_main", {profile:req.user.photo})
+    const hotel_name = "Hotel Maracuyá"
+    res.render("hotel_ad_main", {hotel_name: hotel_name, profile:req.user.photo})
 })
 
 // Atiende la petición de ventana de edición del hotel

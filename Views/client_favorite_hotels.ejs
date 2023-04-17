@@ -5,6 +5,7 @@
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">  
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
         <title>Hoteles favoritos</title>
     </head>
@@ -56,7 +57,42 @@
             </div>
         </nav>
 
-        <section class="mb-4">
+        <section class="mt-4 mb-4" id="content">
+
+          <div class="container">
+
+            <% hotels.forEach(hotel => { %>
+
+            <div class="card mb-4">
+
+              <div class="row no-gutters">
+                <div class="col-md-4">
+
+                  <div>
+                    <img class="d-block w-100 card-img" style="width:200px; height: 200px;" src="../Photos/hotel-presidente-4s.jpg">
+                  </div>
+
+                </div>
+
+                <div class="col-md-8">
+                  <div class="card-body">
+
+                    <h5 class="card-title"><%= hotel.name %></h5>
+                    <p class="card-text"><%= hotel.classification%></p>
+                    <p class="card-text"><small class="text-muted"><%= hotel.province%></small></p>
+                    <a href="/clients/hotel_info/:hotel_id" class="btn text-white" style="background-color: #606c38;">Ver más</a>
+                    <a href="/clients/delete_from_favorites/" class="btn btn-link"><span class="bi bi-heart-fill" style="color: red; font-size: 20px;"></span></a>
+
+                  </div>
+                </div>
+              </div>    
+            </div>
+
+            <% }) %>
+
+            </div>
+          </div>
+
         </section>
 
     </body>

@@ -216,14 +216,16 @@ check_in_date            DATE,
 check_out_date           DATE,
 confirmation_date        DATE,
 reservation_status_ref   INT NOT NULL,
-cancellation_policy_ref  INT NOT NULL,
-payment_method_ref 	     INT NOT NULL,
+cancellation_policy_ref  INT,
+payment_method_ref 	     INT,
+hotel_ref                INT NOT NULL,
 user_ref 		         VARCHAR(50) NOT NULL,
 
 CONSTRAINT reservation_pk PRIMARY KEY (id),
 FOREIGN KEY (reservation_status_ref) REFERENCES Reservation_status(id),
 FOREIGN KEY (cancellation_policy_ref) REFERENCES Cancellation_policy(id),
 FOREIGN KEY (payment_method_ref) REFERENCES Payment_method(id),
+FOREIGN KEY (hotel_ref) REFERENCES Hotel(id),
 FOREIGN KEY (user_ref) REFERENCES User_table(username)
 );
 

@@ -98,15 +98,24 @@
                       </td>
 
                       <td id="buttons-1">
-                          
+
+                        <% if (bookin.status_id == 1) { %>
                           <a href="/hotel_admins/" class="btn btn-link btn-sm btn-rounded">
-                             Confirmar / cancelar
+                            Ver detalle
                           </a>
-
+                          <a href="/hotel_admins/" class="btn btn-link btn-sm btn-rounded">
+                            Cancelar
+                          </a>
+                        <% } else if (bookin.status_id == 2) { %>
+                          <a href="/hotel_admins/" class="btn btn-link btn-sm btn-rounded">
+                            Ver detalle
+                          </a>
+                        <% } else { %>
                           <a href="/hotel_admins/edit_bookin_rooms/<%= bookin.id %>" class="btn btn-link btn-sm btn-rounded">
-                            Habitaciones
+                            Seleccionar habitaciones
                           </a>
-
+                        <% } %>
+                          
                           <button type="button" class="btn btn-link btn-sm btn-rounded" onclick="javascript:delete_bookin('<%= bookin.id %>')">
                              Eliminar
                           </button>

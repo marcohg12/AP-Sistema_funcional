@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css"> 
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
+        <title>Reserva</title>
+    </head>
+
+    <body>
+
+        <nav class="navbar navbar-expand-lg" style="background-color: #283618;">
+            <div class="container">
+              <div class="collapse navbar-collapse" id="navbarButtonsExample" >
+
+                <div class="flex-shrink-0 me-4">
+                  <% if (profile) { %>
+                    <img src="data:image/png;base64, <%= profile %>"
+                    class="img-fluid rounded-circle border border-white border-3"
+                    style="width: 50px;">
+                  <% } else {%>
+                    <img src="/Photos/default_profile.png"
+                    class="img-fluid rounded-circle border border-white border-3"
+                    style="width: 50px;">
+                  <% } %>
+                </div>
+                
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 ">
+                  <li class="nav-item me-4">
+                    <a class="nav-link text-white" href="/">Hoteles</a>
+                  </li>
+                  <li class="nav-item me-4">
+                    <a class="nav-link text-white" href="/clients/deal_list">Ofertas</a>
+                  </li>
+                  <li class="nav-item me-4">
+                    <a class="nav-link text-white" href="/clients/my_bookings">Mis reservas</a>
+                  </li>
+                  <li class="nav-item me-4">
+                    <a class="nav-link text-white" href="/clients/favorite_hotels">Hoteles favoritos</a>
+                  </li>
+                  <li class="nav-item me-4">
+                    <a class="nav-link text-white" href="/my_account/my_profile_1">Mi perfil</a>
+                  </li>
+                </ul>
+                
+                <form method="POST" action="/logout">
+                  <div class="d-flex align-items-center">
+                    <button type="submit" class="btn me-3" style="background-color: #dda15e;">Cerrar sesión</button>
+                  </div>
+                </form>
+              
+              </div>
+            </div>
+        </nav>
+
+        <section class="mb-4 mt-2">
+          <div class="container">
+            <a href="/clients/booking_room_edition/<%= booking.booking_id %>" class="btn btn-light mt-0"><span class="bi bi-arrow-left"></span></a>
+            <div class="row">
+
+                <!-- Habitaciones en la reserva --------------------------------------------------------------->
+                <div class="col">
+                    <div class="d-flex align-items-center mb-4 pb-1">
+                        <span class="h2 fw-bold mb-0">Habitaciones de la reserva</span>
+                    </div>
+      
+                      <div style="max-height: 500px; display: block; overflow: auto; position: relative;">
+                        <% rooms.forEach( room => {%>
+                          <div class="card mb-4" id="room-<%= room.id %>">
+                            <% if (room.is_in_offer){ %>
+                                <div class="card-header">
+                                    En oferta
+                                </div>
+                            <% } %>
+                            <div class="card-body">
+          
+                              <h5 class="card-title"><%= room.name %></h5>
+                              <% if (room.is_in_offer){ %>
+                                <p class="card-text">Precio por noche: <s><%= room.price%>$</s> <%= room.current_price%>$</p>
+                              <% } else { %>
+                                <p class="card-text">Precio por noche: <%= room.price%>$</p>
+                              <% } %>
+                              <p class="card-text"><small class="text-muted">Capacidad: <%= room.capacity%> personas</small></p>
+                              <p class="card-text"><small class="text-muted">Unidades solicitadas: <%= room.units%></small></p>
+      
+                            </div>
+                          </div>
+                          <% }) %>
+                      </div>
+                </div>
+
+                <!-- Información de la reserva- --------------------------------------------------------------->
+                <div class="col">
+
+                    <div class="d-flex align-items-center mb-4 pb-1">
+                        <span class="h2 fw-bold mb-0">Detalles</span>
+                    </div>
+
+                    <label class="h5 fw-bold mb-2">Fechas de estadía</label>
+                    <p class="card-text mb-4">
+                      Fecha de check-in: <%= booking.check_in_date%> &nbsp;&nbsp;&nbsp;
+                      Fecha de check-out: <%= booking.check_out_date%> &nbsp;&nbsp;&nbsp;
+                      Total de noches: 4
+                    </p>
+
+                    <label class="h5 fw-bold mb-2">Total de habitaciones</label>
+                    <p class="card-text mb-4">
+                      5 habitaciones
+                    </p>
+
+                    <div class="row">
+                      <div class="col">
+                        <label class="h5 fw-bold mb-2">Precio total</label>
+                        <p class="card-text mb-4">
+                          5000$
+                        </p>
+                      </div>
+
+                      <div class="col">
+                        <label class="h5 fw-bold mb-2">Precio final (I.V.A incluido)</label>
+                        <p class="card-text mb-4">
+                          5200$
+                        </p>
+                      </div>
+                    </div>
+
+                    <div class="d-flex align-items-center mb-4 pb-1">
+                        <span class="h2 fw-bold mb-0">Confirmación</span>
+                    </div>
+
+                    <!-- Formulario para enviar códigos de descuento -------------------------------------------->
+                    <form onsubmit="">
+                        <div class="row mt-4">
+                            <div class="col">
+                                <div class="form-outline mb-4">
+                                    <input type="text" id="discount_code" name="discount_code" class="form-control" required/>
+                                    <label class="form-label">Código</label>
+                                  </div>
+                            </div>
+                            <div class="col">
+                                <button type="submit" class="btn text-white" style="background-color: #606c38;">Aplicar código</button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <!-- Formulario para aplicar códigos de descuento ------------------------------------------->
+                    <form method="POST" action="">
+                        <div class="row mt-4">
+                            <div class="col">
+                                <select class="form-select" name="payment_method" id="payment_method" required>
+                                    <option value="">Método de pago</option>
+                                    <% payment_methods.forEach( method => { %>
+                                      <option value="<%= method.id %>"><%= method.name %></option>
+                                    <% }) %>
+                                  </select>
+                            </div>
+                            <div class="col">
+                                <button type="submit" class="btn text-white" style="background-color: #606c38;">Confirmar reserva</button>
+                            </div>
+                        </div>
+                    </form>
+            
+                </div>
+            </div>
+          </div>
+        </section>
+
+    </body>
+</html>

@@ -1238,19 +1238,19 @@ VALUES(default,'IVA',0.13);
 
 -- CREACIÓN DE CLASSIFICATION --------------------------------------------------------
 INSERT INTO classification(id,name)
-VALUES(default,'Muy bajo');
+VALUES(default,'1 Estrella');
 
 INSERT INTO classification(id,name)
-VALUES(default,'Bajo');
+VALUES(default,'2 Estrellas');
 
 INSERT INTO classification(id,name)
-VALUES(default,'Medio');
+VALUES(default,'3 Estrellas');
 
 INSERT INTO classification(id,name)
-VALUES(default,'Alto');
+VALUES(default,'4 Estrellas');
 
 INSERT INTO classification(id,name)
-VALUES(default,'Muy alto');
+VALUES(default,'5 Estrellas');
 
 -- CREACIÓN DE HOTEL --------------------------------------------------------
 INSERT INTO hotel(id,name,registration_date,address,classification_ref,district_ref)
@@ -1290,18 +1290,30 @@ VALUES(default,'Costarricense');
 INSERT INTO nationality(id,name)
 VALUES(default,'Pañameño');
 
+INSERT INTO nationality(id,name)
+VALUES(default,'Estadounidense');
+
+INSERT INTO nationality(id,name)
+VALUES(default,'Canadiense');
+
+INSERT INTO nationality(id,name)
+VALUES(default,'Español');
+
+INSERT INTO nationality(id,name)
+VALUES(default,'Alemán');
+
 -- CREACIÓN DE user_table --------------------------------------------------------
 INSERT INTO user_table(username, user_type_ref, photo, user_password, hotel_ref)
-VALUES('ADG2023',2, null,'$2b$10$zD2GW7YRmFyFlLaSo.s9XutH77GVogVWlJzeNugRhwiP1TmDVmfJy', 1);
+VALUES('ADG2023',2, null,'$2b$10$zD2GW7YRmFyFlLaSo.s9XutH77GVogVWlJzeNugRhwiP1TmDVmfJy', NULL);
 
 INSERT INTO user_table(username, user_type_ref, photo, user_password, hotel_ref)
-VALUES('Mario123',2, null,'$2b$10$zD2GW7YRmFyFlLaSo.s9XutH77GVogVWlJzeNugRhwiP1TmDVmfJy', 1);
+VALUES('Mario123',2, null,'$2b$10$zD2GW7YRmFyFlLaSo.s9XutH77GVogVWlJzeNugRhwiP1TmDVmfJy', NULL);
 
 INSERT INTO user_table(username, user_type_ref, photo, user_password, hotel_ref)
-VALUES('MariaAra',3, null,'$2b$10$zD2GW7YRmFyFlLaSo.s9XutH77GVogVWlJzeNugRhwiP1TmDVmfJy', 1);
+VALUES('MariaAra',3, null,'$2b$10$zD2GW7YRmFyFlLaSo.s9XutH77GVogVWlJzeNugRhwiP1TmDVmfJy', NULL);
 
 INSERT INTO user_table(username, user_type_ref, photo, user_password, hotel_ref)
-VALUES('User1243',3, null,'$2b$10$zD2GW7YRmFyFlLaSo.s9XutH77GVogVWlJzeNugRhwiP1TmDVmfJy', 3);
+VALUES('User1243',3, null,'$2b$10$zD2GW7YRmFyFlLaSo.s9XutH77GVogVWlJzeNugRhwiP1TmDVmfJy', NULL);
 
 -- CREACIÓN DE PERSONAS --------------------------------------------------------
 INSERT INTO person (id,first_name,second_name,first_surname,second_surname,birthdate,gender_ref,identification_number, id_type_ref, user_ref)
@@ -1406,21 +1418,15 @@ VALUES(default,null,1);
 
 -- CREACIÓN DE offer --------------------------------------------------------
 INSERT INTO offer(id,name, start_date, ending_date, discount_rate, minimun_reservation_days, hotel_ref)
-VALUES(default,'2X1',STR_TO_DATE('12/02/2023', '%d/%m/%Y'), STR_TO_DATE('12/06/2023', '%d/%m/%Y'),50,10,1);
+VALUES(default,'2X1',STR_TO_DATE('12/04/2023', '%d/%m/%Y'), STR_TO_DATE('12/06/2023', '%d/%m/%Y'),50,6,1);
+
+-- CREACIÓN DE offer_x_room
+INSERT INTO offer_x_room(offer_ref, room_ref)
+VALUES (1,1);
 
 -- CREACIÓN DE cancellation_policy --------------------------------------------------------
 INSERT INTO cancellation_policy(id, name, anticipation_time, value, hotel_ref)
 VALUES(default,'Política 1',5,60,1);
-
--- CREACIÓN DE admin --------------------------------------------------------
-INSERT INTO admin(username, hotel_ref)
-VALUES('ADG2023',1);
-
-INSERT INTO admin(username, hotel_ref)
-VALUES('Mario123',1);
-
-INSERT INTO admin(username, hotel_ref)
-VALUES('MariaAra',1);
 
 -- CREACIÓN DE room --------------------------------------------------------
 INSERT INTO room(id, name, capacity, units, recommended_price, discount_code, discount_rate, hotel_ref)
@@ -1447,8 +1453,20 @@ VALUES(1, 'MariaAra');
 -- CREACIÓN DE reservation -------------------------------------------------------------------------
 
 INSERT INTO reservation(id, check_in_date, check_out_date, confirmation_date, reservation_status_ref, cancellation_policy_ref,
-payment_method_ref, user_ref)
-VALUES(default, STR_TO_DATE('14/02/2023', '%d/%m/%Y'), STR_TO_DATE('16/02/2023', '%d/%m/%Y'), STR_TO_DATE('11/02/2023', '%d/%m/%Y'), 1, 1, 1, 'ADG2023');
+payment_method_ref, user_ref, hotel_ref)
+VALUES(default, STR_TO_DATE('14/02/2023', '%d/%m/%Y'), STR_TO_DATE('16/02/2023', '%d/%m/%Y'), STR_TO_DATE('11/02/2023', '%d/%m/%Y'), 1, NULL, 1, 'ADG2023', 1);
+
+INSERT INTO reservation(id, check_in_date, check_out_date, confirmation_date, reservation_status_ref, cancellation_policy_ref,
+payment_method_ref, user_ref, hotel_ref)
+VALUES(default, STR_TO_DATE('15/02/2023', '%d/%m/%Y'), STR_TO_DATE('16/02/2023', '%d/%m/%Y'), STR_TO_DATE('11/02/2023', '%d/%m/%Y'), 1, NULL, 1, 'ADG2023', 1);
+
+INSERT INTO reservation(id, check_in_date, check_out_date, confirmation_date, reservation_status_ref, cancellation_policy_ref,
+payment_method_ref, user_ref, hotel_ref)
+VALUES(default, STR_TO_DATE('16/02/2023', '%d/%m/%Y'), STR_TO_DATE('19/02/2023', '%d/%m/%Y'), STR_TO_DATE('11/02/2023', '%d/%m/%Y'), 3, NULL, NULL, 'ADG2023', 1);
+
+INSERT INTO reservation(id, check_in_date, check_out_date, confirmation_date, reservation_status_ref, cancellation_policy_ref,
+payment_method_ref, user_ref, hotel_ref)
+VALUES(default, STR_TO_DATE('20/02/2023', '%d/%m/%Y'), STR_TO_DATE('23/02/2023', '%d/%m/%Y'), STR_TO_DATE('11/02/2023', '%d/%m/%Y'), 2, 1, 1, 'ADG2023', 1);
 
 -- CREACIÓN DE commentary -----------------------------------------------------------------------
 

@@ -70,6 +70,27 @@
         </nav>
 
         <section class="mb-4">
+          <div class="container mt-4">
+
+            <div class="d-flex align-items-center pb-1">
+              <span class="h3 fw-bold mb-3">Ofertas disponibles</span>          
+            </div>
+
+            <% offers.forEach( offer => { %>
+              <div class="card mb-4">
+                <h5 class="card-header"><%= offer.hotel_name %></h5>
+                <div class="card-body">
+                    <h4 class="card-title"><%= offer.name %></h4>
+                    <div class="card-text">
+                      Desde el: <%= offer.initial_date%> &nbsp;&nbsp;&nbsp;
+                      Hasta el: <%= offer.ending_date%>
+                    </div>
+                    <a href="/clients/deal_info/<%= offer.id %>" class="btn btn-outline-secondary mt-2">Ir al hotel</a>
+                </div>
+              </div>
+            <% }) %>
+
+          </div>
         </section>
 
     </body>
