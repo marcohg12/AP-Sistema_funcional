@@ -111,6 +111,41 @@ router.get("/get_amenities_not_in_room/:room_id", check_authenticated, async (re
     res.send(JSON.stringify(amenities))
 })
 
+// Responde a la solicitud de consulta de personas hospedadas
+router.get("/get_booked_people", check_authenticated, async (req, res) => {
+    res.render("hotel_ad_booked_people_query", {profile: req.user.photo})
+})
+
+// Responde a la solicitud de consulta de reporte de ofertas
+router.get("/get_deals_report", check_authenticated, async (req, res) => {
+    res.render("hotel_ad_deal_report_query", {profile: req.user.photo})  
+})
+
+// Responde a la solicitud de promedio de reviews del hotel
+router.get("/get_review_avarage", check_authenticated, async (req, res) => {
+    res.render("hotel_ad_review_avarage_query", {profile: req.user.photo})
+})
+
+// Responde a la solicitud de consulta de tops de ventas por días
+router.get("/get_top_days_bookings", check_authenticated, async (req, res) => {
+    res.render("hotel_ad_top_days_bookings_query", {profile: req.user.photo})
+})
+
+// Responde a la solicitud de consulta de habitaciones disponibles (del job)
+router.get("/get_rooms_available", check_authenticated, async (req, res) => {
+    res.render("hotel_ad_room_available_query", {profile: req.user.photo})
+})
+
+// Responde a la solicitud de consulta de comentarios de un hotel
+router.get("/get_hotel_comments", check_authenticated, async (req, res) => {
+    res.render("hotel_ad_comments_query", {profile: req.user.photo})
+})
+
+// Responde a la solicitud de consulta de reviews de un hotel
+router.get("/get_hotel_reviews", check_authenticated, async (req, res) => {
+    res.render("hotel_ad_reviews_query", {profile: req.user.photo})
+})
+
 // RUD de habitaciones ----------------------------------------------------------------------------------------- //
 
 // Responde a la solicitud de registro de una habitación
