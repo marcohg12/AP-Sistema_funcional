@@ -5,7 +5,7 @@ async function get_connection(){
     const connection = mysql.createConnection({
         host: "localhost",
         user: "root",
-        password: "1203",
+        password: "bryan",
         database: "reservation_system",
         multipleStatements: true
     })
