@@ -1,7 +1,7 @@
 -- Autores: Britnney Murillo, Jefry Cuendiz, Sharon Chacon,Paula Bolaños
 -- Fecha de creación: 28/03/2023
 --------------------------------------Códigos--------------------------------------
---      0- éxito
+--      0-  éxito
 --     -1 - error en base
 --     -2 - key-id ya existente
 --     -3 - email repetido
@@ -10,6 +10,7 @@
 --     -6 - email no existe
 --     -7 - id telefono no existe
 --     -8 - columna queda vacía
+--     -9 - el nombre ya existe
 
 -- FUNCIÓN Registra usuario si este no tiene el mismo username, email o numero de identificacion que otro -------------------------------------
 CREATE DEFINER=`root`@`localhost` PROCEDURE `register_user`(IN pfirst_name VARCHAR(50), IN psecond_name VARCHAR(50), IN pfirst_surname VARCHAR(50),
@@ -353,12 +354,382 @@ BODY: BEGIN
     end if;
 END//
 
-
-
-
 delimiter ;
 
+-- Proceso: registra una nueva amenidad
+-- Recibe el nombre y el id del hotel
+-- Retorna 0 si se registro con éxito 
+-- Retorna -1 si ocurrio algún error y no se registro
+CREATE DEFINER=`root`@`localhost` PROCEDURE `register_amenity`(IN pName VARCHAR(50), IN pHotel_id INT, OUT executionCode INT)
+BEGIN
+DECLARE exitCode INT DEFAULT 0;
+
+DECLARE EXIT HANDLER FOR SQLEXCEPTION
+BEGIN
+	SET executionCode = -1;
+	ROLLBACK;
+END;
+
+INSERT INTO amenity(id, name, hotel_ref)
+VALUES(default, pName, pHotel_id);
+
+SET executionCode = exitCode;
+COMMIT;
+END
+
+-- Proceso: actualiza el nombre de una amenidad
+-- Recibe el id de la amenidad y el nuevo nombre
+-- Retorna 0 si se actualizo
+-- Retorna -1 si ocurrió algún error 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `update_amenity`(IN pAmenity_id INT, IN pNew_name VARCHAR (50), OUT executionCode INT)
+BEGIN
+DECLARE exitCode INT DEFAULT 0;
+
+DECLARE EXIT HANDLER FOR SQLEXCEPTION
+BEGIN
+	SET executionCode = -1;
+	ROLLBACK;
+END;
+
+UPDATE amenity SET name = pNew_name
+WHERE id = pAmenity_id; 
+IF ROW_COUNT() = 0 THEN
+        SET executionCode = -1;
+        ROLLBACK;
+    ELSE
+        SET executionCode = exitCode;
+        COMMIT;
+    END IF;
+COMMIT;
+END
+
+-- Proceso: eliminar una amenidad
+-- Recibe el id de la amenidad
+-- Retorna 0 si se elimino con éxito
+-- Retorna -1 si ocurrio algún problema
+-- Retorna -8 si esta relacionada la amenidad con alguna habitación 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `delete_amenity`(IN p_amenity_id INT, OUT execution_code INT)
+BEGIN
+
+DECLARE check_ussage INT;
+
+DECLARE CUSTOM_EXCEPTION CONDITION FOR SQLSTATE '45000';
+DECLARE EXIT HANDLER FOR SQLSTATE '45000'
+  BEGIN
+      ROLLBACK;
+  END;
+
+DECLARE EXIT HANDLER FOR SQLEXCEPTION
+BEGIN
+    SET execution_code = -1;
+    ROLLBACK;
+END;
+
+SELECT COUNT(*) 
+INTO check_ussage 
+FROM amenity_x_room
+WHERE amenity_ref =  p_amenity_id;
+
+IF (check_ussage > 0) THEN
+    SET execution_code = -8;
+    SIGNAL CUSTOM_EXCEPTION;
+END IF;
+
+DELETE FROM amenity
+WHERE id = p_amenity_id;
+
+COMMIT;
+SET execution_code = 0;
+END
+
+--Proceso: registrar un nuevo hotel
+-- Recibe el nombre, la dirección, el id del distrito y el id de la clasificacion
+-- Retorna 0 si se registro 
+-- Retorna -1 si ocurrió algún error 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `register_hotel`(IN pName VARCHAR(50), IN pAdress VARCHAR (50), IN pDistrict_id INT, 
+															IN pClassification_id INT,  OUT executionCode INT)
+BEGIN
+DECLARE exitCode INT DEFAULT 0;
+
+DECLARE EXIT HANDLER FOR SQLEXCEPTION
+BEGIN
+	SET executionCode = -1;
+	ROLLBACK;
+END;
+
+INSERT INTO hotel
+VALUES (default, pName, CURDATE(), pAdress, pDistrict_id, pClassification_id);
+
+SET executionCode = exitCode;
+
+COMMIT;
+END
 
 
+-- Proceso: registrar un nuevo metodo de pago
+-- Recibe el nombre y el id del hotel
+-- Retorna 0 si se registro 
+-- Retorna -1 si ocurrió algún error 
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `register_payment_method`(IN pname VARCHAR(50), IN photel_id INT, OUT executionCode INT)
+BODY: BEGIN
+
+DECLARE CUSTOM_EXCEPTION CONDITION FOR SQLSTATE '45000';
+DECLARE EXIT HANDLER FOR SQLSTATE '45000'
+  BEGIN
+  ROLLBACK;
+  END;
+  
+DECLARE EXIT HANDLER FOR SQLEXCEPTION
+BEGIN
+    SET executionCode = -1;
+    ROLLBACK;
+END;
 
 
+INSERT INTO payment_method (id, name, hotel_ref)
+VALUES (default, pname, photel_id);
+
+SET executionCode = 0;
+COMMIT;
+
+END
+
+
+-- Proceso: actualizar un metodo de pago
+-- Recibe el id del metodo a actualizar y el nuevo nombre
+-- Retorna 0 si se actualizó
+-- Retorna -1 si ocurrió algún error de base
+-- Retorna -5 si la id del metodo indicado no existe
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `update_payment_method`(IN ppayment_method_id INT, IN pnew_name VARCHAR(50), OUT executionCode INT)
+BODY: BEGIN
+DECLARE check_id INT;
+
+DECLARE CUSTOM_EXCEPTION CONDITION FOR SQLSTATE '45000';
+DECLARE EXIT HANDLER FOR SQLSTATE '45000'
+  BEGIN
+  ROLLBACK;
+  END;
+  
+DECLARE EXIT HANDLER FOR SQLEXCEPTION
+BEGIN
+    SET executionCode = -1;
+    ROLLBACK;
+END;
+
+SELECT COUNT(*) INTO check_id FROM payment_method WHERE id = ppayment_method_id;
+
+IF (check_id = 0) THEN
+SET executionCode =-5;
+SIGNAL CUSTOM_EXCEPTION;
+END IF;
+
+UPDATE payment_method SET name = pnew_name
+WHERE id = ppayment_method_id;
+
+SET executionCode = 0;
+COMMIT;
+
+END
+
+-- Proceso: borrar un metodo de pago
+-- Recibe el id del metodo a borrar
+-- Retorna 0 si se borró
+-- Retorna -1 si ocurrió algún error de base
+-- Retorna -5 si la id del metodo indicado no existe
+-- Retorna -8 si el metodo está siendo usado por una reservación
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `delete_payment_method`(IN ppayment_method_id INT, OUT executionCode INT)
+BODY: BEGIN
+DECLARE check_id INT;
+DECLARE check_usage INT;
+
+DECLARE CUSTOM_EXCEPTION CONDITION FOR SQLSTATE '45000';
+DECLARE EXIT HANDLER FOR SQLSTATE '45000'
+  BEGIN
+  ROLLBACK;
+  END;
+  
+DECLARE EXIT HANDLER FOR SQLEXCEPTION
+BEGIN
+    SET executionCode = -1;
+    ROLLBACK;
+END;
+
+SELECT COUNT(*) INTO check_id FROM payment_method WHERE id = ppayment_method_id;
+SELECT COUNT(*) INTO check_usage FROM reservation WHERE payment_method_ref = ppayment_method_id;
+
+IF (check_id = 0) THEN
+SET executionCode =-5;
+SIGNAL CUSTOM_EXCEPTION;
+END IF;
+
+IF (check_usage > 0) THEN
+SET executionCode =-8;
+SIGNAL CUSTOM_EXCEPTION;
+END IF;
+
+DELETE FROM payment_method WHERE id = ppayment_method_id;
+
+SET executionCode = 0;
+COMMIT;
+
+END
+
+
+--Proceso: actualizar un parámetro
+-- Recibe el id del parametro a actualizar, el nuevo nombre y el nuevo valor
+-- Retorna 0 si se actualizó
+-- Retorna -1 si ocurrió algún error de base
+-- Retorna -5 si la id del metodo indicado no existe
+-- Retorna -9 si ya existe un parámetro con ese nombre
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `update_parameter`(IN pparameter_id INT, IN pnew_name VARCHAR(50), IN pnew_value DOUBLE, OUT executionCode INT)
+BODY: BEGIN
+DECLARE check_name INT;
+DECLARE check_id INT;
+
+DECLARE CUSTOM_EXCEPTION CONDITION FOR SQLSTATE '45000';
+DECLARE EXIT HANDLER FOR SQLSTATE '45000'
+  BEGIN
+  ROLLBACK;
+  END;
+  
+DECLARE EXIT HANDLER FOR SQLEXCEPTION
+BEGIN
+    SET executionCode = -1;
+    ROLLBACK;
+END;
+
+SELECT COUNT(*) INTO check_id FROM setting WHERE id = pparameter_id;
+SELECT COUNT(*) INTO check_name FROM setting WHERE name = pnew_name;
+
+IF (check_id = 0) THEN
+SET executionCode =-5;
+SIGNAL CUSTOM_EXCEPTION;
+END IF;
+
+IF (check_name > 0) THEN
+SET executionCode =-9;
+SIGNAL CUSTOM_EXCEPTION;
+END IF;
+
+UPDATE setting SET name = pnew_name, value = pnew_value
+WHERE id = pparameter_id;
+
+SET executionCode = 0;
+COMMIT;
+
+END
+
+-- Proceso: borrar un parámetro
+-- Recibe el id del parámetro a borrar
+-- Retorna 0 si se borró
+-- Retorna -1 si ocurrió algún error de base
+-- Retorna -5 si la id del metodo indicado no existe
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `delete_parameter`(IN pparameter_id INT, OUT executionCode INT)
+BODY: BEGIN
+DECLARE check_id INT;
+
+DECLARE CUSTOM_EXCEPTION CONDITION FOR SQLSTATE '45000';
+DECLARE EXIT HANDLER FOR SQLSTATE '45000'
+  BEGIN
+  ROLLBACK;
+  END;
+  
+DECLARE EXIT HANDLER FOR SQLEXCEPTION
+BEGIN
+    SET executionCode = -1;
+    ROLLBACK;
+END;
+
+SELECT COUNT(*) INTO check_id FROM setting WHERE id = pparameter_id;
+
+IF (check_id = 0) THEN
+SET executionCode =-5;
+SIGNAL CUSTOM_EXCEPTION;
+END IF;
+
+DELETE FROM setting WHERE id = pparameter_id;
+
+SET executionCode = 0;
+COMMIT;
+
+END
+
+-- Proceso: obtener la información de una provincia
+-- Recibe el id de la provincia a buscar
+-- Retorna el id de la provincia, su nombre y un codigo de error
+-- El codigo de error retorna 0 si se encuentra
+-- El codigo de error retorna -1 si ocurrió algún error de base
+-- El codigo de error retorna -5 si la id de la provincia no existe
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_province`(IN pprovince_id INT, OUT province_id INT, OUT province_name VARCHAR(50), OUT executionCode INT)
+BODY: BEGIN
+DECLARE check_id INT;
+
+DECLARE CUSTOM_EXCEPTION CONDITION FOR SQLSTATE '45000';
+DECLARE EXIT HANDLER FOR SQLSTATE '45000'
+  BEGIN
+  ROLLBACK;
+  END;
+  
+DECLARE EXIT HANDLER FOR SQLEXCEPTION
+BEGIN
+    SET executionCode = -1;
+    ROLLBACK;
+END;
+
+SELECT COUNT(*) INTO check_id FROM province WHERE id = pprovince_id;
+
+IF (check_id = 0) THEN
+SET executionCode =-5;
+SIGNAL CUSTOM_EXCEPTION;
+END IF;
+
+SELECT id, name INTO province_id, province_name FROM province WHERE id = pprovince_id;
+
+SET executionCode = 0;
+COMMIT;
+
+END
+
+
+-- Proceso: obtener la información de un cantón
+-- Recibe el id del cantón a buscar
+-- Retorna el id del cantón, su nombre y un codigo de error
+-- El codigo de error retorna 0 si se encuentra
+-- El codigo de error retorna -1 si ocurrió algún error de base
+-- El codigo de error retorna -5 si la id del cantón no existe
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_canton`(IN pcanton_id INT, OUT canton_id INT, OUT canton_name VARCHAR(50), OUT executionCode INT)
+BODY: BEGIN
+DECLARE check_id INT;
+
+DECLARE CUSTOM_EXCEPTION CONDITION FOR SQLSTATE '45000';
+DECLARE EXIT HANDLER FOR SQLSTATE '45000'
+  BEGIN
+  ROLLBACK;
+  END;
+  
+DECLARE EXIT HANDLER FOR SQLEXCEPTION
+BEGIN
+    SET executionCode = -1;
+    ROLLBACK;
+END;
+
+SELECT COUNT(*) INTO check_id FROM canton WHERE id = pcanton_id;
+
+IF (check_id = 0) THEN
+SET executionCode =-5;
+SIGNAL CUSTOM_EXCEPTION;
+END IF;
+
+SELECT id, name INTO canton_id, canton_name FROM canton WHERE id = pcanton_id;
+
+SET executionCode = 0;
+COMMIT;
+
+END
