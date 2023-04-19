@@ -733,3 +733,294 @@ SET executionCode = 0;
 COMMIT;
 
 END
+
+
+
+
+/*
+Funcion Register_cancelation_policy
+Registra una politica de cancelacion
+retorna el codigo
+0 si es exitoso
+-1 si falla.
+*/
+DELIMITER //
+DROP PROCEDURE IF EXISTS register_cancelation_policy; // 
+CREATE PROCEDURE register_cancelation_policy(in pname varchar(50), in panticipation_time int, in cancelation_fee int, in hotel_id int, OUT execution_code INT)
+BEGIN
+
+DECLARE CUSTOM_EXCEPTION CONDITION FOR SQLSTATE '45000';
+DECLARE EXIT HANDLER FOR SQLSTATE '45000'
+  BEGIN
+  ROLLBACK;
+  END;
+DECLARE EXIT HANDLER FOR SQLEXCEPTION
+BEGIN
+    SET execution_code = -1;
+    ROLLBACK;
+END;
+
+INSERT INTO cancellation_policy( name, anticipation_time, value, hotel_ref)
+VALUES(pname,panticipation_time, cancelation_fee , hotel_id);
+set execution_code = 0;
+commit;
+END; // 
+
+/*
+
+/*
+Funcion update_cancelation_policy
+Recibe una politica
+retorna el codigo
+edita la politica
+0 si es exitoso
+-5 si el item no existe
+-1 si falla 
+*/
+DELIMITER //
+DROP PROCEDURE IF EXISTS update_cancelation_policy; // 
+CREATE PROCEDURE update_cancelation_policy(in policy_id int, in new_name varchar(50), in new_anticipation_time int, in new_cancelation_fee int, OUT execution_code INT)
+BEGIN
+DECLARE check_id INT; 
+DECLARE CUSTOM_EXCEPTION CONDITION FOR SQLSTATE '45000';
+DECLARE EXIT HANDLER FOR SQLSTATE '45000'
+  BEGIN
+  ROLLBACK;
+  END;
+DECLARE EXIT HANDLER FOR SQLEXCEPTION
+BEGIN
+    SET execution_code = -1;
+    ROLLBACK;
+END;
+
+SELECT COUNT(*) INTO check_id FROM cancellation_policy WHERE id = policy_id;
+
+IF (check_id = 0) THEN
+SET execution_code =-5;
+SIGNAL CUSTOM_EXCEPTION;
+END IF;
+
+UPDATE reservation_system.cancellation_policy 
+SET name = new_name, 
+anticipation_time = new_anticipation_time,
+value = new_cancelation_fee
+WHERE id = policy_id;
+SET execution_code = 0;
+
+COMMIT;
+
+END; // 
+
+/*
+
+/*
+Funcion Delete_cancelation_policy
+Recibe una politica
+retorna el codigo
+borra la politica
+0 si es exitoso
+-5 si el item no existe
+-1 si falla 
+*/
+DELIMITER //
+DROP PROCEDURE IF EXISTS delete_cancelation_policy; // 
+CREATE PROCEDURE delete_cancelation_policy(in policy_id int, OUT execution_code INT)
+BEGIN
+DECLARE check_id INT; 
+DECLARE CUSTOM_EXCEPTION CONDITION FOR SQLSTATE '45000';
+DECLARE EXIT HANDLER FOR SQLSTATE '45000'
+  BEGIN
+  ROLLBACK;
+  END;
+DECLARE EXIT HANDLER FOR SQLEXCEPTION
+BEGIN
+    SET execution_code = -1;
+    ROLLBACK;
+END;
+
+SELECT COUNT(*) INTO check_id FROM cancellation_policy WHERE id = policy_id;
+
+IF (check_id = 0) THEN
+SET execution_code =-5;
+SIGNAL CUSTOM_EXCEPTION;
+END IF;
+
+DELETE FROM cancellation_policy WHERE id = policy_id;
+SET execution_code = 0;
+
+COMMIT;
+
+END; // 
+
+/*
+
+
+/*
+Funcion update_hotel
+Recibe un hotel y sus parametros
+retorna el codigo
+edita el hotel
+0 si es exitoso
+-5 si el item no existe
+-1 si falla 
+*/
+DELIMITER //
+DROP PROCEDURE IF EXISTS update_hotel; // 
+CREATE PROCEDURE update_hotel(in hotel_id int , new_name VARCHAR(50) , in new_address VARCHAR(150), in district_id int, in classification_id int , OUT execution_code INT)
+BEGIN
+DECLARE check_id INT; 
+DECLARE CUSTOM_EXCEPTION CONDITION FOR SQLSTATE '45000';
+DECLARE EXIT HANDLER FOR SQLSTATE '45000'
+  BEGIN
+  ROLLBACK;
+  END;
+DECLARE EXIT HANDLER FOR SQLEXCEPTION
+BEGIN
+    SET execution_code = -1;
+    ROLLBACK;
+END;
+
+SELECT COUNT(*) INTO check_id FROM hotel WHERE id = hotel_id;
+
+IF (check_id = 0) THEN
+SET execution_code =-5;
+SIGNAL CUSTOM_EXCEPTION;
+END IF;
+
+UPDATE reservation_system.hotel 
+SET name = new_name, 
+address = new_address,
+district_ref = district_id,
+classification_ref =classification_id
+WHERE id = hotel_id;
+SET execution_code = 0;
+
+COMMIT;
+
+END; // 
+
+/*
+
+
+
+/*
+Funcion register_deal
+Recibe un deal en offer
+retorna el codigo
+0 si es exitoso
+-1 si falla.
+*/
+DELIMITER //
+DROP PROCEDURE IF EXISTS register_deal; // 
+CREATE PROCEDURE register_deal(in pname varchar(50), in pstart_date date, in pending_date date,in pdiscount_rate int,in pminimum_days int , IN photel_id int , OUT execution_code INT)
+BEGIN
+
+DECLARE CUSTOM_EXCEPTION CONDITION FOR SQLSTATE '45000';
+DECLARE EXIT HANDLER FOR SQLSTATE '45000'
+  BEGIN
+  ROLLBACK;
+  END;
+DECLARE EXIT HANDLER FOR SQLEXCEPTION
+BEGIN
+    SET execution_code = -1;
+    ROLLBACK;
+END;
+
+INSERT INTO offer(name, start_date, ending_date, discount_rate, minimun_reservation_days, hotel_ref)
+VALUES(pname,pstart_date, pending_date , pdiscount_rate,pminimum_days , photel_id);
+set execution_code = 0;
+
+END; // 
+
+/*
+
+
+/*
+Funcion update_deal
+Recibe un deal y sus parametros
+retorna el codigo
+0 si es exitoso
+-5 si el item no existe
+-1 si falla 
+*/
+DELIMITER //
+DROP PROCEDURE IF EXISTS update_deal; // 
+CREATE PROCEDURE update_deal(in deal_id int, in new_name varchar(50) ,in new_start_date date, in new_ending_date date, in new_discount_rate int, in new_minimum_days int, OUT execution_code INT)
+BEGIN
+DECLARE check_id INT; 
+DECLARE CUSTOM_EXCEPTION CONDITION FOR SQLSTATE '45000';
+DECLARE EXIT HANDLER FOR SQLSTATE '45000'
+  BEGIN
+  ROLLBACK;
+  END;
+DECLARE EXIT HANDLER FOR SQLEXCEPTION
+BEGIN
+    SET execution_code = -1;
+    ROLLBACK;
+END;
+
+SELECT COUNT(*) INTO check_id FROM offer WHERE id = deal_id;
+
+IF (check_id = 0) THEN
+SET execution_code =-5;
+SIGNAL CUSTOM_EXCEPTION;
+END IF;
+
+UPDATE reservation_system.offer 
+SET name = new_name, 
+start_date =new_start_date , 
+ending_date =new_ending_date , 
+discount_rate = new_discount_rate, 
+minimun_reservation_days = new_minimum_days
+WHERE id = deal_id;
+SET execution_code = 0;
+
+COMMIT;
+
+END; // 
+
+/*
+
+/*
+Funcion Delete_deal
+Recibe un deal
+retorna el codigo
+borra el deal en offer
+0 si es exitoso
+-5 si el item no existe
+-1 si falla 
+*/
+DELIMITER //
+DROP PROCEDURE IF EXISTS delete_deal; // 
+CREATE PROCEDURE delete_deal(in deal_id int, OUT execution_code INT)
+BEGIN
+DECLARE check_id INT; 
+DECLARE CUSTOM_EXCEPTION CONDITION FOR SQLSTATE '45000';
+DECLARE EXIT HANDLER FOR SQLSTATE '45000'
+  BEGIN
+  ROLLBACK;
+  END;
+DECLARE EXIT HANDLER FOR SQLEXCEPTION
+BEGIN
+    SET execution_code = -1;
+    ROLLBACK;
+END;
+
+SELECT COUNT(*) INTO check_id FROM offer WHERE id = deal_id;
+
+IF (check_id = 0) THEN
+SET execution_code =-5;
+SIGNAL CUSTOM_EXCEPTION;
+END IF;
+
+DELETE from offer where id =deal_id; 
+SET execution_code = 0;
+
+COMMIT;
+
+END; // 
+
+/*
+
+
+
