@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+        <script type="text/javascript" src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
+        <title>Estadísticas</title>
+    </head>
+
+    <body>
+
+        <nav class="navbar navbar-expand-lg" style="background-color: #283618;">
+            <div class="container">
+              <div class="collapse navbar-collapse" id="navbarButtonsExample" >
+
+                <div class="flex-shrink-0 me-4">
+                  <% if (profile) { %>
+                    <img src="data:image/png;base64, <%= profile %>"
+                    class="img-fluid rounded-circle border border-white border-3"
+                    style="width: 50px;">
+                  <% } else {%>
+                    <img src="/Photos/default_profile.png"
+                    class="img-fluid rounded-circle border border-white border-3"
+                    style="width: 50px;">
+                  <% } %>
+                </div>
+                
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 ">
+                  <li class="nav-item me-4">
+                    <a class="nav-link text-white" href="/hotel_admins">Menú Principal</a>
+                  </li>
+                  <li class="nav-item me-4">
+                    <a class="nav-link text-white" href="/my_account/my_profile_1">Mi perfil</a>
+                  </li>
+                </ul>
+                
+                <form method="POST" action="/logout">
+                  <div class="d-flex align-items-center">
+                    <button type="submit" class="btn me-3" style="background-color: #dda15e;">Cerrar sesión</button>
+                  </div>
+                </form>
+              
+              </div>
+            </div>
+        </nav>
+
+        <!--------------------------------------------------------------------------------------------------------------------------->
+
+        <section class="mb-4 mt-4">
+            <div class="container">
+
+                <div class="d-flex align-items-center pb-1">
+                    <span class="h3 fw-bold mb-0">Estadística: top habitaciones más reservadas</span>
+                </div>
+
+                <!-- Filtros -------------------------------------------------------->
+                <div class="mt-3">
+                    <form>
+                        <div class="row row-cols-auto">
+
+                            <div class="col">
+                                <div class="form-outline">
+                                    <input type="number" min="1" id="top_n" name="top_n" class="form-control"/>
+                                    <label class="form-label">Top N</label>
+                                </div>
+                            </div>
+
+                            <div class="col">
+                                <button type="submit" class="btn text-white" style="background-color: #606c38;">Filtrar</button>
+                            </div>
+
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Gráfico---------- ---------------------------------------------->
+                <div class="mt-3" id="content" style="height: 450px;">
+
+                </div>
+
+                <!-- Tipo de despliegue ---------------------------------------------->
+                <div class="mt-3">
+                    <select class="form-select" style="width: 200px;" name="display_type" id="display_type" onchange="javascript:display_changed(value)">
+                        <option value="1">Despliegue numérico</option>
+                        <option value="2">Despliegue porcentual</option>
+                        <option value="3" selected>Despliegue gráfico</option>
+                    </select>
+                </div>
+
+            </div>
+        </section>
+
+    </body>
+    <script>
+
+        function display_changed(display_type){
+            if (display_type == 3){
+                generate_graph()
+            } else {
+                generate_table(display_type)
+            }
+        }
+
+        function get_data(display_type){
+            if (display_type == 2){
+                return [{label: "Habitación sencilla", y: 24.5},  {label: "Habitación sencilla plus", y: 27.5},
+                    {label: "Habitación doble", y: 19.6}, {label: "46 a 60", y: 9.8},
+                    {label: "Habitación deluxe", y: 12.4}, {label: "Habitación doble plus", y: 6.5}]
+            } else {
+                return [{label: "Habitación sencilla", y: 50},  {label: "Habitación sencilla plus", y: 56},
+                    {label: "Habitación doble", y: 40}, {label: "Habitación doble plus", y: 20},
+                    {label: "Habitación deluxe", y: 25}, {label: "Habitación premium", y: 13}]
+            }
+        }
+
+        // Genera el gráfico con la información obtenida
+        function generate_graph(){
+            const data = get_data(3)
+            var chart = new CanvasJS.Chart("content", {
+                axisY: {title: "Total de reservas"},
+                data:  [{type: "column", dataPoints: data}]
+            })
+            chart.render()
+        }
+
+        // Genera la tabla con la información obtenida
+        function generate_table(display_type){
+            const data = get_data(display_type)
+            var table =  `
+            
+            <div style="height: 450px; display: block; overflow: auto; position: relative;">
+                <table class="table mt-4 table-striped table-bordered">
+                    <thead class="bg-light">
+                        <tr>
+                            <th>Rango</th>
+                            <th>Total de reservas</th>
+                        </tr>
+                    </thead>
+                    
+                    <tbody>
+            `
+            for (i = 0; i < data.length; i++) {
+                table += `
+                <tr>
+                    <td>${data[i].label}</td>
+                    <td>${data[i].y}${display_type == 2 ? "%" : ""}</td>
+                </tr>
+                `
+            }
+            table += ` </tbody></table></div>`
+
+            document.getElementById("content").innerHTML = table
+        }
+
+        generate_graph()
+
+    </script>
+</html>

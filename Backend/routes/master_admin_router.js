@@ -90,6 +90,11 @@ router.get("/get_hotels_to_admin", check_authenticated, async (req, res) => {
     res.send(JSON.stringify(hotels))
 })
 
+// Responde a la solicitud de obtener la consulta de hoteles registrados en el sistema
+router.get("/get_hotels_query", check_authenticated, async (req, res) => {
+    res.render("master_ad_hotels_query", {profile: req.user.photo})
+})
+
 // RUD de género ---------------------------------------------------------------------------------------------------------------- //
 
 // Responde a la solicitud de registro de género

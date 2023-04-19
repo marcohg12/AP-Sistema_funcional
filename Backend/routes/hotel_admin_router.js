@@ -189,6 +189,17 @@ router.get("/get_hotel_reviews", check_authenticated, async (req, res) => {
     res.render("hotel_ad_reviews_query", {profile: req.user.photo})
 })
 
+// Responde a la solicitud de estadística de clientes por rango de edad
+router.get("/get_clients_by_age_stat", check_authenticated, async (req, res) => {
+    const genders = await user_controller.get_genders()
+    res.render("hotel_ad_clients_by_age_stat", {genders: genders, profile: req.user.photo})
+})
+
+// Responde a la solicitud de estadística de top N habitaciones con más reservas
+router.get("/get_top_n_rooms_stat", check_authenticated, async (req, res) => {
+    res.render("hotel_ad_top_n_rooms_stat", {profile: req.user.photo})
+})
+
 // RUD de habitaciones ----------------------------------------------------------------------------------------- //
 
 // Responde a la solicitud de registro de una habitación
