@@ -58,7 +58,10 @@ router.get("/classification_catalog", check_authenticated, async (req, res) => {
 
 // Responde a la solicitud de vista del catálogo de hoteles
 router.get("/hotel_catalog", check_authenticated, async (req, res) => {
-    res.render("master_ad_hotel_edition", {profile: req.user.photo})
+    const hotels = await master_admin_controller.get_hotel_catalog()
+    const countries = await master_admin_controller.get_countries()
+    const classifications = await master_admin_controller.get_classifications()
+    res.render("master_ad_hotel_edition", {hotels: hotels, countries: countries, classifications: classifications, profile: req.user.photo})
 })
 
 // Responde a la solicitud de vista del catálogo de parámetros

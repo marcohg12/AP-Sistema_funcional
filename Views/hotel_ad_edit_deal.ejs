@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
+        <title>Oferta</title>
+    </head>
+
+    <body>
+
+        <nav class="navbar navbar-expand-lg" style="background-color: #283618;">
+            <div class="container">
+              <div class="collapse navbar-collapse" id="navbarButtonsExample" >
+
+                <div class="flex-shrink-0 me-4">
+                  <% if (profile) { %>
+                    <img src="data:image/png;base64, <%= profile %>"
+                    class="img-fluid rounded-circle border border-white border-3"
+                    style="width: 50px;">
+                  <% } else {%>
+                    <img src="/Photos/default_profile.png"
+                    class="img-fluid rounded-circle border border-white border-3"
+                    style="width: 50px;">
+                  <% } %>
+                </div>
+                
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 ">
+                  <li class="nav-item me-4">
+                    <a class="nav-link text-white" href="/hotel_admins">Menú Principal</a>
+                  </li>
+                  <li class="nav-item me-4">
+                    <a class="nav-link text-white" href="/my_account/my_profile_1">Mi perfil</a>
+                  </li>
+                </ul>
+                
+                <form method="POST" action="/logout">
+                  <div class="d-flex align-items-center">
+                    <button type="submit" class="btn me-3" style="background-color: #dda15e;">Cerrar sesión</button>
+                  </div>
+                </form>
+              
+              </div>
+            </div>
+        </nav>
+
+        <!--------------------------------------------------------------------------------------------------------------------------->
+
+        <section class="mb-2 mt-2">
+          <div class="container">
+
+            <a href="/hotel_admins/deal_catalog" class="btn btn-light mt-0"><span class="bi bi-arrow-left"></span></a>
+            <div class="d-flex align-items-center pb-1">
+              <span class="h1 fw-bold mb-3">Editar oferta</span>
+            </div>
+
+            <!-- Edición de datos de la oferta ----------------------------------------------->
+
+            <div class="card">
+                <div class="card-body">
+  
+                  <form action="/hotel_admins/update_deal/<%= deal.id %>" method="POST">
+  
+                    <div class="row">
+      
+                      <div class="col">
+      
+                        <div class="form-group mb-4">
+                          <input required type="text" name="name" value="<%= deal.name %>" class="form-control">
+                          <label  class="form-label">Nombre</label>
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <input required type="date" name="start_date" value="<%= deal.initial_date %>" class="form-control">
+                            <label  class="form-label">Fecha de inicio</label>
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <input required type="date" name="ending_date" value="<%= deal.ending_date %>" class="form-control">
+                            <label  class="form-label">Fecha de fin</label>
+                        </div>
+      
+                      </div>
+      
+                      <div class="col">
+
+                        <div class="form-group mb-4">
+                            <input required type="number" name="discount" value="<%= deal.discount %>" min="0" max="100" class="form-control">
+                            <label  class="form-label">Porcentaje de descuento</label>
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <input required type="number" name="minimun_reservation_days" min="1" value="<%= deal.minimun_reservation_days %>" class="form-control">
+                            <label  class="form-label">Días de reserva mínimos</label>
+                        </div>
+      
+                      </div>
+      
+                    </div>
+                    
+                      <button type="submit" class="btn btn-dark btn-lg btn-block mb-4">Guardar</button>
+                  </form>
+  
+                </div>
+              </div>
+
+            <!-- Edición de habitaciones de la oferta ---------------------------------------->
+
+            <div class="row mt-4">
+                <div class="col">
+                  <!-- Habitaciones disponibles para la oferta --------------------------------------------->
+  
+                  <div class="d-flex align-items-center mb-4 pb-1">
+                    <span class="h3 fw-bold mb-0">Habitaciones disponibles</span>
+                  </div>
+  
+                  <div style="max-height: 500px; display: block; overflow: auto; position: relative;">
+                    <% rooms.forEach( room => {%>
+                      <div class="card mb-4" id="room-<%= room.id %>">
+  
+                        <div class="card-body">
+                          <h5 class="card-title"><%= room.name %></h5>
+                          <p class="card-text">Precio por noche: <%= room.price%>$</p>
+                          <p class="card-text"><small class="text-muted">Capacidad: <%= room.capacity%> personas</small></p>
+                          <p class="card-text"><small class="text-muted">Unidades: <%= room.units%></small></p>
+                          <a href="/hotel_admins/add_room_to_deal/<%= room.id %>" class="btn text-white" style="background-color: #606c38;">Agregar</a>
+                        </div>
+
+                      </div>
+                      <% }) %>
+                  </div>
+  
+                </div>
+                <div class="col">
+                  <!-- Habitaciones incluidas en la oferta --------------------------------------------->
+  
+                  <div class="d-flex align-items-center mb-4 pb-1">
+                    <span class="h3 fw-bold mb-0">Habitaciones de la oferta</span>
+                  </div>
+  
+                  <div style="max-height: 500px; display: block; overflow: auto; position: relative;">
+                    <% rooms_in_deal.forEach( room => {%>
+                      <div class="card mb-4">
+  
+                        <div class="card-body">
+                          <h5 class="card-title"><%= room.name %></h5>
+                          <p class="card-text">Precio por noche: <s><%= room.price%>$</s> <%= room.current_price%>$</p>
+                          <p class="card-text"><small class="text-muted">Capacidad: <%= room.capacity%> personas</small></p>
+                          <p class="card-text"><small class="text-muted">Unidades: <%= room.units%></small></p>
+                          <a href="/hotel_admins/delete_room_from_deal/<%= room.id %>" class="btn btn-danger">Eliminar</a>
+                        </div>
+                      </div>
+                      <% }) %>
+                  </div>
+                </div>
+              </div>
+
+
+          </div>
+        </section>
+
+    </body>
+    <script>
+      
+      // Envía una petición http al servidor y retorna la respuesta si hubo éxito
+      function send_request(request_type, url, request_body){
+            
+            return new Promise(async (resolve, reject) => {
+
+                const http = new XMLHttpRequest()
+                
+                http.onreadystatechange = function(){
+                    
+                    if (this.readyState == 4 && this.status == 200){
+                        const response = JSON.parse(this.response)
+                        return resolve(response)    
+                    }
+                }
+
+                http.open(request_type, url)
+                http.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
+                http.send(JSON.stringify(request_body))
+            })
+        }
+
+        // Función para registrar una oferta
+        async function add_room_to_deal(event){
+          event.preventDefault()
+        }
+
+        // Función para eliminar una oferta
+        async function delete_room_from_deal(deal_id){
+
+        }
+        
+    </script>
+</html>

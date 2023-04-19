@@ -109,9 +109,11 @@
 
                   <%= hotel_name %> 
 
-                  <a href="/clients/add_to_favorite/" class="btn btn-link">
-                    <span class="bi bi-heart-fill" style="color: red; font-size: 20px;"></span>
-                  </a>
+                  <% if (is_authenticated) { %>
+                    <a href="/clients/add_to_favorite/" class="btn btn-link">
+                      <span class="bi bi-heart-fill" style="color: red; font-size: 20px;"></span>
+                    </a>
+                  <% } %>
 
                 </h3>
 

@@ -114,10 +114,10 @@ router.get("/deal_list", async (req, res) => {
         profile = req.user.photo
     }
 
-    const offers = [{hotel_id: 1, hotel_name: "Hotal Maracuyá", name: "40% Descuento en Habitaciones Doble", initial_date: "2023-03-25", ending_date: "2023-03-30"},
-                    {hotel_id: 1, hotel_name: "Hotal Barceló", name: "30% Descuento en Habitaciones Sencillas", initial_date: "2023-03-25", ending_date: "2023-03-30"},
-                    {hotel_id: 1, hotel_name: "Hotal Buena Vista", name: "15% Descuento en Habitaciones Deluxe", initial_date: "2023-03-25", ending_date: "2023-03-30"},
-                    {hotel_id: 1, hotel_name: "Hotal Casona Vieja", name: "20% Descuento en Habitaciones Doble", initial_date: "2023-03-25", ending_date: "2023-03-30"}]
+    const offers = [{id: 1, hotel_name: "Hotal Maracuyá", name: "40% Descuento en Habitaciones Doble", initial_date: "2023-03-25", ending_date: "2023-03-30"},
+                    {id: 1, hotel_name: "Hotal Barceló", name: "30% Descuento en Habitaciones Sencillas", initial_date: "2023-03-25", ending_date: "2023-03-30"},
+                    {id: 1, hotel_name: "Hotal Buena Vista", name: "15% Descuento en Habitaciones Deluxe", initial_date: "2023-03-25", ending_date: "2023-03-30"},
+                    {id: 1, hotel_name: "Hotal Casona Vieja", name: "20% Descuento en Habitaciones Doble", initial_date: "2023-03-25", ending_date: "2023-03-30"}]
 
     res.render("client_deals_list", {offers: offers, is_authenticated: is_authenticated, profile: profile}) 
 })
@@ -135,7 +135,7 @@ router.get("/my_bookings", check_authenticated, async (req, res) => {
 // Atiende la petición de ventana de detalle de una reserva
 router.get("/get_booking_detail/:booking_id", check_authenticated, async (req, res) => {
 
-    const booking = {booking_id: 1, check_in_date: "2023-03-25", check_out_date: "2023-03-25", status_id: 1, status_name: "Confirmada"}
+    const booking = {is_checked_in: 1, is_reviewed: 0, booking_id: 1, check_in_date: "2023-03-25", check_out_date: "2023-03-25", status_id: 1, status_name: "Confirmada"}
     const rooms = [{id: "0", name: "Habitación sencilla", price: 150, capacity: 2, units: 1},
                    {id: "1", name: "Habitación doble", price: 290, capacity: 4, units: 1},
                    {id: "2", name: "Habitación deluxe", price: 350, capacity: 2, units: 2},

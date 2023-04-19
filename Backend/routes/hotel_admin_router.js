@@ -35,6 +35,20 @@ router.get("/deal_catalog", check_authenticated, async (req, res) => {
     res.render("hotel_ad_deal_edition", {deals: deals, profile:req.user.photo})
 })
 
+// Responde a la solicitud de vista del edición de una oferta
+router.get("/edit_deal/:deal_id", check_authenticated, async (req, res) => {
+    const deal =  {id: "1", name: "40% Descuento en Habitaciones Doble", initial_date: "2023-03-25", ending_date: "2023-03-30", minimun_reservation_days: 10, discount: 50}
+    const rooms = [{id: "0", name: "Habitación sencilla", price: 150, capacity: 2, units:1},
+                   {id: "1", name: "Habitación doble", price: 290, capacity: 4, units:2},
+                   {id: "2", name: "Habitación deluxe", price: 350, capacity: 2, units:4},
+                   {id: "3", name: "Habitación deluxe doble", price: 600, capacity: 4, units:2}]
+
+    const rooms_in_deal = [{id: "0", name: "Habitación sencilla", price: 150, capacity: 2, units:1, current_price: 100},
+                              {id: "1", name: "Habitación doble", price: 290, capacity: 4, units:1, current_price: 145},
+                              {id: "2", name: "Habitación deluxe", price: 350, capacity: 2, units:2, current_price: 175}]
+    res.render("hotel_ad_edit_deal", {deal: deal, rooms: rooms, rooms_in_deal: rooms_in_deal, profile:req.user.photo})
+})
+
 // Responde a la solicitud de vista del catálogo de amenidades
 router.get("/amenity_catalog", check_authenticated, async (req, res) => {
     const amenities = await hotel_admin_controller.get_amenities(req.user.hotel_admin_id)
@@ -61,19 +75,48 @@ router.get("/bookin_catalog", check_authenticated, async (req, res) => {
 
 // Response a la solicitud de vista de la ventana de creación de reserva, paso 1
 router.get("/register_bookin_step_1", check_authenticated, async (req, res) => {
-    res.render("hotel_ad_register_reservation_step_1", {profile:req.user.photo})
+    res.render("hotel_ad_register_booking", {profile:req.user.photo})
 })
 
 
 // Response a la solicitud de vista de la ventana de edición de habitaciones para la reserva
 router.get("/edit_bookin_rooms/:bookin_id", check_authenticated, async (req, res) => {
-    const rooms = await hotel_admin_controller.get_rooms(req.user.hotel_admin_id)
-    res.render("hotel_ad_register_reservation_step_2", {rooms: rooms, profile:req.user.photo})
+    const booking_id = req.params.bookin_id
+    const rooms = [{id: "0", name: "Habitación sencilla", price: 150, capacity: 2,  units:1, is_in_offer: 1, current_price: 100},
+                   {id: "1", name: "Habitación doble", price: 290, capacity: 4,  units:2, is_in_offer: 0, current_price: 290},
+                   {id: "2", name: "Habitación deluxe", price: 350, capacity: 2,  units:4, is_in_offer: 0, current_price: 350},
+                   {id: "3", name: "Habitación deluxe doble", price: 600, capacity: 4,  units:2, is_in_offer: 1, current_price: 550}]
+
+    const rooms_in_booking = [{id: "0", name: "Habitación sencilla", price: 150, capacity: 2, units:1, is_in_offer: 1, current_price: 100},
+                              {id: "1", name: "Habitación doble", price: 290, capacity: 4, units:1, is_in_offer: 0, current_price: 290},
+                              {id: "2", name: "Habitación deluxe", price: 350, capacity: 2, units:2, is_in_offer: 0, current_price: 350}]
+    res.render("hotel_ad_booking_room_edition", {booking_id: booking_id, rooms: rooms, rooms_in_booking: rooms_in_booking, profile:req.user.photo})
 })
 
-// Response a la solicitud de vista de la ventana de creación de reserva, paso 3 
-router.get("/register_bookin_step_3", check_authenticated, async (req, res) => {
-    res.render("hotel_ad_register_reservation_step_3", {profile:req.user.photo})
+// Atiende la petición de ventana de confirmación de reserva
+router.get("/confirm_booking_view/:booking_id", check_authenticated, async (req, res) => {
+
+    const booking = {hotel_id: 1, booking_id: 1, check_in_date: "2023-03-25", check_out_date: "2023-03-25", status_id: 1, status_name: "Confirmada"}
+    const rooms = [{id: "0", name: "Habitación sencilla", price: 150, capacity: 2,  units:1, is_in_offer: 1, current_price: 100},
+                   {id: "1", name: "Habitación doble", price: 290, capacity: 4,  units:2, is_in_offer: 0, current_price: 290},
+                   {id: "2", name: "Habitación deluxe", price: 350, capacity: 2,  units:4, is_in_offer: 0, current_price: 350},
+                   {id: "3", name: "Habitación deluxe doble", price: 600, capacity: 4,  units:2, is_in_offer: 1, current_price: 550}]
+    const payment_methods = await hotel_admin_controller.get_payment_methods(booking.hotel_id);
+
+
+    res.render("hotel_ad_booking_confirmation", {payment_methods: payment_methods, booking: booking, rooms: rooms, profile:req.user.photo}) 
+})
+
+// Atiende la petición de ventana de detalle de una reserva
+router.get("/get_booking_detail/:booking_id", check_authenticated, async (req, res) => {
+
+    const booking = {is_checked_in: 1, is_reviewed: 0, booking_id: 1, check_in_date: "2023-03-25", check_out_date: "2023-03-25", status_id: 1, status_name: "Confirmada"}
+    const rooms = [{id: "0", name: "Habitación sencilla", price: 150, capacity: 2, units: 1},
+                   {id: "1", name: "Habitación doble", price: 290, capacity: 4, units: 1},
+                   {id: "2", name: "Habitación deluxe", price: 350, capacity: 2, units: 2},
+                   {id: "3", name: "Habitación deluxe doble", price: 600, capacity: 4, units:1}]
+
+    res.render("hotel_ad_booking_detail", {booking: booking, rooms: rooms, profile:req.user.photo}) 
 })
 
 // Responde a la solicitud de distritos de un cantón
@@ -92,7 +135,7 @@ router.get("/get_cantons/:province_id", check_authenticated, async (req, res) =>
 
 // Responde a la solicitud de provincias de un país
 router.get("/get_provinces/:country_id", check_authenticated, async (req, res) => {
-    const provinces = await master_admin_controller.get_districts(req.params.country_id)
+    const provinces = await master_admin_controller.get_provinces(req.params.country_id)
     res.status(200)
     res.send(JSON.stringify(provinces))
 })

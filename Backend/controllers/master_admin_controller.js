@@ -513,6 +513,14 @@ async function get_user_types(){
     return await execute_query(query, [])
 }
 
+// RUD de hotel ---------------------------------------------------------------------------------------------- //
+
+// Función para obtener el catálogo de hoteles
+async function get_hotel_catalog(){
+    const query = "CALL get_hotel_catalog();"
+    return await execute_query(query, [])
+}
+
 // Función para obtener los hoteles para administrar
 async function get_hotels_to_admin(){
     const query = "CALL get_hotels_to_admin();"
@@ -557,5 +565,6 @@ module.exports = {
     get_users,
     get_user_types,
     get_hotels_to_admin,
-    update_user_role
+    update_user_role,
+    get_hotel_catalog
 }

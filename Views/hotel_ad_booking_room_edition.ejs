@@ -5,6 +5,7 @@
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css"> 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
@@ -31,16 +32,7 @@
                 
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0 ">
                   <li class="nav-item me-4">
-                    <a class="nav-link text-white" href="/">Hoteles</a>
-                  </li>
-                  <li class="nav-item me-4">
-                    <a class="nav-link text-white" href="/clients/deal_list">Ofertas</a>
-                  </li>
-                  <li class="nav-item me-4">
-                    <a class="nav-link text-white" href="/clients/my_bookings">Mis reservas</a>
-                  </li>
-                  <li class="nav-item me-4">
-                    <a class="nav-link text-white" href="/clients/favorite_hotels">Hoteles favoritos</a>
+                    <a class="nav-link text-white" href="/hotel_admins">Menú Principal</a>
                   </li>
                   <li class="nav-item me-4">
                     <a class="nav-link text-white" href="/my_account/my_profile_1">Mi perfil</a>
@@ -57,9 +49,11 @@
             </div>
         </nav>
 
+        <!--------------------------------------------------------------------------------------------------------------------------->
+
         <section class="mb-5 mt-2">
           <div class="container">
-            <a href="/clients/my_bookings" class="btn btn-light mt-0"><span class="bi bi-arrow-left"></span></a>
+            <a href="/hotel_admins/bookin_catalog" class="btn btn-light mt-0"><span class="bi bi-arrow-left"></span></a>
 
             <!-- Formulario para actualizar las fechas de estadía ------------------------------------>
 
@@ -128,9 +122,13 @@
                                 <input type="number" id="units" name="units" min="1" max="<%= room.units%>" value="1" class="form-control" required/>
                                 <label class="form-label">Unidades</label>
                               </div>
+                              <button type="submit" class="btn text-white" style="background-color: #606c38;">Agregar</button>
                             </div>
                             <div class="col">
-                              <button type="submit" class="btn text-white" style="background-color: #606c38;">Agregar</button>
+                              <div class="form-outline mb-4">
+                                <input type="number" id="price" name="price" class="form-control"/>
+                                <label class="form-label">Precio</label>
+                              </div>
                             </div>
                           </div>        
                         </form>
@@ -172,11 +170,51 @@
                     </div>
                     <% }) %>
                 </div>
-                <a href="/clients/confirm_booking_view/<%= booking_id %>" class="btn text-white btn-lg float-end mt-3" style="background-color: #606c38;">Confirmar reserva</a>
+                <a href="/hotel_admins/confirm_booking_view/<%= booking_id %>" class="btn text-white btn-lg float-end mt-3" style="background-color: #606c38;">Confirmar reserva</a>
               </div>
             </div>
           </div>
         </section>
 
     </body>
+    <script>
+
+      // Envía una petición http al servidor y retorna la respuesta si hubo éxito
+      function send_request(request_type, url, request_body){
+            
+            return new Promise(async (resolve, reject) => {
+
+                const http = new XMLHttpRequest()
+                
+                http.onreadystatechange = function(){
+                    
+                    if (this.readyState == 4 && this.status == 200){
+                        const response = JSON.parse(this.response)
+                        return resolve(response)    
+                    }
+                }
+
+                http.open(request_type, url)
+                http.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
+                http.send(JSON.stringify(request_body))
+            })
+      }
+
+      // Función para agregar una habitación a la reserva
+      function add_room_to_bookin(event, room_id){
+        event.preventDefault()
+        const response = null
+        alert(response.message)
+        location.reload()
+      }
+
+      // Función para eliminar una habitación de la reserva
+      function delete_room_from_bookin(event, room_id){
+        event.preventDefault()
+        const response = null
+        alert(response.message)
+        location.reload()
+      }
+
+    </script>
 </html>
