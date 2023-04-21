@@ -1333,6 +1333,36 @@ VALUES('BoxKing1',3, null,'$2b$10$zD2GW7YRmFyFlLaSo.s9XutH77GVogVWlJzeNugRhwiP1T
 INSERT INTO user_table(username, user_type_ref, photo, user_password, hotel_ref)
 VALUES('Rosarito86',3, null,'$2b$10$zD2GW7YRmFyFlLaSo.s9XutH77GVogVWlJzeNugRhwiP1TmDVmfJy', NULL);
 
+INSERT INTO user_table(username, user_type_ref, photo, user_password, hotel_ref)
+VALUES('JuanPorras',1, null,'$2b$10$zD2GW7YRmFyFlLaSo.s9XutH77GVogVWlJzeNugRhwiP1TmDVmfJy', 1);
+
+INSERT INTO user_table(username, user_type_ref, photo, user_password, hotel_ref)
+VALUES('EmaLui',1, null,'$2b$10$zD2GW7YRmFyFlLaSo.s9XutH77GVogVWlJzeNugRhwiP1TmDVmfJy', 2);
+
+INSERT INTO user_table(username, user_type_ref, photo, user_password, hotel_ref)
+VALUES('Peloncin',1, null,'$2b$10$zD2GW7YRmFyFlLaSo.s9XutH77GVogVWlJzeNugRhwiP1TmDVmfJy', 3);
+
+INSERT INTO user_table(username, user_type_ref, photo, user_password, hotel_ref)
+VALUES('User14',1, null,'$2b$10$zD2GW7YRmFyFlLaSo.s9XutH77GVogVWlJzeNugRhwiP1TmDVmfJy', 4);
+
+INSERT INTO user_table(username, user_type_ref, photo, user_password, hotel_ref)
+VALUES('CatLover24',1, null,'$2b$10$zD2GW7YRmFyFlLaSo.s9XutH77GVogVWlJzeNugRhwiP1TmDVmfJy', 5);
+
+INSERT INTO user_table(username, user_type_ref, photo, user_password, hotel_ref)
+VALUES('BonGiorno',1, null,'$2b$10$zD2GW7YRmFyFlLaSo.s9XutH77GVogVWlJzeNugRhwiP1TmDVmfJy', 6);
+
+INSERT INTO user_table(username, user_type_ref, photo, user_password, hotel_ref)
+VALUES('EatingPizza',1, null,'$2b$10$zD2GW7YRmFyFlLaSo.s9XutH77GVogVWlJzeNugRhwiP1TmDVmfJy', 7);
+
+INSERT INTO user_table(username, user_type_ref, photo, user_password, hotel_ref)
+VALUES('user18',1, null,'$2b$10$zD2GW7YRmFyFlLaSo.s9XutH77GVogVWlJzeNugRhwiP1TmDVmfJy', 8);
+
+INSERT INTO user_table(username, user_type_ref, photo, user_password, hotel_ref)
+VALUES('NotaUSer',1, null,'$2b$10$zD2GW7YRmFyFlLaSo.s9XutH77GVogVWlJzeNugRhwiP1TmDVmfJy', 9);
+
+INSERT INTO user_table(username, user_type_ref, photo, user_password, hotel_ref)
+VALUES('1234',1, null,'$2b$10$zD2GW7YRmFyFlLaSo.s9XutH77GVogVWlJzeNugRhwiP1TmDVmfJy', 10);
+
 -- CREACIÓN DE PERSONAS --------------------------------------------------------
 INSERT INTO person (id,first_name,second_name,first_surname,second_surname,birthdate,gender_ref,identification_number, id_type_ref, user_ref)
 VALUES (default, 'Marco', null, 'Herrera', 'González', STR_TO_DATE('12/10/2003', '%d/%m/%Y'), 2, 118760722, 2, 'ADG2023');
@@ -1364,6 +1394,35 @@ VALUES (default, 'Ricardo', null, 'Martinez', 'Rodriguez', STR_TO_DATE('29/3/197
 INSERT INTO person (id,first_name,second_name,first_surname,second_surname,birthdate,gender_ref,identification_number, id_type_ref, user_ref)
 VALUES (default, 'Rosario', null, 'Guzman', 'Aguilar', STR_TO_DATE('10/12/1969', '%d/%m/%Y'), 1, 175829435, 2, 'Rosarito86');
 
+INSERT INTO person (id,first_name,second_name,first_surname,second_surname,birthdate,gender_ref,identification_number, id_type_ref, user_ref)
+VALUES (default, 'Juan', null, 'Porras', 'Peña', STR_TO_DATE('12/10/2003', '%d/%m/%Y'), 2, 198014852, 2, 'JuanPorras');
+
+INSERT INTO person (id,first_name,second_name,first_surname,second_surname,birthdate,gender_ref,identification_number, id_type_ref, user_ref)
+VALUES (default, 'Emanuel', null, 'Lucero', 'Iglesias', STR_TO_DATE('24/3/1996', '%d/%m/%Y'), 2, 125631852, 1, 'EmaLui');
+
+INSERT INTO person (id,first_name,second_name,first_surname,second_surname,birthdate,gender_ref,identification_number, id_type_ref, user_ref)
+VALUES (default, 'Luis', null, 'Calvo', 'Soto', STR_TO_DATE('06/7/1980', '%d/%m/%Y'), 2, 194536172, 2, 'Peloncin');
+
+INSERT INTO person (id,first_name,second_name,first_surname,second_surname,birthdate,gender_ref,identification_number, id_type_ref, user_ref)
+VALUES (default, 'María', null, 'Sequeira', 'Nuñez', STR_TO_DATE('24/2/1984', '%d/%m/%Y'), 1, 148619532, 2, 'User14');
+
+INSERT INTO person (id,first_name,second_name,first_surname,second_surname,birthdate,gender_ref,identification_number, id_type_ref, user_ref)
+VALUES (default, 'Karen', null, 'Gonzales', 'Viquez', STR_TO_DATE('14/8/1999', '%d/%m/%Y'), 1, 136542693, 2, 'CatLover24');
+
+INSERT INTO person (id,first_name,second_name,first_surname,second_surname,birthdate,gender_ref,identification_number, id_type_ref, user_ref)
+VALUES (default, 'Mario', null, 'Barrantes', 'Fallas', STR_TO_DATE('9/1/1992', '%d/%m/%Y'), 2, 178542165, 2, 'BonGiorno');
+
+INSERT INTO person (id,first_name,second_name,first_surname,second_surname,birthdate,gender_ref,identification_number, id_type_ref, user_ref)
+VALUES (default, 'Luigi', null, 'Porras', 'Lopez', STR_TO_DATE('16/7/1977', '%d/%m/%Y'), 2, 176138264, 2, 'EatingPizza');
+
+INSERT INTO person (id,first_name,second_name,first_surname,second_surname,birthdate,gender_ref,identification_number, id_type_ref, user_ref)
+VALUES (default, 'Etilma', null, 'Brenes', 'Castro', STR_TO_DATE('3/9/1986', '%d/%m/%Y'), 1, 169852365, 2, 'user18');
+
+INSERT INTO person (id,first_name,second_name,first_surname,second_surname,birthdate,gender_ref,identification_number, id_type_ref, user_ref)
+VALUES (default, 'Gabriela', null, 'Ruiz', 'Coronado', STR_TO_DATE('29/3/1976', '%d/%m/%Y'), 1, 159452168, 2, 'NotaUSer');
+
+INSERT INTO person (id,first_name,second_name,first_surname,second_surname,birthdate,gender_ref,identification_number, id_type_ref, user_ref)
+VALUES (default, 'Sofía', null, 'Guzman', 'Aguilar', STR_TO_DATE('10/12/1969', '%d/%m/%Y'), 1, 13256985, 2, '1234');
 
 -- CREACIÓN DE person_x_nationality --------------------------------------------------------
 INSERT INTO person_x_nationality(nationality_ref,person_ref)
@@ -1396,6 +1455,36 @@ VALUES(1,9);
 INSERT INTO person_x_nationality(nationality_ref,person_ref)
 VALUES(1,10);
 
+INSERT INTO person_x_nationality(nationality_ref,person_ref)
+VALUES(1,11);
+
+INSERT INTO person_x_nationality(nationality_ref,person_ref)
+VALUES(2,12);
+
+INSERT INTO person_x_nationality(nationality_ref,person_ref)
+VALUES(1,13);
+
+INSERT INTO person_x_nationality(nationality_ref,person_ref)
+VALUES(1,14);
+
+INSERT INTO person_x_nationality(nationality_ref,person_ref)
+VALUES(1,15);
+
+INSERT INTO person_x_nationality(nationality_ref,person_ref)
+VALUES(1,16);
+
+INSERT INTO person_x_nationality(nationality_ref,person_ref)
+VALUES(1,17);
+
+INSERT INTO person_x_nationality(nationality_ref,person_ref)
+VALUES(1,18);
+
+INSERT INTO person_x_nationality(nationality_ref,person_ref)
+VALUES(1,19);
+
+INSERT INTO person_x_nationality(nationality_ref,person_ref)
+VALUES(1,20);
+
 -- CREACIÓN DE telephone --------------------------------------------------------
 INSERT INTO telephone(id,telephone_number,person_ref)
 VALUES(default,60987448,1); 
@@ -1426,6 +1515,36 @@ VALUES(default,76548125,9);
 
 INSERT INTO telephone(id,telephone_number,person_ref)
 VALUES(default,84567123,10);
+
+INSERT INTO telephone(id,telephone_number,person_ref)
+VALUES(default,65481352,11); 
+
+INSERT INTO telephone(id,telephone_number,person_ref)
+VALUES(default,94536152,12);
+
+INSERT INTO telephone(id,telephone_number,person_ref)
+VALUES(default,98425136,13);
+
+INSERT INTO telephone(id,telephone_number,person_ref)
+VALUES(default,85146203,14);
+
+INSERT INTO telephone(id,telephone_number,person_ref)
+VALUES(default,65202350,15);
+
+INSERT INTO telephone(id,telephone_number,person_ref)
+VALUES(default,85120310,16);
+
+INSERT INTO telephone(id,telephone_number,person_ref)
+VALUES(default,75681230,17);
+
+INSERT INTO telephone(id,telephone_number,person_ref)
+VALUES(default,60035178,18);
+
+INSERT INTO telephone(id,telephone_number,person_ref)
+VALUES(default,91159620,19);
+
+INSERT INTO telephone(id,telephone_number,person_ref)
+VALUES(default,85514920,20);
 
 -- CREACIÓN DE email --------------------------------------------------------
 INSERT INTO email(email,person_ref)
@@ -1458,6 +1577,35 @@ VALUES('ricarmar976@gmail.com',9);
 INSERT INTO email(email,person_ref)
 VALUES('rosario.guzman.aguilar@gmail.com',10);
 
+INSERT INTO email(email,person_ref)
+VALUES('juan.porras@gmail.com',11);
+
+INSERT INTO email(email,person_ref)
+VALUES('emalui@gmail.com',12);
+
+INSERT INTO email(email,person_ref)
+VALUES('pelonsete@gmail.com',13);
+
+INSERT INTO email(email,person_ref)
+VALUES('masa.nuñez@gmail.com',14);
+
+INSERT INTO email(email,person_ref)
+VALUES('bolitablanca3@gmail.com',15);
+
+INSERT INTO email(email,person_ref)
+VALUES('mastermario@gmail.com',16);
+
+INSERT INTO email(email,person_ref)
+VALUES('pizzalife8376@gmail.com',17);
+
+INSERT INTO email(email,person_ref)
+VALUES('etilma.brenes@gmail.com',18);
+
+INSERT INTO email(email,person_ref)
+VALUES('gabaruco@gmail.com',19);
+
+INSERT INTO email(email,person_ref)
+VALUES('sofi1234@gmail.com',20);
 
 -- CREACIÓN DE payment_method --------------------------------------------------------
 INSERT INTO payment_method(id,name,hotel_ref)
