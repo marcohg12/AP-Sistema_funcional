@@ -6,6 +6,7 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css"> 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
         <title>Catálogos</title>
@@ -50,8 +51,9 @@
 
         <!--------------------------------------------------------------------------------------------------------------------------->
 
-        <section class="mb-4 mt-4">
+        <section class="mb-2 mt-2">
             <div class="container">
+              <a href="/master_admins/province_catalog/<%= country_id %>" class="btn btn-light mt-0"><span class="bi bi-arrow-left"></span></a>
 
               <div class="d-flex align-items-center pb-1">
                 <span class="h3 fw-bold mb-0 me-4">Cantones</span>
@@ -62,7 +64,7 @@
 
               </div>
 
-            <div style="height: 600px; display: block; overflow: auto; position: relative;">
+            <div style="height: 550px; display: block; overflow: auto; position: relative;">
 
             <table class="table mt-4 table-striped table-bordered">
                 <thead class="bg-light">
@@ -91,7 +93,7 @@
                                Eliminar
                             </button>
 
-                            <a href="/master_admins/district_catalog/<%= canton.id %>" class="btn btn-link btn-sm btn-rounded">
+                            <a href="/master_admins/district_catalog/<%= country_id %>/<%= province_id %>/<%= canton.id %>" class="btn btn-link btn-sm btn-rounded">
                               Ver distritos
                             </a>
                         </td>
@@ -155,6 +157,28 @@
                     </div>
                  </div>
 
+                 <!-- Pop ups de mensajes ----------------------------------------------------------------------->
+
+                 <!-- Pop de mensage de éxito -->  
+                 <div class="modal fade" id="success_alert_modal" tabindex="-1" aria-labelledby="success_alert_modal" aria-hidden="true">
+                  <div class="modal-dialog">
+                      <div class="alert alert-success alert-dismissible">
+                          <p id="success_message"></p>
+                          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                      </div>
+                  </div>
+               </div>
+
+               <!-- Pop de mensage de error -->  
+               <div class="modal fade" id="error_alert_modal" tabindex="-1" aria-labelledby="error_alert_modal" aria-hidden="true">
+                  <div class="modal-dialog">
+                      <div class="alert alert-danger alert-dismissible">
+                          <p id="error_message"></p>
+                          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                      </div>
+                  </div>
+               </div>
+
             </div>
         </section>
 
@@ -216,9 +240,7 @@
             const new_name = document.getElementById("new_name").value
             const request_body = {canton_id: canton_id, new_name: new_name}
             const response = await send_request("POST", url, request_body)
-
-            alert(response.message)
-            location.reload()
+            show_response(response)
         }
 
         // Envía la petición para eliminar un cantón
@@ -227,11 +249,7 @@
             const url = "http://localhost:4500/master_admins/delete_canton"
             const request_body = {canton_id: canton_id}
             const response = await send_request("POST", url, request_body)
-            
-            alert(response.message)
-            if (!response.error){
-                document.getElementById(canton_id).remove()
-            }    
+            show_response(response)   
         }
 
         // Envía la petición para registrar un cantón
@@ -241,10 +259,29 @@
             const name = document.getElementById("register_name").value
             const request_body = {province_id: province_id, name: name}
             const response = await send_request("POST", url, request_body)
-
-            alert(response.message)
-            location.reload()
+            show_response(response)
         }
+
+        // Muestra el modal con la respuesta de una petición
+        function show_response(response){
+            $('#registration_modal').modal('hide')
+            $('#edition_modal').modal('hide')
+            if (response.error){
+                document.getElementById("error_message").innerHTML = response.message
+                $('#error_alert_modal').modal('show')
+            } else {
+                document.getElementById("success_message").innerHTML = response.message
+                $('#success_alert_modal').modal('show')
+            }
+        }
+
+        $('#success_alert_modal').on('hidden.bs.modal', function () {
+            location.reload()
+        })
+
+        $('#error_alert_modal').on('hidden.bs.modal', function () {
+            location.reload()
+        })
 
     </script>
 </html>

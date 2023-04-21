@@ -99,9 +99,9 @@
                             
                             <td id="buttons-1">
                                 
-                                <button type="button" class="btn btn-link btn-sm btn-rounded" onclick="javascript:edit_row('<%= hotel.id %>', '<%= hotel.name %>', '<%= hotel.district_id %>', '<%= hotel.classification_id %>')">
+                                <a class="btn btn-link btn-sm btn-rounded" href="/master_admins/edit_hotel/<%= hotel.id %>">
                                     Editar
-                                </button>
+                                </a>
 
                                 <button type="button" class="btn btn-link btn-sm btn-rounded" onclick="javascript:delete_hotel('<%= hotel.id %>')">
                                    Eliminar
@@ -133,7 +133,7 @@
                               <div class="col">
 
                                 <div class="form-outline mb-4">
-                                  <input type="text" id="name" name="name" class="form-control" required/>
+                                  <input type="text" id="name" name="name" maxlength="50" class="form-control" required/>
                                   <label class="form-label">Nombre</label>
                                 </div>
 
@@ -183,7 +183,7 @@
                                 </div>
 
                                 <div class="form-outline mb-4">
-                                  <input type="text" id="address" name="address" class="form-control" required/>
+                                  <input type="text" id="address" name="address" maxlength="150" class="form-control" required/>
                                   <label class="form-label">Dirección exacta</label>
                                 </div>
 
@@ -201,6 +201,28 @@
                   </div>
               </div>
            </div>
+
+                  <!-- Pop ups de mensajes ----------------------------------------------------------------------->
+
+                 <!-- Pop de mensage de éxito -->  
+                 <div class="modal fade" id="success_alert_modal" tabindex="-1" aria-labelledby="success_alert_modal" aria-hidden="true">
+                  <div class="modal-dialog">
+                      <div class="alert alert-success alert-dismissible">
+                          <p id="success_message"></p>
+                          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                      </div>
+                  </div>
+               </div>
+
+               <!-- Pop de mensage de error -->  
+               <div class="modal fade" id="error_alert_modal" tabindex="-1" aria-labelledby="error_alert_modal" aria-hidden="true">
+                  <div class="modal-dialog">
+                      <div class="alert alert-danger alert-dismissible">
+                          <p id="error_message"></p>
+                          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                      </div>
+                  </div>
+               </div>
 
 
             </div>
@@ -285,29 +307,47 @@
 
         // Envía la petición para eliminar un hotel
         async function delete_hotel(hotel_id) {
-
             const url = "http://localhost:4500/master_admins/delete_hotel"
             const request_body = {hotel_id: hotel_id}
             const response = await send_request("POST", url, request_body)
-            
-            alert(response.message)
-            if (!response.error){
-                document.getElementById(hotel_id).remove()
-            }    
+            show_response(response)   
         }
 
         // Envía la petición para registrar un hotel
         async function register_hotel(event) {
-
             event.preventDefault()
             const url = "http://localhost:4500/master_admins/register_hotel"
-            const name = document.getElementById("register_name").value
-            const request_body = {name: name}
-            const response = await send_request("POST", url, request_body)
 
-            alert(response.message)
-            location.reload()
+            const name = document.getElementById("name").value
+            const address = document.getElementById("address").value
+            const classification_id = document.getElementById("classification_selector").value
+            const district_id = document.getElementById("district_selector").value
+
+            const request_body = {name: name, address: address, classification_id: classification_id, district_id: district_id}
+            const response = await send_request("POST", url, request_body)
+            show_response(response)
         }
+
+        // Muestra el modal con la respuesta de una petición
+        function show_response(response){
+            $('#registration_modal').modal('hide')
+            $('#edition_modal').modal('hide')
+            if (response.error){
+                document.getElementById("error_message").innerHTML = response.message
+                $('#error_alert_modal').modal('show')
+            } else {
+                document.getElementById("success_message").innerHTML = response.message
+                $('#success_alert_modal').modal('show')
+            }
+        }
+
+        $('#success_alert_modal').on('hidden.bs.modal', function () {
+            location.reload()
+        })
+
+        $('#error_alert_modal').on('hidden.bs.modal', function () {
+            location.reload()
+        })
 
     </script>
 </html>

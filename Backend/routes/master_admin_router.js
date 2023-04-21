@@ -2,6 +2,7 @@
 const router = require("express").Router()
 const user_controller = require("../controllers/user_controller")
 const master_admin_controller = require("../controllers/master_admin_controller")
+const hotel_admin_controller = require("../controllers/hotel_admin_controller")
 
 // Responde a la solicitud de vista del menú principal
 router.get("/", check_authenticated, async (req, res) => {
@@ -39,15 +40,18 @@ router.get("/province_catalog/:country_id", check_authenticated, async (req, res
 })
 
 // Responde a la solicitud de vista del catálogo de cantones
-router.get("/canton_catalog/:province_id", check_authenticated, async (req, res) => {
+router.get("/canton_catalog/:country_id/:province_id", check_authenticated, async (req, res) => {
     const cantons = await master_admin_controller.get_cantons(req.params.province_id)
-    res.render("master_ad_canton_edition", {province_id: req.params.province_id, cantons: cantons, profile: req.user.photo})
+    const country_id = req.params.country_id
+    res.render("master_ad_canton_edition", {country_id: country_id, province_id: req.params.province_id, cantons: cantons, profile: req.user.photo})
 })
 
 // Responde a la solicitud de vista del catálogo de distritos
-router.get("/district_catalog/:canton_id", check_authenticated, async (req, res) => {
+router.get("/district_catalog/:country_id/:province_id/:canton_id", check_authenticated, async (req, res) => {
     const districts = await master_admin_controller.get_districts(req.params.canton_id)
-    res.render("master_ad_district_edition", {canton_id: req.params.canton_id, districts: districts, profile: req.user.photo})
+    const province_id = req.params.province_id
+    const country_id = req.params.country_id
+    res.render("master_ad_district_edition", {country_id: country_id, province_id: province_id, canton_id: req.params.canton_id, districts: districts, profile: req.user.photo})
 })
 
 // Responde a la solicitud de vista del catálogo de clasificaciones
@@ -93,6 +97,21 @@ router.get("/get_hotels_to_admin", check_authenticated, async (req, res) => {
 // Responde a la solicitud de obtener la consulta de hoteles registrados en el sistema
 router.get("/get_hotels_query", check_authenticated, async (req, res) => {
     res.render("master_ad_hotels_query", {profile: req.user.photo})
+})
+
+// Responde a la solicitud de obtener la vista de edición de hotel
+router.get("/edit_hotel/:hotel_id", check_authenticated, async (req, res) => {
+
+    const hotel_data = await hotel_admin_controller.get_hotel_data(req.params.hotel_id)
+    const classifications = await master_admin_controller.get_classifications()
+    const countries = await master_admin_controller.get_countries()
+    const provinces = await master_admin_controller.get_provinces(hotel_data[0].country_id)
+    const cantons = await master_admin_controller.get_cantons(hotel_data[0].province_id)
+    const districts = await master_admin_controller.get_districts(hotel_data[0].canton_id)
+
+    res.render("master_ad_edit_hotel", {hotel_data: hotel_data[0], classifications: classifications, 
+                                          countries: countries, provinces: provinces,
+                                          cantons: cantons, districts: districts, profile:req.user.photo})
 })
 
 // RUD de género ---------------------------------------------------------------------------------------------------------------- //
@@ -283,7 +302,8 @@ router.post("/delete_classification", check_authenticated, async (req, res) => {
 
 // Responde a la solicitud de registro de hotel
 router.post("/register_hotel", check_authenticated, async (req, res) => {
-    const response = null
+    const response = await master_admin_controller.register_hotel(req.body.name, req.body.address,
+                                                                  req.body.district_id, req.body.classification_id)
     res.status(200)
     res.send(JSON.stringify(response))
 })
@@ -297,7 +317,7 @@ router.post("/update_hotel", check_authenticated, async (req, res) => {
 
 // Responde a la solicitud de eliminación de hotel
 router.post("/delete_hotel", check_authenticated, async (req, res) => {
-    const response = null
+    const response = await master_admin_controller.delete_hotel(req.body.hotel_id)
     res.status(200)
     res.send(JSON.stringify(response))
 })
@@ -306,14 +326,14 @@ router.post("/delete_hotel", check_authenticated, async (req, res) => {
 
 // Responde a la solicitud de registro de parámetro
 router.post("/register_parameter", check_authenticated, async (req, res) => {
-    const response = null
+    const response = await master_admin_controller.register_parameter(req.body.name ,req.body.value)
     res.status(200)
     res.send(JSON.stringify(response))
 })
 
 // Responde a la solicitud de actualización de parámetro
 router.post("/update_parameter", check_authenticated, async (req, res) => {
-    const response = null
+    const response = await master_admin_controller.update_parameter(req.body.parameter_id, req.body.new_name ,req.body.new_value)
     res.status(200)
     res.send(JSON.stringify(response))
 })
@@ -336,7 +356,7 @@ router.post("/update_user_role", check_authenticated, async (req, res) => {
 
 // Responde a la solicitud de eliminación de usuario
 router.post("/delete_user", check_authenticated, async (req, res) => {
-    const response = null
+    const response = await master_admin_controller.delete_user(req.body.username)
     res.status(200)
     res.send(JSON.stringify(response))
 })

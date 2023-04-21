@@ -139,7 +139,7 @@
                                 <div class="modal-body">
 
                                     <div class="form-outline mb-4">
-                                        <input type="text" id="register_name" name="register_name" class="form-control" required/>
+                                        <input type="text" id="register_name" maxlength="50" name="register_name" class="form-control" required/>
                                         <label class="form-label">Nombre</label>
                                     </div>
                 
@@ -152,6 +152,28 @@
                                 </div>
 
                             </form>
+                        </div>
+                    </div>
+                 </div>
+
+                <!-- Pop ups de mensajes ----------------------------------------------------------------------->
+
+                 <!-- Pop de mensage de éxito -->  
+                 <div class="modal fade" id="success_alert_modal" tabindex="-1" aria-labelledby="success_alert_modal" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="alert alert-success alert-dismissible">
+                            <p id="success_message"></p>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    </div>
+                 </div>
+
+                 <!-- Pop de mensage de error -->  
+                 <div class="modal fade" id="error_alert_modal" tabindex="-1" aria-labelledby="error_alert_modal" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="alert alert-danger alert-dismissible">
+                            <p id="error_message"></p>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                         </div>
                     </div>
                  </div>
@@ -172,7 +194,7 @@
                 <div class="modal-body">
 
                     <div class="form-outline mb-4">
-                        <input type="text" id="new_name" name="new_name" value="${nationality_name}" required class="form-control"/>
+                        <input type="text" id="new_name" name="new_name" maxlength="50" value="${nationality_name}" required class="form-control"/>
                         <label class="form-label">Nombre</label>
                     </div>
 
@@ -217,9 +239,7 @@
             const new_name = document.getElementById("new_name").value
             const request_body = {nationality_id: nationality_id, new_name: new_name}
             const response = await send_request("POST", url, request_body)
-
-            alert(response.message)
-            location.reload()
+            show_response(response)
         }
 
         // Envía la petición para eliminar una nacionalidad
@@ -228,11 +248,7 @@
             const url = "http://localhost:4500/master_admins/delete_nationality"
             const request_body = {nationality_id: nationality_id}
             const response = await send_request("POST", url, request_body)
-            
-            alert(response.message)
-            if (!response.error){
-                document.getElementById(nationality_id).remove()
-            }    
+            show_response(response)   
         }
 
         // Envía la petición para registrar una nacionalidad
@@ -242,10 +258,29 @@
             const name = document.getElementById("register_name").value
             const request_body = {name: name}
             const response = await send_request("POST", url, request_body)
-
-            alert(response.message)
-            location.reload()
+            show_response(response)
         }
+
+        // Muestra el modal con la respuesta de una petición
+        function show_response(response){
+            $('#registration_modal').modal('hide')
+            $('#edition_modal').modal('hide')
+            if (response.error){
+                document.getElementById("error_message").innerHTML = response.message
+                $('#error_alert_modal').modal('show')
+            } else {
+                document.getElementById("success_message").innerHTML = response.message
+                $('#success_alert_modal').modal('show')
+            }
+        }
+
+        $('#success_alert_modal').on('hidden.bs.modal', function () {
+            location.reload()
+        })
+
+        $('#error_alert_modal').on('hidden.bs.modal', function () {
+            location.reload()
+        })
 
     </script>
 </html>

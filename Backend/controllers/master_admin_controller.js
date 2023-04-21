@@ -24,7 +24,6 @@ function execute_query(query, fields){
     })
 }
 
-
 // RUD de género ---------------------------------------------------------------------------------------------------- //
 
 // Función para registrar un género
@@ -501,6 +500,21 @@ async function update_user_role(username, user_type_id, hotel_id){
         return ({error: false, message: "Usuario actualizado exitosamente"})
     }
 }
+
+// Función para eliminar un usuario
+async function delete_user(username){
+    const fields = [username]
+    const query = "CALL delete_user(?,@execution_code); SELECT @execution_code AS execution_code;"
+    const execution_code = await execute_operation(query, fields)
+
+    // Generación de la respuesta
+    if (execution_code == -1){
+        return ({error: true, message: "Ocurrió un error inesperado"})
+    } else {
+        return ({error: false, message: "Usuario eliminado exitosamente"})
+    }
+}
+
 // Función para obtener los usuarios del sistema
 async function get_users(username){
     const query = "CALL get_users(?);"
@@ -526,6 +540,38 @@ async function get_hotels_to_admin(){
     const query = "CALL get_hotels_to_admin();"
     return await execute_query(query, [])
 }
+
+async function register_hotel(name, adress, district_id, classification_id){
+    const fields = [name, adress, district_id, classification_id]
+    const query = "CALL register_hotel(?,?,?,?,@execution_code); SELECT @execution_code AS execution_code;"
+    const execution_code = await execute_operation(query, fields)
+
+    // Generación de la respuesta
+    if (execution_code == -1){
+        return ({error: true, message: "Ocurrió un error inesperado"})
+    } else {
+        return ({error: false, message: "Hotel agregado exitosamente"})
+    }
+}
+
+async function delete_hotel(hotel_id){
+    const fields = [hotel_id]
+    const query = "CALL delete_hotel(?,@execution_code); SELECT @execution_code AS execution_code;"
+    const execution_code = await execute_operation(query, fields)
+
+    // Generación de la respuesta
+    if (execution_code == -1){
+        return ({error: true, message: "Ocurrió un error inesperado"})
+    } else {
+        return ({error: false, message: "Hotel eliminado exitosamente"})
+    }
+}
+
+async function update_hotel(hotel_id, new_name, new_adress, new_district_id, new_classification_id){}
+
+async function add_photo_to_hotel(hotel_id, photo){}
+
+async function delete_photo_from_hotel(){}
 
 // Nombres de cada funcion que hay arriba
 module.exports = {
@@ -566,5 +612,8 @@ module.exports = {
     get_user_types,
     get_hotels_to_admin,
     update_user_role,
-    get_hotel_catalog
+    get_hotel_catalog,
+    delete_user,
+    register_hotel,
+    delete_hotel
 }
