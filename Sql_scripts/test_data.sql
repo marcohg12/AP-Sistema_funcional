@@ -1695,19 +1695,19 @@ VALUES(1, 'MariaAra');
 
 INSERT INTO reservation(id, check_in_date, check_out_date, confirmation_date, reservation_status_ref, cancellation_policy_ref,
 payment_method_ref, user_ref, hotel_ref)
-VALUES(default, STR_TO_DATE('14/02/2023', '%d/%m/%Y'), STR_TO_DATE('16/02/2023', '%d/%m/%Y'), STR_TO_DATE('11/02/2023', '%d/%m/%Y'), 1, NULL, 1, 'ADG2023', 1);
+VALUES(default, STR_TO_DATE('14/02/2023', '%d/%m/%Y'), STR_TO_DATE('16/02/2023', '%d/%m/%Y'), STR_TO_DATE('11/02/2023', '%d/%m/%Y'), 1, NULL, 1, 'User1243', 1);
 
 INSERT INTO reservation(id, check_in_date, check_out_date, confirmation_date, reservation_status_ref, cancellation_policy_ref,
 payment_method_ref, user_ref, hotel_ref)
-VALUES(default, STR_TO_DATE('15/02/2023', '%d/%m/%Y'), STR_TO_DATE('16/02/2023', '%d/%m/%Y'), STR_TO_DATE('11/02/2023', '%d/%m/%Y'), 1, NULL, 1, 'ADG2023', 1);
+VALUES(default, STR_TO_DATE('15/02/2023', '%d/%m/%Y'), STR_TO_DATE('16/02/2023', '%d/%m/%Y'), STR_TO_DATE('11/02/2023', '%d/%m/%Y'), 1, NULL, 1, 'User1243', 1);
 
 INSERT INTO reservation(id, check_in_date, check_out_date, confirmation_date, reservation_status_ref, cancellation_policy_ref,
 payment_method_ref, user_ref, hotel_ref)
-VALUES(default, STR_TO_DATE('16/02/2023', '%d/%m/%Y'), STR_TO_DATE('19/02/2023', '%d/%m/%Y'), STR_TO_DATE('11/02/2023', '%d/%m/%Y'), 3, NULL, NULL, 'ADG2023', 1);
+VALUES(default, STR_TO_DATE('16/02/2023', '%d/%m/%Y'), STR_TO_DATE('19/02/2023', '%d/%m/%Y'), STR_TO_DATE('11/02/2023', '%d/%m/%Y'), 3, NULL, NULL, 'User1243', 1);
 
 INSERT INTO reservation(id, check_in_date, check_out_date, confirmation_date, reservation_status_ref, cancellation_policy_ref,
 payment_method_ref, user_ref, hotel_ref)
-VALUES(default, STR_TO_DATE('20/02/2023', '%d/%m/%Y'), STR_TO_DATE('23/02/2023', '%d/%m/%Y'), STR_TO_DATE('11/02/2023', '%d/%m/%Y'), 2, 1, 1, 'ADG2023', 1);
+VALUES(default, STR_TO_DATE('20/02/2023', '%d/%m/%Y'), STR_TO_DATE('23/02/2023', '%d/%m/%Y'), STR_TO_DATE('11/02/2023', '%d/%m/%Y'), 2, 1, 1, 'User1243', 1);
 
 -- CREACIÓN DE commentary -----------------------------------------------------------------------
 
