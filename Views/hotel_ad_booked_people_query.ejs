@@ -5,6 +5,7 @@
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
         <title>Consultas</title>
@@ -122,11 +123,11 @@
                             </td>
 
                             <td>
-                                <a>Habitaciones</a>
+                                <button onclick="javascript:show_rooms_modal()" class="btn btn-link btn-sm btn-rounded">Habitaciones</button>
                             </td>
 
                             <td>
-                                <a>Nacionalidades</a>
+                                <button onclick="javascript:show_nationalities_modal()" class="btn btn-link btn-sm btn-rounded">Nacionalidades</button>
                             </td>
 
                             <td>
@@ -141,5 +142,82 @@
           </div>
         </section>
 
+                <!-- Pop up para mostrar habitaciones ------------------------------------------------------------------------------>
+                <div class="modal fade" id="rooms_modal" tabindex="-1" aria-labelledby="rooms_modal" aria-hidden="true">
+                  <div class="modal-dialog">
+                      <div class="modal-content">
+                          
+                          <div class="modal-header">
+                              <h1 class="modal-title fs-5">Habitaciones de la reserva</h1>
+                              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                          </div>
+        
+                          <div class="modal-body">
+                            <div style="max-height: 300px; display: block; overflow: auto; position: relative;">
+
+                              <div class="card mb-4">
+                                <div class="card-body">
+                                  <h5 class="card-title">Habitación sencilla</h5>
+                                  <p class="card-text">Precio pagado por noche: 150$</p>
+                                  <p class="card-text"><small class="text-muted">Capacidad: 2 personas</small></p>
+                                  <p class="card-text"><small class="text-muted">Unidades solicitadas: 1</small></p>
+                                </div>
+                              </div>
+
+                              <div class="card mb-4">
+                                <div class="card-body">
+                                  <h5 class="card-title">Habitación doble</h5>
+                                  <p class="card-text">Precio pagado por noche: 250$</p>
+                                  <p class="card-text"><small class="text-muted">Capacidad: 4 personas</small></p>
+                                  <p class="card-text"><small class="text-muted">Unidades solicitadas: 2</small></p>
+                                </div>
+                              </div>
+          
+        
+                            </div>
+                          </div>
+        
+                      </div>
+                  </div>
+               </div>
+
+                <!-- Pop up para mostrar habitaciones ------------------------------------------------------------------------------>
+                <div class="modal fade" id="nationalities_modal" tabindex="-1" aria-labelledby="nationalities_modal" aria-hidden="true">
+                  <div class="modal-dialog">
+                      <div class="modal-content">
+                          
+                          <div class="modal-header">
+                              <h1 class="modal-title fs-5">Nacionalidades</h1>
+                              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                          </div>
+        
+                          <div class="modal-body">
+                            <div style="max-height: 300px; display: block; overflow: auto; position: relative;">
+
+                              <div><p>Costarricense</p></div>
+                              <div><p>Española</p></div>
+                              <div><p>Colombiana</p></div>
+            
+                            </div>
+                          </div>
+        
+                      </div>
+                  </div>
+               </div>
+
     </body>
+    <script>
+
+      async function get_booking_rooms(booking_id){}
+      async function get_nationalities_from_user(username){}
+
+      async function show_rooms_modal(){
+        $('#rooms_modal').modal('show')
+      }
+
+      async function show_nationalities_modal(){
+        $('#nationalities_modal').modal('show')
+      }
+
+    </script>
 </html>
