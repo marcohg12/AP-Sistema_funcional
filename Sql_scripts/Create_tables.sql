@@ -177,7 +177,7 @@ id     	          INT NOT NULL AUTO_INCREMENT,
 name   			  VARCHAR(50) NOT NULL,
 capacity   	      INT NOT NULL,
 recommended_price INT NOT NULL,
-discount_code	  INT(8),
+discount_code	  VARCHAR(20),
 discount_rate	  INT,
 units             INT NOT NULL,
 hotel_ref	      INT NOT NULL,
@@ -296,7 +296,8 @@ FOREIGN KEY (person_ref) REFERENCES Person(id)
 CREATE TABLE Reservation_X_Room(
 reservation_ref INT NOT NULL,
 room_ref        INT NOT NULL,
-price          INT NOT NULL,
+price           INT NOT NULL,
+units           INT NOT NULL,
   
 CONSTRAINT reservation_x_room_pk PRIMARY KEY (reservation_ref, room_ref),
 FOREIGN KEY (reservation_ref) REFERENCES Reservation(id) ON DELETE CASCADE,

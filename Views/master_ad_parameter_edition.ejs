@@ -145,12 +145,12 @@
                           <div class="modal-body">
 
                               <div class="form-outline mb-4">
-                                  <input type="text" id="register_name" name="register_name" class="form-control" required/>
+                                  <input type="text" id="register_name" name="register_name" maxlength="50" class="form-control" required/>
                                   <label class="form-label">Nombre</label>
                               </div>
 
                               <div class="form-outline mb-4">
-                                <input type="text" id="register_value" name="register_value" class="form-control" required/>
+                                <input type="number" id="register_value" name="register_value" step="any" min="0" class="form-control" required/>
                                 <label class="form-label">Valor</label>
                             </div>
           
@@ -206,12 +206,12 @@
                 <div class="modal-body">
 
                   <div class="form-outline mb-4">
-                    <input type="text" id="new_name" name="new_name" value="${parameter_name}" class="form-control" required/>
+                    <input type="text" id="new_name" name="new_name" value="${parameter_name}" maxlength="50" class="form-control" required/>
                      <label class="form-label">Nombre</label>
                   </div>
 
                   <div class="form-outline mb-4">
-                    <input type="text" id="new_value" name="new_value" value="${parameter_value}" class="form-control" required/>
+                    <input type="text" id="new_value" name="new_value" value="${parameter_value}" step="any" min="0" class="form-control" required/>
                     <label class="form-label">Valor</label>
                   </div>
 
@@ -251,7 +251,6 @@
 
         // Envía la petición para editar el parámetro
         async function update_parameter(event, parameter_id){
-            
             event.preventDefault()
             const url = "http://localhost:4500/master_admins/update_parameter"
             const new_name = document.getElementById("new_name").value
@@ -263,7 +262,6 @@
 
         // Envía la petición para eliminar un parámetro
         async function delete_parameter(parameter_id) {
-
             const url = "http://localhost:4500/master_admins/delete_parameter"
             const request_body = {parameter_id: parameter_id}
             const response = await send_request("POST", url, request_body)
@@ -283,8 +281,12 @@
 
         // Muestra el modal con la respuesta de una petición
         function show_response(response){
-            $('#registration_modal').modal('hide')
-            $('#edition_modal').modal('hide')
+
+            if (!response.error){
+                $('#registration_modal').modal('hide')
+                $('#edition_modal').modal('hide')
+            }
+
             if (response.error){
                 document.getElementById("error_message").innerHTML = response.message
                 $('#error_alert_modal').modal('show')
@@ -295,10 +297,6 @@
         }
 
         $('#success_alert_modal').on('hidden.bs.modal', function () {
-            location.reload()
-        })
-
-        $('#error_alert_modal').on('hidden.bs.modal', function () {
             location.reload()
         })
 

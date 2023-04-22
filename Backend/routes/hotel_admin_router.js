@@ -6,7 +6,8 @@ const hotel_admin_controller = require("../controllers/hotel_admin_controller")
 
 // Atiende la petición de ventana de menú principal
 router.get("/", check_authenticated, async (req, res) => {
-    const hotel_name = "Hotel Maracuyá"
+    const hotel_data = await hotel_admin_controller.get_hotel_data(req.user.hotel_admin_id)
+    const hotel_name = hotel_data[0].name
     res.render("hotel_ad_main", {hotel_name: hotel_name, profile:req.user.photo})
 })
 
@@ -207,23 +208,27 @@ router.get("/get_log_query", check_authenticated, async (req, res) => {
 
 // RUD de habitaciones ----------------------------------------------------------------------------------------- //
 
+
 // Responde a la solicitud de registro de una habitación
 router.post("/register_room", check_authenticated, async (req, res) => {
-    const response = null
+    const response = await hotel_admin_controller.register_room(req.body.name, req.body.capacity, req.body.units,
+                                                                req.body.price, req.body.discount_code, req.body.discount_rate,
+                                                                req.user.hotel_admin_id)
     res.status(200)
     res.send(JSON.stringify(response));
 })
 
 // Responde a la solicitud de actualización de una habitación
 router.post("/update_room", check_authenticated, async (req, res) => {
-    const response = null
+    const response = await hotel_admin_controller.update_room(req.body.room_id, req.body.name, req.body.capacity, req.body.units,
+                                                              req.body.price, req.body.discount_code, req.body.discount_rate)
     res.status(200)
     res.send(JSON.stringify(response));
 })
 
 // Responde a la solicitud de eliminación de una habitación
 router.post("/delete_room", check_authenticated, async (req, res) => {
-    const response = null
+    const response = await hotel_admin_controller.delete_room(req.body.room_id)
     res.status(200)
     res.send(JSON.stringify(response));
 })

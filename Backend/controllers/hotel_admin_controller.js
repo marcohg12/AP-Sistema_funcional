@@ -35,28 +35,56 @@ async function get_rooms(hotel_id){
 
 // Función para registrar una habitación
 async function register_room(name, capacity, units, price, discount_code, discount_rate, hotel_id){
-    const fields = [name, capacity, units, price, discount_code, discount_rate, hotel_id]
+
+    if ((discount_code == "" && discount_rate != "") || (discount_code != "" && discount_rate == "")){
+        return {error: true, message: "Error: el código de descuento y el porcentaje no pueden estar vacíos"}  
+    }
+
+    if (discount_code == ""){
+        discount_code = null
+    }
+    if (discount_rate == ""){
+        discount_rate = null
+    }
+    
+    const fields = [name, capacity, price, units, discount_code, discount_rate, hotel_id]
     const query = "CALL register_room(?,?,?,?,?,?,?,@execution_code); SELECT @execution_code AS execution_code;"
     const execution_code = await execute_operation(query, fields)
 
     // Generación de la respuesta
     if (execution_code == -1) {
-        return resolve({error: true, message: "Ocurrió un error inesperado"})
+        return {error: true, message: "Ocurrió un error inesperado"}
+    } else if (execution_code == -2) {
+        return {error: true, message: "Error: el código de descuento ya está en uso"}
     } else {
-        return resolve({error: false, message: "Habitación registrada exitosamente"})
+        return {error: false, message: "Habitación registrada exitosamente"}
     }
 }
 
 // Función para actualizar una habitación
 async function update_room(room_id, new_name, new_capacity, new_units, new_price, new_discount_code, new_discount_rate){
-    const fields = [room_id, new_name, new_capacity, new_units, new_price, new_discount_code, new_discount_rate]
+
+    if ((new_discount_code == "" && new_discount_rate != "") || (new_discount_code != "" && new_discount_rate == "")){
+        return {error: true, message: "Error: el código de descuento y el porcentaje no pueden estar vacíos"}  
+    }
+
+    if (new_discount_code == ""){
+        new_discount_code = null
+    }
+    if (new_discount_rate == ""){
+        new_discount_rate = null
+    }
+
+    const fields = [room_id, new_name, new_capacity, new_price, new_units, new_discount_code, new_discount_rate]
     const query = "CALL update_room(?,?,?,?,?,?,?,@execution_code); SELECT @execution_code AS execution_code;"
     const execution_code = await execute_operation(query, fields)
 
     // Generación de respuesta
     if (execution_code == -1){
         return ({error: true, message: "Ocurrió un error inesperado"})
-    } else {
+    } else if (execution_code == -2) {
+        return {error: true, message: "Error: el código de descuento ya está en uso"}
+    }else {
         return ({error: false, message: "Habitación actualizada correctamente"})
     }
 }

@@ -235,7 +235,6 @@
 
         // Envía la petición para editar una provincia
         async function update_province(event, province_id){
-            
             event.preventDefault()
             const url = "http://localhost:4500/master_admins/update_province"
             const new_name = document.getElementById("new_name").value
@@ -246,7 +245,6 @@
 
         // Envía la petición para eliminar una provincia
         async function delete_province(province_id) {
-
             const url = "http://localhost:4500/master_admins/delete_province"
             const request_body = {province_id: province_id}
             const response = await send_request("POST", url, request_body)
@@ -255,7 +253,6 @@
 
         // Envía la petición para registrar una provincia
         async function register_province(event, country_id) {
-
             event.preventDefault()
             const url = "http://localhost:4500/master_admins/register_province"
             const name = document.getElementById("register_name").value
@@ -266,8 +263,12 @@
 
         // Muestra el modal con la respuesta de una petición
         function show_response(response){
-            $('#registration_modal').modal('hide')
-            $('#edition_modal').modal('hide')
+
+            if (!response.error){
+                $('#registration_modal').modal('hide')
+                $('#edition_modal').modal('hide')
+            }
+
             if (response.error){
                 document.getElementById("error_message").innerHTML = response.message
                 $('#error_alert_modal').modal('show')
@@ -280,10 +281,5 @@
         $('#success_alert_modal').on('hidden.bs.modal', function () {
             location.reload()
         })
-
-        $('#error_alert_modal').on('hidden.bs.modal', function () {
-            location.reload()
-        })
-
     </script>
 </html>

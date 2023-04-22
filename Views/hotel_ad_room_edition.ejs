@@ -92,7 +92,7 @@
                       </td>
 
                       <td>
-                        <p class="fw-normal mb-1"><%= room.price %></p>
+                        <p class="fw-normal mb-1"><%= room.price %>$</p>
                       </td>
 
                       <td>
@@ -150,17 +150,17 @@
                                 <div class="col">
             
                                   <div class="form-outline mb-4">
-                                    <input type="text" id="name" name="name" required class="form-control"/>
+                                    <input type="text" id="name" name="name" maxlength="50" required class="form-control"/>
                                     <label class="form-label">Nombre</label>
                                   </div>
             
                                   <div class="form-outline mb-4">
-                                    <input type="text" id="capacity" name="capacity" required class="form-control"/>
+                                    <input type="number" id="capacity" name="capacity" min="1" required class="form-control"/>
                                     <label class="form-label">Capacidad</label>
                                   </div>
             
                                   <div class="form-outline mb-4">
-                                    <input type="text" id="price" name="price" required class="form-control"/>
+                                    <input type="number" id="price" name="price" min="1" required class="form-control"/>
                                     <label class="form-label">Precio por noche</label>
                                   </div>
             
@@ -169,17 +169,17 @@
                                 <div class="col">
             
                                   <div class="form-outline mb-4">
-                                    <input type="text" id="units" name="units" required class="form-control"/>
+                                    <input type="number" id="units" name="units" min="1" required class="form-control"/>
                                     <label class="form-label">Unidades</label>
                                   </div>
             
                                   <div class="form-outline mb-4">
-                                    <input type="text" id="discount_code" name="discount_code" class="form-control"/>
+                                    <input type="text" id="discount_code" name="discount_code" maxlength="20" class="form-control"/>
                                     <label class="form-label">Código de descuento</label>
                                   </div>
             
                                   <div class="form-outline mb-4">
-                                    <input type="text" id="discount_rate" name="discount_rate" class="form-control"/>
+                                    <input type="number" id="discount_rate" name="discount_rate" min="1" class="form-control"/>
                                     <label class="form-label">Porcentaje de descuento</label>
                                   </div>
             
@@ -249,6 +249,28 @@
             </div>
          </div>
 
+                <!-- Pop ups de mensajes ----------------------------------------------------------------------->
+
+                 <!-- Pop de mensage de éxito -->  
+                 <div class="modal fade" id="success_alert_modal" tabindex="-1" aria-labelledby="success_alert_modal" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="alert alert-success alert-dismissible">
+                            <p id="success_message"></p>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    </div>
+                 </div>
+
+                 <!-- Pop de mensage de error -->  
+                 <div class="modal fade" id="error_alert_modal" tabindex="-1" aria-labelledby="error_alert_modal" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="alert alert-danger alert-dismissible">
+                            <p id="error_message"></p>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    </div>
+                 </div>
+
           </div>
         </section>
 
@@ -267,17 +289,17 @@
                     <div class="col">
 
                       <div class="form-outline mb-4">
-                        <input type="text" id="new_name" name="new_name" value="${room_name}" required class="form-control"/>
+                        <input type="text" id="new_name" name="new_name" value="${room_name}" maxlength="50" required class="form-control"/>
                         <label class="form-label">Nombre</label>
                       </div>
 
                       <div class="form-outline mb-4">
-                        <input type="text" id="new_capacity" name="new_capacity" value="${room_capacity}" required class="form-control"/>
+                        <input type="number" id="new_capacity" name="new_capacity" value="${room_capacity}" min="1" required class="form-control"/>
                         <label class="form-label">Capacidad</label>
                       </div>
 
                       <div class="form-outline mb-4">
-                        <input type="text" id="new_price" name="new_price" value="${room_price}" required class="form-control"/>
+                        <input type="number" id="new_price" name="new_price" value="${room_price}" min="1" required class="form-control"/>
                         <label class="form-label">Precio por noche</label>
                       </div>
 
@@ -286,17 +308,17 @@
                     <div class="col">
 
                       <div class="form-outline mb-4">
-                        <input type="text" id="new_units" name="new_units" value="${room_units}" required class="form-control"/>
+                        <input type="number" id="new_units" name="new_units" value="${room_units}" min="1" required class="form-control"/>
                         <label class="form-label">Unidades</label>
                       </div>
 
                       <div class="form-outline mb-4">
-                        <input type="text" id="new_discount_code" name="new_discount_code" value="${room_discount_code}" class="form-control"/>
+                        <input type="text" id="new_discount_code" name="new_discount_code" value="${room_discount_code}" maxlength="20" class="form-control"/>
                         <label class="form-label">Código de descuento</label>
                       </div>
 
                       <div class="form-outline mb-4">
-                        <input type="text" id="new_discount_rate" name="new_discount_rate" value="${room_discount_rate}" class="form-control"/>
+                        <input type="number" id="new_discount_rate" name="new_discount_rate" value="${room_discount_rate}" min="1" class="form-control"/>
                         <label class="form-label">Porcentaje de descuento</label>
                       </div>
 
@@ -381,26 +403,81 @@
       // Función para agregar una amenidad a la habitación
       async function add_amenity_to_room(event){
         event.preventDefault()  
+        show_response(response)
       }
 
       // Función para eliminar una amenidad de la habitación
       async function delete_amenity_from_room(event){
         event.preventDefault()  
+        show_response(response)
       }
 
       // Función para registrar una habitación
-      async function register_room(event, room_id){
+      async function register_room(event){
         event.preventDefault()  
+
+        const name = document.getElementById("name").value
+        const capacity = document.getElementById("capacity").value
+        const price = document.getElementById("price").value
+        const units = document.getElementById("units").value
+        const discount_code = document.getElementById("discount_code").value
+        const discount_rate = document.getElementById("discount_rate").value
+
+        const request_body = {name: name, capacity: capacity, price: price, units: units, discount_code: discount_code, discount_rate : discount_rate}
+        const url = "http://localhost:4500/hotel_admins/register_room"
+        const response = await send_request("POST", url, request_body)
+
+        show_response(response)
       }
 
       // Función para actualizar una habitación
       async function update_room(event, room_id){
         event.preventDefault()  
+
+        const name = document.getElementById("new_name").value
+        const capacity = document.getElementById("new_capacity").value
+        const price = document.getElementById("new_price").value
+        const units = document.getElementById("new_units").value
+        const discount_code = document.getElementById("new_discount_code").value
+        const discount_rate = document.getElementById("new_discount_rate").value
+
+        const request_body = {room_id: room_id, name: name, capacity: capacity, price: price, units: units, discount_code: discount_code, discount_rate : discount_rate}
+        const url = "http://localhost:4500/hotel_admins/update_room"
+        const response = await send_request("POST", url, request_body)
+
+        show_response(response)
       }
 
       // Función para eliminar una habitación
       async function delete_room(room_id){
+
+        const request_body = {room_id: room_id}
+        const url = "http://localhost:4500/hotel_admins/delete_room"
+        const response = await send_request("POST", url, request_body)
+
+        show_response(response)
       }
+
+      // Muestra el modal con la respuesta de una petición
+      function show_response(response){
+        
+            if (!response.error){
+                $('#registration_modal').modal('hide')
+                $('#edition_modal').modal('hide')
+            }
+
+            if (response.error){
+                document.getElementById("error_message").innerHTML = response.message
+                $('#error_alert_modal').modal('show')
+            } else {
+                document.getElementById("success_message").innerHTML = response.message
+                $('#success_alert_modal').modal('show')
+            }
+        }
+
+        $('#success_alert_modal').on('hidden.bs.modal', function () {
+            location.reload()
+        })
 
     </script>
 </html>

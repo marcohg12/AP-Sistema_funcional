@@ -139,7 +139,7 @@
                                 <div class="modal-body">
 
                                     <div class="form-outline mb-4">
-                                        <input type="text" id="register_name" name="register_name" class="form-control" required/>
+                                        <input type="text" id="register_name" name="register_name" maxlength="50" class="form-control" required/>
                                         <label class="form-label">Nombre</label>
                                     </div>
                 
@@ -193,7 +193,7 @@
                 <div class="modal-body">
 
                     <div class="form-outline mb-4">
-                        <input type="text" id="new_name" name="new_name" value="${country_name}" required class="form-control"/>
+                        <input type="text" id="new_name" name="new_name" value="${country_name}" maxlength="50" required class="form-control"/>
                         <label class="form-label">Nombre</label>
                     </div>
 
@@ -264,8 +264,12 @@
 
         // Muestra el modal con la respuesta de una petición
         function show_response(response){
-            $('#registration_modal').modal('hide')
-            $('#edition_modal').modal('hide')
+
+            if (!response.error){
+                $('#registration_modal').modal('hide')
+                $('#edition_modal').modal('hide')
+            }
+
             if (response.error){
                 document.getElementById("error_message").innerHTML = response.message
                 $('#error_alert_modal').modal('show')
@@ -278,10 +282,5 @@
         $('#success_alert_modal').on('hidden.bs.modal', function () {
             location.reload()
         })
-
-        $('#error_alert_modal').on('hidden.bs.modal', function () {
-            location.reload()
-        })
-
     </script>
 </html>

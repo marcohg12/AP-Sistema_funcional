@@ -263,8 +263,12 @@
 
         // Muestra el modal con la respuesta de una petición
         function show_response(response){
-            $('#registration_modal').modal('hide')
-            $('#edition_modal').modal('hide')
+          
+            if (!response.error){
+                $('#registration_modal').modal('hide')
+                $('#edition_modal').modal('hide')
+            }
+
             if (response.error){
                 document.getElementById("error_message").innerHTML = response.message
                 $('#error_alert_modal').modal('show')
@@ -277,10 +281,5 @@
         $('#success_alert_modal').on('hidden.bs.modal', function () {
             location.reload()
         })
-
-        $('#error_alert_modal').on('hidden.bs.modal', function () {
-            location.reload()
-        })
-
   </script>
 </html>
