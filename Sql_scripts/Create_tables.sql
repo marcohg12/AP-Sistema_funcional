@@ -72,8 +72,10 @@ CONSTRAINT reservationstatus_pk PRIMARY KEY (id)
 );
 
 CREATE TABLE IF NOT EXISTS Id_type(
-id   INT NOT NULL AUTO_INCREMENT,
-name VARCHAR(50) NOT NULL,
+id              INT NOT NULL AUTO_INCREMENT,
+name            VARCHAR(50) NOT NULL,
+max_characters  INT NOT NULL,
+is_alphanumeric TINYINT(1) NOT NULL,
 
 CONSTRAINT idtype_pk PRIMARY KEY (id)
 );

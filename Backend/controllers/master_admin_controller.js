@@ -122,10 +122,10 @@ async function delete_nationality(nationality_id){
 // RUD de tipo de identificación ---------------------------------------------------------------------------------------------------- //
 
 // Función para registrar un tipo de identificación
-async function register_id_type(name){
+async function register_id_type(name, max_characters, is_alphanumeric){
 
-    const fields = [name]
-    const query = "CALL register_id_type(?,@execution_code); SELECT @execution_code AS execution_code;"
+    const fields = [name, max_characters, is_alphanumeric]
+    const query = "CALL register_id_type(?,?,?,@execution_code); SELECT @execution_code AS execution_code;"
     const execution_code = await execute_operation(query, fields)
 
     // Generación de la respuesta
@@ -137,9 +137,9 @@ async function register_id_type(name){
 }
 
 // Función para actualizar un tipo de identificación
-async function update_id_type(id_type_id, new_name){
-    const fields = [id_type_id, new_name]
-    const query = "CALL update_id_type(?,?,@execution_code); SELECT @execution_code AS execution_code;"
+async function update_id_type(id_type_id, new_name, new_max_characters, new_is_alphanumeric){
+    const fields = [id_type_id, new_name, new_max_characters, new_is_alphanumeric]
+    const query = "CALL update_id_type(?,?,?,?,@execution_code); SELECT @execution_code AS execution_code;"
     const execution_code = await execute_operation(query, fields)
 
     // Generación de la respuesta

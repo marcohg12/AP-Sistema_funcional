@@ -69,6 +69,8 @@
                     <thead class="bg-light">
                       <tr>
                         <th>Nombre</th>
+                        <th>Caracteres máximos</th>
+                        <th>Máscara</th>
                         <th>Acciones</th>
                       </tr>
                     </thead>
@@ -78,13 +80,28 @@
                       <% id_types.forEach(id_type => {%>
 
                         <tr id="<%= id_type.id %>">
-                            <td style="width: 50%">
+
+                            <td>
                               <p class="fw-normal mb-1"><%= id_type.name %></p>
                             </td>
+
+                            <td>
+                              <p class="fw-normal mb-1"><%= id_type.max_characters %></p>
+                            </td>
+
+                            <% if (id_type.is_alphanumeric){ %>
+                                <td>
+                                  <p class="fw-normal mb-1">Alfanumérico</p>
+                                </td>
+                            <% } else{ %>
+                                <td>
+                                  <p class="fw-normal mb-1">Numérico</p>
+                                </td>
+                            <% } %>
                             
                             <td id="buttons-1">
                                 
-                                <button type="button" class="btn btn-link btn-sm btn-rounded" onclick="javascript:edit_row('<%= id_type.id %>', '<%= id_type.name %>')">
+                                <button type="button" class="btn btn-link btn-sm btn-rounded" onclick="javascript:edit_row('<%= id_type.id %>', '<%= id_type.name %>', '<%= id_type.max_characters %>', '<%= id_type.is_alphanumeric %>')">
                                     Editar
                                 </button>
 
@@ -138,6 +155,24 @@
                                         <input type="text" id="register_name" name="register_name" maxlength="50" class="form-control" required/>
                                         <label class="form-label">Nombre</label>
                                     </div>
+
+                                    <div class="form-outline mb-4">
+                                        <input type="number" id="max_characters" name="max_characters" min="1" max="50" class="form-control" required/>
+                                        <label class="form-label">Caracteres máximos</label>
+                                    </div>
+
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="is_alphanumeric" id="alphanumeric" value="1" checked>
+                                        <label class="form-check-label">
+                                          Alfanumérico
+                                        </label>
+                                      </div>
+                                      <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="is_alphanumeric" id="numeric" value="0">
+                                        <label class="form-check-label">
+                                          Numérico
+                                        </label>
+                                      </div>
                 
                                 </div>
                                             
@@ -183,7 +218,9 @@
     <script>
 
         // Habilita el pop up para editar un tipo de identificación
-        function edit_row(id_type_id, id_type_name){
+        function edit_row(id_type_id, id_type_name, id_type_max_characters, id_type_is_alphanumeric){
+
+            id_type_is_alphanumeric = parseInt(id_type_is_alphanumeric)
 
             const modal_content = `         
             
@@ -193,6 +230,21 @@
                     <div class="form-outline mb-4">
                         <input type="text" id="new_name" name="new_name" value="${id_type_name}" maxlength="50" required class="form-control"/>
                         <label class="form-label">Nombre</label>
+                    </div>
+
+                    <div class="form-outline mb-4">
+                        <input type="number" id="new_max_characters" name="new_max_characters" min="1" max="50" value="${id_type_max_characters}" class="form-control" required/>
+                        <label class="form-label">Caracteres máximos</label>
+                    </div>
+
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="new_is_alphanumeric" id="new_alphanumeric" value="1" ${id_type_is_alphanumeric ? "checked" : ""}>
+                        <label class="form-check-label">Alfanumérico</label>
+                    </div>
+
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="new_is_alphanumeric" id="new_numeric" value="0" ${!id_type_is_alphanumeric ? "checked" : ""}>
+                        <label class="form-check-label">Numérico</label>
                     </div>
 
                 </div>
@@ -234,7 +286,16 @@
             event.preventDefault()
             const url = "http://localhost:4500/master_admins/update_id_type"
             const new_name = document.getElementById("new_name").value
-            const request_body = {id_type_id: id_type_id, new_name: new_name}
+            const new_max_characters = document.getElementById("new_max_characters").value
+
+            var new_is_alphanumeric
+            if (document.getElementById('new_alphanumeric').checked) {
+              new_is_alphanumeric = document.getElementById('new_alphanumeric').value
+            } else {
+              new_is_alphanumeric = document.getElementById('new_numeric').value
+            }
+
+            const request_body = {id_type_id: id_type_id, new_name: new_name, new_max_characters: new_max_characters, new_is_alphanumeric: new_is_alphanumeric}
             const response = await send_request("POST", url, request_body)
             show_response(response)
         }
@@ -252,15 +313,28 @@
             event.preventDefault()
             const url = "http://localhost:4500/master_admins/register_id_type"
             const name = document.getElementById("register_name").value
-            const request_body = {name: name}
+            const max_characters = document.getElementById("max_characters").value
+
+            var is_alphanumeric
+            if (document.getElementById('alphanumeric').checked) {
+              is_alphanumeric = document.getElementById('alphanumeric').value
+            } else {
+              is_alphanumeric = document.getElementById('numeric').value
+            }
+
+            const request_body = {name: name, max_characters: max_characters, is_alphanumeric: is_alphanumeric}
             const response = await send_request("POST", url, request_body)
             show_response(response)
         }
 
         // Muestra el modal con la respuesta de una petición
         function show_response(response){
-            $('#registration_modal').modal('hide')
-            $('#edition_modal').modal('hide')
+
+            if (!response.error){
+                $('#registration_modal').modal('hide')
+                $('#edition_modal').modal('hide')
+            }
+
             if (response.error){
                 document.getElementById("error_message").innerHTML = response.message
                 $('#error_alert_modal').modal('show')
@@ -273,10 +347,5 @@
         $('#success_alert_modal').on('hidden.bs.modal', function () {
             location.reload()
         })
-
-        $('#error_alert_modal').on('hidden.bs.modal', function () {
-            location.reload()
-        })
-
     </script>
 </html>

@@ -164,14 +164,15 @@ router.post("/delete_nationality", check_authenticated, async (req, res) => {
 
 // Responde a la solicitud de registro de tipo de identificación
 router.post("/register_id_type", check_authenticated, async (req, res) => {
-    const response = await master_admin_controller.register_id_type(req.body.name)
+    const response = await master_admin_controller.register_id_type(req.body.name, req.body.max_characters, req.body.is_alphanumeric)
     res.status(200)
     res.send(JSON.stringify(response))
 })
 
 // Responde a la solicitud de actualización de tipo de identificación
 router.post("/update_id_type", check_authenticated, async (req, res) => {
-    const response = await master_admin_controller.update_id_type(req.body.id_type_id, req.body.new_name)
+    const response = await master_admin_controller.update_id_type(req.body.id_type_id, req.body.new_name, 
+                                                                  req.body.new_max_characters, req.body.new_is_alphanumeric)
     res.status(200)
     res.send(JSON.stringify(response))
 })
