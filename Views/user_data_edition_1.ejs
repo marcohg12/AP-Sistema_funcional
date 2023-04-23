@@ -58,14 +58,13 @@
                                               </div>
             
                                               <div class="form-outline mb-4">
-                                                <input type="text" name="identification_number" required oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"
-                                                       id="identification_number" maxlength="15" class="form-control form-control-lg" value="<%= user_data.identification_number %>"/>
+                                                <div id="id_type_input"></div>
                                                 <label class="form-label">Número de identificación</label>
                                               </div>
 
                                               <div class="btn-group">
 
-                                                <select class="form-select me-4" style="width:200px" name="id_type" id="id_type" required>
+                                                <select class="form-select me-4" style="width:200px" name="id_type" id="id_type" required onchange="javascript:config_id_type(value)">
                                                   <option value="">Tipo de identificación</option>
                                                   <% id_types.forEach( id_type => { %>
                                                     <option value="<%= id_type.id %>"><%= id_type.name %></option>
@@ -148,11 +147,72 @@
 
     </body>
     <script>
-        birthdate.max = new Date().toISOString().split("T")[0];
+
+        birthdate.max = new Date().toISOString().split("T")[0]
+        const id_types = JSON.parse('<%-JSON.stringify(id_types)%>'.replace(/\n/g, "\\\\n").replace(/\r/g, "\\\\r").replace(/\t/g, "\\\\t"))
 
         gender_id = "<%= user_data.gender_ref %>"
         id_type_id = "<%= user_data.id_type_ref %>"
-        document.getElementById('gender').value = gender_id;
-        document.getElementById('id_type').value = id_type_id;
+        identification_number = "<%= user_data.identification_number %>"
+
+        document.getElementById('gender').value = gender_id
+        document.getElementById('id_type').value = id_type_id
+        init_id_type(id_type_id)
+
+        function init_id_type(){
+          var id_type_selected
+
+          for (i = 0; i < id_types.length; i++){
+            if (id_types[i].id == id_type_id){
+              id_type_selected = id_types[i]
+              break
+            }
+          }
+
+          var id_type_input
+
+          if (id_type_selected.is_alphanumeric){
+            id_type_input = `<input type="text" name="identification_number" required id="identification_number" 
+                             maxlength="${id_type_selected.max_characters}" value="${identification_number}" class="form-control form-control-lg"/>`
+          } else {
+            id_type_input = `<input type="text" name="identification_number" required onkeypress="return is_number_key(event)" id="identification_number" 
+             maxlength="${id_type_selected.max_characters}" value="${identification_number}" class="form-control form-control-lg"/>`
+          }
+
+          document.getElementById("id_type_input").innerHTML = id_type_input
+        }
+
+        function config_id_type(id_type_id){
+
+          var id_type_selected
+
+          for (i = 0; i < id_types.length; i++){
+            if (id_types[i].id == id_type_id){
+              id_type_selected = id_types[i]
+              break
+            }
+          }
+
+          var id_type_input
+
+          if (id_type_selected.is_alphanumeric){
+            id_type_input = `<input type="text" name="identification_number" required id="identification_number" 
+                             maxlength="${id_type_selected.max_characters}" class="form-control form-control-lg"/>`
+          } else {
+            id_type_input = `<input type="text" name="identification_number" required onkeypress="return is_number_key(event)" id="identification_number" 
+             maxlength="${id_type_selected.max_characters}" class="form-control form-control-lg"/>`
+          }
+
+          document.getElementById("id_type_input").innerHTML = id_type_input
+        }
+        
+        function is_number_key(evt){ 
+          var char_code = (evt.which) ? evt.which : event.keyCode 
+          if (char_code > 31 && (char_code < 48 || char_code > 57)){
+            return false
+          }
+          return true
+        } 
+
     </script> 
 </html>
