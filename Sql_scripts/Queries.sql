@@ -11,6 +11,7 @@
 --     -7 - id telefono no existe
 --     -8 - columna queda vacía
 --     -9 - el nombre ya existe
+--     -10 - foreing key no existe
 
 -- FUNCIÓN Registra usuario si este no tiene el mismo username, email o numero de identificacion que otro -------------------------------------
 CREATE DEFINER=`root`@`localhost` PROCEDURE `register_user`(IN pfirst_name VARCHAR(50), IN psecond_name VARCHAR(50), IN pfirst_surname VARCHAR(50),
@@ -1023,4 +1024,241 @@ END; //
 /*
 
 
+/* 
+	PROCESO: Registrar cuarto
+    Retorna 
+    -10 : el hotel a asociar no existe
+    -1 : error generico base
+     0 : éxito
+     
+     INSERT INTO room VALUES(default, 'Habitación 200', 5, 800, 0, 0,1);
 
+*/
+drop procedure if exists register_room;
+delimiter $$
+CREATE DEFINER='root'@'localhost' PROCEDURE register_room (IN pname VARCHAR(50), IN pcapacity int, IN pprice int,IN pdiscount_code int,IN pdiscount_rate int, IN photel_id int,OUT execution_code INT) 	 
+BODY: BEGIN
+	DECLARE check_hotel bool;
+	DECLARE CUSTOM_EXCEPTION CONDITION FOR SQLSTATE '45000';
+	DECLARE EXIT HANDLER FOR SQLSTATE '45000'
+	  BEGIN
+	  ROLLBACK;
+	  END;
+	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+	BEGIN
+		SET execution_code = -1;
+		ROLLBACK;
+	END;
+    
+    select if(count(id) = 1, true, false) into check_hotel from hotel where id = photel_id;
+    if(check_hotel) = false then 
+		SET execution_code = -10;
+        SIGNAL CUSTOM_EXCEPTION;
+	else
+		INSERT INTO room VALUES(default,pname, pcapacity, pprice, pdiscount_code, pdiscount_rate, photel_id);
+        SET execution_code = 0;
+        COMMIT;
+	end IF;
+    
+END$$
+
+
+/* 
+	PROCESO: Actualizar cuarto
+    Retorna 
+    -5 : el id del cuarto no existe
+    -1 : error generico base
+     0 : éxito
+     
+     call register_room('Habitación 2.0', 5, 800, 0, 0,1, @execution_code);
+
+*/
+drop procedure if exists update_room;
+delimiter $$
+CREATE DEFINER='root'@'localhost' PROCEDURE update_room (IN room_id int,IN new_name VARCHAR(50), IN new_capacity int, IN new_price int,IN new_discount_code int,IN new_discount_rate int,OUT execution_code INT) 	 
+BODY: BEGIN
+	DECLARE check_room bool;
+	DECLARE CUSTOM_EXCEPTION CONDITION FOR SQLSTATE '45000';
+	DECLARE EXIT HANDLER FOR SQLSTATE '45000'
+	  BEGIN
+	  ROLLBACK;
+	  END;
+	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+	BEGIN
+		SET execution_code = -1;
+		ROLLBACK;
+	END;
+    
+    select if(count(id) = 1, true, false) into check_room from room where id = room_id;
+    if(check_room) = false then 
+		SET execution_code = -5;
+        SIGNAL CUSTOM_EXCEPTION;
+	else
+        UPDATE room set 
+        name = new_name,
+        capacity = new_capacity,
+        recommended_price = new_price,
+        discount_code = new_discount_code,
+        discount_rate = new_discount_rate
+        where id = room_id;
+        SET execution_code = 0;
+        COMMIT;
+	end IF;
+    
+END$$
+
+
+/* 
+	PROCESO: Eliminar cuarto
+    Retorna 
+    -5 : el id del cuarto no existe
+    -1 : error generico base
+     0 : éxito
+     
+     call delete_room(2, @execution_code);
+
+*/
+drop procedure if exists delete_room;
+delimiter $$
+CREATE DEFINER='root'@'localhost' PROCEDURE delete_room (IN room_id int, OUT execution_code INT) 	 
+BODY: BEGIN
+	DECLARE check_room bool;
+	DECLARE CUSTOM_EXCEPTION CONDITION FOR SQLSTATE '45000';
+	DECLARE EXIT HANDLER FOR SQLSTATE '45000'
+	  BEGIN
+	  ROLLBACK;
+	  END;
+	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+	BEGIN
+		SET execution_code = -1;
+		ROLLBACK;
+	END;
+    
+    select if(count(id) = 1, true, false) into check_room from room where id = room_id;
+    if(check_room) = false then 
+		SET execution_code = -5;
+        SIGNAL CUSTOM_EXCEPTION;
+	else
+        DELETE FROM room where id = room_id;
+        SET execution_code = 0;
+        COMMIT;
+	end IF;
+    
+END$$
+
+
+/* 
+	PROCESO: Actualizar clasificación
+    Retorna 
+    -5 : el id de clasificación no existe
+    -1 : error generico base
+     0 : éxito
+     
+     call update_classification(1, "actualizando clasi", @execution_code);
+
+*/
+drop procedure if exists update_classification;
+delimiter $$
+CREATE DEFINER='root'@'localhost' PROCEDURE update_classification (IN classification_id int,IN new_name VARCHAR(50), OUT execution_code INT) 	 
+BODY: BEGIN
+	DECLARE check_classification bool;
+	DECLARE CUSTOM_EXCEPTION CONDITION FOR SQLSTATE '45000';
+	DECLARE EXIT HANDLER FOR SQLSTATE '45000'
+	  BEGIN
+	  ROLLBACK;
+	  END;
+	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+	BEGIN
+		SET execution_code = -1;
+		ROLLBACK;
+	END;
+    
+    select if(count(id) = 1, true, false) into check_classification from classification where id = classification_id;
+    if(check_classification) = false then 
+		SET execution_code = -5;
+        SIGNAL CUSTOM_EXCEPTION;
+	else
+        UPDATE classification SET NAME = new_name where id = classification_id;
+        SET execution_code = 0;
+        COMMIT;
+	end IF;
+    
+END$$
+
+/* 
+	PROCESO: Eliminar clasificación
+    Retorna 
+    -5 : el id de clasificación no existe
+    -1 : error generico base
+     0 : éxito
+     
+     call delete_classification(2, @execution_code);
+
+*/
+drop procedure if exists delete_classification;
+delimiter $$
+CREATE DEFINER='root'@'localhost' PROCEDURE delete_classification (IN classification_id int, OUT execution_code INT) 	 
+BODY: BEGIN
+	DECLARE check_classification bool;
+	DECLARE CUSTOM_EXCEPTION CONDITION FOR SQLSTATE '45000';
+	DECLARE EXIT HANDLER FOR SQLSTATE '45000'
+	  BEGIN
+	  ROLLBACK;
+	  END;
+	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+	BEGIN
+		SET execution_code = -1;
+		ROLLBACK;
+	END;
+    
+    select if(count(id) = 1, true, false) into check_classification from classification where id = classification_id;
+    if(check_classification) = false then 
+		SET execution_code = -5;
+        SIGNAL CUSTOM_EXCEPTION;
+	else
+        DELETE FROM classification where id = classification_id;
+        SET execution_code = 0;
+        COMMIT;
+	end IF;
+    
+END$$
+
+
+
+/* 
+	PROCESO: get distrito
+    Retorna 
+    -5 : el id del distrito no existe
+    -1 : error generico base
+     0 : éxito
+     
+     call get_district(1, @execution_code);
+
+*/
+drop procedure if exists get_district;
+delimiter $$
+CREATE DEFINER='root'@'localhost' PROCEDURE get_district (IN district_id int, OUT execution_code INT) 	 
+BODY: BEGIN
+	DECLARE check_district bool;
+	DECLARE CUSTOM_EXCEPTION CONDITION FOR SQLSTATE '45000';
+	DECLARE EXIT HANDLER FOR SQLSTATE '45000'
+	  BEGIN
+	  ROLLBACK;
+	  END;
+	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+	BEGIN
+		SET execution_code = -1;
+		ROLLBACK;
+	END;
+    
+    select if(count(id) = 1, true, false) into check_district from district where id = district_id;
+    if(check_district) = false then 
+		SET execution_code = -5;
+        SIGNAL CUSTOM_EXCEPTION;
+	else
+        SELECT id, name FROM district where id = district_id;
+        SET execution_code = 0;
+        COMMIT;
+	end IF;
+    
+END$$
