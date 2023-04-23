@@ -120,6 +120,34 @@ async function get_amenities_not_in_room(room_id, hotel_id){
     return await execute_query(query, fields)
 }
 
+// Función para agregar una amenidad a una habitación
+async function add_amenity_to_room(room_id, amenity_id){
+    const fields = [room_id, amenity_id]
+    const query = "CALL add_amenity_to_room(?,?,@execution_code); SELECT @execution_code AS execution_code;"
+    const execution_code = await execute_operation(query, fields)
+
+    // Generación de la respuesta
+    if (execution_code == -1) {
+        return ({error: true, message: "Ocurrió un error inesperado"})
+    } else {
+        return ({error: false, message: "Amenidad registrada exitosamente"})
+    }
+}
+
+// Función para eliminar una amenidad de una habitación
+async function delete_amenity_from_room(room_id, amenity_id){
+    const fields = [room_id, amenity_id]
+    const query = "CALL delete_amenity_from_room(?,?,@execution_code); SELECT @execution_code AS execution_code;"
+    const execution_code = await execute_operation(query, fields)
+
+    // Generación de la respuesta
+    if (execution_code == -1) {
+        return ({error: true, message: "Ocurrió un error inesperado"})
+    } else {
+        return ({error: false, message: "Amenidad eliminada exitosamente"})
+    }
+}
+
 // RUD de amenidades   ----------------------------------------------------------------------------------------- //
 
 // Función para obtener las amenidades de un hotel
@@ -130,16 +158,16 @@ async function get_amenities(hotel_id){
 }
 
 // Función para registrar una amenidad
-async function register_amenity(name){
-    const fields = [name]
-    const query = "CALL register_amenity(?,@execution_code); SELECT @execution_code AS execution_code;"
+async function register_amenity(name, hotel_id){
+    const fields = [name, hotel_id]
+    const query = "CALL register_amenity(?,?,@execution_code); SELECT @execution_code AS execution_code;"
     const execution_code = await execute_operation(query, fields)
 
     // Generación de la respuesta
     if (execution_code == -1) {
-        return resolve({error: true, message: "Ocurrió un error inesperado"})
+        return ({error: true, message: "Ocurrió un error inesperado"})
     } else {
-        return resolve({error: false, message: "Amenidad registrada exitosamente"})
+        return ({error: false, message: "Amenidad registrada exitosamente"})
     }
 }
 
@@ -191,9 +219,9 @@ async function register_deal(name, start_date, ending_date, discount_rate, minim
 
     // Generación de la respuesta
     if (execution_code == -1) {
-        return resolve({error: true, message: "Ocurrió un error inesperado"})
+        return ({error: true, message: "Ocurrió un error inesperado"})
     } else {
-        return resolve({error: false, message: "Oferta registrada exitosamente"})
+        return ({error: false, message: "Oferta registrada exitosamente"})
     }
 }
 
@@ -238,16 +266,16 @@ async function get_payment_methods(hotel_id){
 }
 
 // Función para registrar un método de pago
-async function register_payment_method(name){
-    const fields = [name]
-    const query = "CALL register_payment_method(?,@execution_code); SELECT @execution_code AS execution_code;"
+async function register_payment_method(name, hotel_id){
+    const fields = [name, hotel_id]
+    const query = "CALL register_payment_method(?,?,@execution_code); SELECT @execution_code AS execution_code;"
     const execution_code = await execute_operation(query, fields)
 
     // Generación de la respuesta
     if (execution_code == -1) {
-        return resolve({error: true, message: "Ocurrió un error inesperado"})
+        return ({error: true, message: "Ocurrió un error inesperado"})
     } else {
-        return resolve({error: false, message: "Método de pago registrado exitosamente"})
+        return ({error: false, message: "Método de pago registrado exitosamente"})
     }
 }
 
@@ -295,14 +323,16 @@ async function get_cancelation_policies(hotel_id){
 // Función para registrar una política de cancelación
 async function register_cancelation_policy(name, anticipation_time, cancelation_fee, hotel_id){
     const fields = [name, anticipation_time, cancelation_fee, hotel_id]
-    const query = "CALL register_cancelation_policy(?,@execution_code); SELECT @execution_code AS execution_code;"
+    const query = "CALL register_cancelation_policy(?,?,?,?,@execution_code); SELECT @execution_code AS execution_code;"
     const execution_code = await execute_operation(query, fields)
 
     // Generación de la respuesta
     if (execution_code == -1) {
-        return resolve({error: true, message: "Ocurrió un error inesperado"})
+        return ({error: true, message: "Ocurrió un error inesperado"})
+    } else if (execution_code == -3){
+        return ({error: true, message: "Error: ya existe una política con la misma anticipación"})
     } else {
-        return resolve({error: false, message: "Política de cancelación registrado exitosamente"})
+        return ({error: false, message: "Política de cancelación registrado exitosamente"})
     }
 }
 
@@ -315,6 +345,8 @@ async function update_cancelation_policy(policy_id, new_name, new_anticipation_t
     // Generación de respuesta
     if (execution_code == -1){
         return ({error: true, message: "Ocurrió un error inesperado"})
+    } else if (execution_code == -3){
+        return ({error: true, message: "Error: ya existe una política con la misma anticipación"})
     } else {
         return ({error: false, message: "Política de cancelación actualizada correctamente"})
     }
@@ -381,5 +413,7 @@ module.exports = {
     get_deals,
     get_bookins,
     get_amenities_in_room,
-    get_amenities_not_in_room
+    get_amenities_not_in_room,
+    add_amenity_to_room,
+    delete_amenity_from_room
 }

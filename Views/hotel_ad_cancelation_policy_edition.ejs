@@ -146,12 +146,12 @@
                       <div class="col">
           
                         <div class="form-outline mb-4">
-                          <input type="text" id="name" name="name" class="form-control" required/>
+                          <input type="text" id="name" name="name" class="form-control" maxlength="50" required/>
                           <label class="form-label">Nombre</label>
                         </div> 
           
                         <div class="form-outline mb-4">
-                          <input type="text" id="anticipation_time" name="anticipation_time" class="form-control" required/>
+                          <input type="number" id="anticipation_time" name="anticipation_time" class="form-control" min="1" required/>
                           <label class="form-label">Días de anticipación</label>
                         </div> 
           
@@ -160,7 +160,7 @@
                       <div class="col">
           
                         <div class="form-outline mb-4">
-                          <input type="text" id="value" name="value" class="form-control" required/>
+                          <input type="number" id="cancelation_fee" name="cancelation_fee" class="form-control" min="0" max="100" required/>
                           <label class="form-label">Penalización</label>
                         </div> 
                                   
@@ -178,6 +178,28 @@
                 </div>
               </div>
             </div>
+
+                <!-- Pop ups de mensajes ----------------------------------------------------------------------->
+
+                 <!-- Pop de mensage de éxito -->  
+                 <div class="modal fade" id="success_alert_modal" tabindex="-1" aria-labelledby="success_alert_modal" aria-hidden="true">
+                  <div class="modal-dialog">
+                      <div class="alert alert-success alert-dismissible">
+                          <p id="success_message"></p>
+                          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                      </div>
+                  </div>
+               </div>
+
+               <!-- Pop de mensage de error -->  
+               <div class="modal fade" id="error_alert_modal" tabindex="-1" aria-labelledby="error_alert_modal" aria-hidden="true">
+                  <div class="modal-dialog">
+                      <div class="alert alert-danger alert-dismissible">
+                          <p id="error_message"></p>
+                          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                      </div>
+                  </div>
+               </div>
 
           </div>
         </section>
@@ -197,12 +219,12 @@
                       <div class="col">
           
                         <div class="form-outline mb-4">
-                          <input type="text" id="new_name" name="new_name" class="form-control" value="${policy_name}" required/>
+                          <input type="text" id="new_name" name="new_name" class="form-control" value="${policy_name}" maxlength="50" required/>
                           <label class="form-label">Nombre</label>
                         </div> 
           
                         <div class="form-outline mb-4">
-                          <input type="text" id="new_anticipation_time" name="new_anticipation_time" value="${policy_anticipation}" class="form-control" required/>
+                          <input type="number" id="new_anticipation_time" name="new_anticipation_time" value="${policy_anticipation}" class="form-control" min="1" required/>
                           <label class="form-label">Días de anticipación</label>
                         </div> 
           
@@ -211,7 +233,7 @@
                       <div class="col">
           
                         <div class="form-outline mb-4">
-                          <input type="text" id="new_value" name="new_value" value="${policy_value}" class="form-control" required/>
+                          <input type="number" id="new_cancelation_fee" name="new_cancelation_fee" value="${policy_value}" class="form-control" min="0" max="100" required/>
                           <label class="form-label">Penalización</label>
                         </div> 
                                   
@@ -255,16 +277,61 @@
         // Función para registrar una política de cancelación
         async function register_policy(event){
           event.preventDefault()
+
+          const name = document.getElementById("name").value
+          const anticipation_time = document.getElementById("anticipation_time").value
+          const cancelation_fee = document.getElementById("cancelation_fee").value
+          const request_body = {name: name, anticipation_time: anticipation_time, cancelation_fee: cancelation_fee}
+          const url = "http://localhost:4500/hotel_admins/register_cancelation_policy"
+          const response = await send_request("POST", url, request_body)
+
+          show_response(response)
         }
 
         // Función para eliminar una política de cancelación
         async function delete_policy(policy_id){
 
+          const request_body = {policy_id: policy_id}
+          const url = "http://localhost:4500/hotel_admins/delete_cancelation_policy"
+          const response = await send_request("POST", url, request_body)
+
+          show_response(response)
         }
         
         // Función para actualizar una política de cancelación
         async function update_policy(event, policy_id){
           event.preventDefault()
+
+          const new_name = document.getElementById("new_name").value
+          const new_anticipation_time = document.getElementById("new_anticipation_time").value
+          const new_cancelation_fee = document.getElementById("new_cancelation_fee").value
+          const request_body = {policy_id: policy_id, new_name: new_name, new_anticipation_time: new_anticipation_time, new_cancelation_fee: new_cancelation_fee}
+          const url = "http://localhost:4500/hotel_admins/update_cancelation_policy"
+          const response = await send_request("POST", url, request_body)
+
+          show_response(response)
         }
+
+        // Muestra el modal con la respuesta de una petición
+      function show_response(response){
+        
+        if (!response.error){
+            $('#registration_modal').modal('hide')
+            $('#edition_modal').modal('hide')
+        }
+
+        if (response.error){
+            document.getElementById("error_message").innerHTML = response.message
+            $('#error_alert_modal').modal('show')
+        } else {
+            document.getElementById("success_message").innerHTML = response.message
+            $('#success_alert_modal').modal('show')
+        }
+      }
+
+      $('#success_alert_modal').on('hidden.bs.modal', function () {
+        location.reload()
+      })
+
     </script>
 </html>

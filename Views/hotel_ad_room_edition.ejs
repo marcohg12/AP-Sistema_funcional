@@ -229,14 +229,10 @@
                     
                     <div class="modal-body row">
 
-                      <div class="col">
-                        <form onsubmit="javascript:delete_amenity_from_room(event)" id="delete_amenity_form">
-                        </form>
+                      <div class="col" id="delete_amenity_form">
                       </div>
 
-                      <div class="col">
-                        <form onsubmit="javascript:add_amenity_to_room(event)" id="add_amenity_form">
-                        </form>
+                      <div class="col" id="add_amenity_form">
                       </div>
 
                     </div> 
@@ -359,18 +355,18 @@
             })
         }
 
-      // Función que construye los formularios para editar las amenidades de una habitación
-      async function edit_amenities(room_id, room_name){
+      async function build_amenities_forms(room_id){
 
         // Obtenemos las amenidades
         const room_amenities = await send_request("GET", "http://localhost:4500/hotel_admins/get_amenities_in_room/" + room_id, {})
         const amenities_not_in_room = await send_request("GET", "http://localhost:4500/hotel_admins/get_amenities_not_in_room/" + room_id, {})
 
-        // Se construyen los formularios
+        // Formulario de adición de amenidades
         var add_amenity_form = `
 
+            <form onsubmit="javascript:add_amenity_to_room(event, ${room_id})">
             <label  class="form-label">Amenidades disponibles</label>
-            <select class="form-select" name="new_ameniy" id="add_amenity_selector" required>
+            <select class="form-select" name="add_amenity_selector" id="add_amenity_selector" required>
               <option value="">Amenidades</option>`
 
         for (i = 0; i < amenities_not_in_room.length; i++){
@@ -378,12 +374,14 @@
         }
         add_amenity_form += `
             </select> 
-            <button type="submit" class="btn btn-outline-secondary mt-3">Agregar</button>`
+            <button type="submit" class="btn btn-outline-secondary mt-3">Agregar</button></form>`
 
+        // Formulario de eliminación de amenidades
         var delete_amenity_form = `
 
+            <form onsubmit="javascript:delete_amenity_from_room(event, ${room_id})">
             <label  class="form-label">Amenidades de la habitación</label>
-            <select class="form-select" name="new_ameniy" id="add_amenity_selector" required>
+            <select class="form-select" name="delete_amenity_selector" id="delete_amenity_selector" required>
               <option value="">Amenidades</option>`
 
         for (i = 0; i < room_amenities.length; i++){
@@ -391,25 +389,21 @@
         }
         delete_amenity_form += `
             </select>
-            <button type="submit" class="btn btn-outline-secondary mt-3">Eliminar</button>`
+            <button type="submit" class="btn btn-outline-secondary mt-3">Eliminar</button></form>`
+
+        document.getElementById("delete_amenity_form").innerHTML = delete_amenity_form
+        document.getElementById("add_amenity_form").innerHTML = add_amenity_form
+      }
+
+      // Función que construye los formularios para editar las amenidades de una habitación
+      async function edit_amenities(room_id, room_name){
+
+        // Se construyen los formularios
+        await build_amenities_forms(room_id)
 
         // Se colocan los formularios
         document.getElementById("amenity_modal_title").innerHTML = "Amenidades de " + room_name
-        document.getElementById("delete_amenity_form").innerHTML = delete_amenity_form
-        document.getElementById("add_amenity_form").innerHTML = add_amenity_form
         $('#amenity_modal').modal('show')
-      }
-
-      // Función para agregar una amenidad a la habitación
-      async function add_amenity_to_room(event){
-        event.preventDefault()  
-        show_response(response)
-      }
-
-      // Función para eliminar una amenidad de la habitación
-      async function delete_amenity_from_room(event){
-        event.preventDefault()  
-        show_response(response)
       }
 
       // Función para registrar una habitación
@@ -450,12 +444,35 @@
 
       // Función para eliminar una habitación
       async function delete_room(room_id){
-
+        event.preventDefault()  
         const request_body = {room_id: room_id}
         const url = "http://localhost:4500/hotel_admins/delete_room"
         const response = await send_request("POST", url, request_body)
-
         show_response(response)
+      }
+
+      // Función para agregar una amenidad a una habitación
+      async function add_amenity_to_room(event, room_id){
+        event.preventDefault()
+
+        const amenity_id = document.getElementById("add_amenity_selector").value
+        const request_body = {room_id: room_id, amenity_id: amenity_id}
+        const url = "http://localhost:4500/hotel_admins/add_amenity_to_room"
+        const response = await send_request("POST", url, request_body)
+
+        build_amenities_forms(room_id)
+      }
+
+      // Función para eliminar una amenidad de una habitación
+      async function delete_amenity_from_room(event, room_id){
+        event.preventDefault()
+
+        const amenity_id = document.getElementById("delete_amenity_selector").value
+        const request_body = {room_id: room_id, amenity_id: amenity_id}
+        const url = "http://localhost:4500/hotel_admins/delete_amenity_from_room"
+        const response = await send_request("POST", url, request_body)
+
+        build_amenities_forms(room_id)
       }
 
       // Muestra el modal con la respuesta de una petición

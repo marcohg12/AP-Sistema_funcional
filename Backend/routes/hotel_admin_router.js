@@ -215,7 +215,7 @@ router.post("/register_room", check_authenticated, async (req, res) => {
                                                                 req.body.price, req.body.discount_code, req.body.discount_rate,
                                                                 req.user.hotel_admin_id)
     res.status(200)
-    res.send(JSON.stringify(response));
+    res.send(JSON.stringify(response))
 })
 
 // Responde a la solicitud de actualización de una habitación
@@ -223,35 +223,49 @@ router.post("/update_room", check_authenticated, async (req, res) => {
     const response = await hotel_admin_controller.update_room(req.body.room_id, req.body.name, req.body.capacity, req.body.units,
                                                               req.body.price, req.body.discount_code, req.body.discount_rate)
     res.status(200)
-    res.send(JSON.stringify(response));
+    res.send(JSON.stringify(response))
 })
 
 // Responde a la solicitud de eliminación de una habitación
 router.post("/delete_room", check_authenticated, async (req, res) => {
     const response = await hotel_admin_controller.delete_room(req.body.room_id)
     res.status(200)
-    res.send(JSON.stringify(response));
+    res.send(JSON.stringify(response))
+})
+
+// Responde a la solicitud de agregar una amenidad a una habitación
+router.post("/add_amenity_to_room", check_authenticated, async (req, res) => {
+    const response = await hotel_admin_controller.add_amenity_to_room(req.body.room_id, req.body.amenity_id)
+    res.status(200)
+    res.send(JSON.stringify(response))
+})
+
+// Responde a la solicitud de eliminar una amenidad de una habitación
+router.post("/delete_amenity_from_room", check_authenticated, async (req, res) => {
+    const response = await hotel_admin_controller.delete_amenity_from_room(req.body.room_id, req.body.amenity_id)
+    res.status(200)
+    res.send(JSON.stringify(response))
 })
 
 // RUD de amenidades   ----------------------------------------------------------------------------------------- //
 
 // Responde a la solicitud de registro de una amenidad
 router.post("/register_amenity", check_authenticated, async (req, res) => {
-    const response = null
+    const response = await hotel_admin_controller.register_amenity(req.body.name, req.user.hotel_admin_id)
     res.status(200)
     res.send(JSON.stringify(response));
 })
 
 // Responde a la solicitud de actualización de una amenidad
 router.post("/update_amenity", check_authenticated, async (req, res) => {
-    const response = null
+    const response = await hotel_admin_controller.update_amenity(req.body.amenity_id, req.body.new_name)
     res.status(200)
     res.send(JSON.stringify(response));
 })
 
 // Responde a la solicitud de eliminación de una amenidad
 router.post("/delete_amenity", check_authenticated, async (req, res) => {
-    const response = null
+    const response = await hotel_admin_controller.delete_amenity(req.body.amenity_id)
     res.status(200)
     res.send(JSON.stringify(response));
 })
@@ -283,21 +297,21 @@ router.post("/delete_deal", check_authenticated, async (req, res) => {
 
 // Responde a la solicitud de registro de un método de pago
 router.post("/register_payment_method", check_authenticated, async (req, res) => {
-    const response = null
+    const response = await hotel_admin_controller.register_payment_method(req.body.name, req.user.hotel_admin_id)
     res.status(200)
     res.send(JSON.stringify(response));
 })
 
 // Responde a la solicitud de actualización de un método de pago
 router.post("/update_payment_method", check_authenticated, async (req, res) => {
-    const response = null
+    const response = await hotel_admin_controller.update_payment_method(req.body.method_id, req.body.new_name)
     res.status(200)
     res.send(JSON.stringify(response));
 })
 
 // Responde a la solicitud de eliminación de un método de pago
 router.post("/delete_payment_method", check_authenticated, async (req, res) => {
-    const response = null
+    const response = await hotel_admin_controller.delete_payment_method(req.body.method_id)
     res.status(200)
     res.send(JSON.stringify(response));
 })
@@ -306,21 +320,23 @@ router.post("/delete_payment_method", check_authenticated, async (req, res) => {
 
 // Responde a la solicitud de registro de una política de cancelación
 router.post("/register_cancelation_policy", check_authenticated, async (req, res) => {
-    const response = null
+    const response = await hotel_admin_controller.register_cancelation_policy(req.body.name, req.body.anticipation_time, 
+                                                                              req.body.cancelation_fee, req.user.hotel_admin_id)
     res.status(200)
     res.send(JSON.stringify(response));
 })
 
 // Responde a la solicitud de actualización de una política de cancelación
 router.post("/update_cancelation_policy", check_authenticated, async (req, res) => {
-    const response = null
+    const response = await hotel_admin_controller.update_cancelation_policy(req.body.policy_id, req.body.new_name, 
+                                                                            req.body.new_anticipation_time, req.body.new_cancelation_fee)
     res.status(200)
     res.send(JSON.stringify(response));
 })
 
 // Responde a la solicitud de eliminación de una política de cancelación
 router.post("/delete_cancelation_policy", check_authenticated, async (req, res) => {
-    const response = null
+    const response = await hotel_admin_controller.delete_cancelation_policy(req.body.policy_id)
     res.status(200)
     res.send(JSON.stringify(response));
 })

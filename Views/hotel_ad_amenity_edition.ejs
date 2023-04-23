@@ -131,7 +131,7 @@
                 <form onsubmit="javascript:register_amenity(event)">
                   <div class="modal-body">
                     <div class="form-outline mb-4">
-                      <input type="text" id="register_name" name="register_name" class="form-control" required/>
+                      <input type="text" id="register_name" name="register_name" maxlength="50" class="form-control" required/>
                       <label class="form-label">Nombre</label>
                   </div>      
                  </div>
@@ -145,6 +145,28 @@
               </div>
             </div>
           </div>
+
+                  <!-- Pop ups de mensajes ----------------------------------------------------------------------->
+
+                 <!-- Pop de mensage de éxito -->  
+                 <div class="modal fade" id="success_alert_modal" tabindex="-1" aria-labelledby="success_alert_modal" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="alert alert-success alert-dismissible">
+                            <p id="success_message"></p>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    </div>
+                 </div>
+
+                 <!-- Pop de mensage de error -->  
+                 <div class="modal fade" id="error_alert_modal" tabindex="-1" aria-labelledby="error_alert_modal" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="alert alert-danger alert-dismissible">
+                            <p id="error_message"></p>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    </div>
+                 </div>
 
           </div>
         </section>
@@ -161,7 +183,7 @@
                 <div class="modal-body">
 
                     <div class="form-outline mb-4">
-                        <input type="text" id="new_name" name="new_name" value="${amenity_name}" required class="form-control"/>
+                        <input type="text" id="new_name" name="new_name" value="${amenity_name}" maxlength="50" required class="form-control"/>
                         <label class="form-label">Nombre</label>
                     </div>
 
@@ -202,17 +224,51 @@
         // Función para registrar una amenidad
         async function register_amenity(event){
           event.preventDefault()
+          const url = "http://localhost:4500/hotel_admins/register_amenity"
+          const name = document.getElementById("register_name").value
+          const request_body = {name: name}
+          const response = await send_request("POST", url, request_body)
+          show_response(response)
         }
 
         // Función para eliminar una amenidad
         async function delete_amenity(amenity_id){
-
+          const url = "http://localhost:4500/hotel_admins/delete_amenity"
+          const request_body = {amenity_id: amenity_id}
+          const response = await send_request("POST", url, request_body)
+          show_response(response)
         }
         
         // Función para actualizar una amenidad
         async function update_amenity(event, amenity_id){
           event.preventDefault()
+          const url = "http://localhost:4500/hotel_admins/update_amenity"
+          const new_name = document.getElementById("new_name").value
+          const request_body = {amenity_id: amenity_id, new_name: new_name}
+          const response = await send_request("POST", url, request_body)
+          show_response(response)
         }
+
+        // Muestra el modal con la respuesta de una petición
+        function show_response(response){
+
+            if (!response.error){
+                $('#registration_modal').modal('hide')
+                $('#edition_modal').modal('hide')
+            }
+            
+            if (response.error){
+                document.getElementById("error_message").innerHTML = response.message
+                $('#error_alert_modal').modal('show')
+            } else {
+                document.getElementById("success_message").innerHTML = response.message
+                $('#success_alert_modal').modal('show')
+            }
+        }
+
+        $('#success_alert_modal').on('hidden.bs.modal', function () {
+            location.reload()
+        })
 
     </script>
 </html>

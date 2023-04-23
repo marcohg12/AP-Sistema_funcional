@@ -131,7 +131,7 @@
                           <form onsubmit="javascript:register_method(event)">
                             <div class="modal-body">
                               <div class="form-outline mb-4">
-                                <input type="text" id="register_name" name="register_name" class="form-control" required/>
+                                <input type="text" id="register_name" name="register_name" class="form-control" maxlength="50" required/>
                                 <label class="form-label">Nombre</label>
                             </div>      
                            </div>
@@ -146,6 +146,28 @@
                       </div>
                     </div>
 
+                <!-- Pop ups de mensajes ----------------------------------------------------------------------->
+
+                 <!-- Pop de mensage de éxito -->  
+                 <div class="modal fade" id="success_alert_modal" tabindex="-1" aria-labelledby="success_alert_modal" aria-hidden="true">
+                  <div class="modal-dialog">
+                      <div class="alert alert-success alert-dismissible">
+                          <p id="success_message"></p>
+                          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                      </div>
+                  </div>
+               </div>
+
+               <!-- Pop de mensage de error -->  
+               <div class="modal fade" id="error_alert_modal" tabindex="-1" aria-labelledby="error_alert_modal" aria-hidden="true">
+                  <div class="modal-dialog">
+                      <div class="alert alert-danger alert-dismissible">
+                          <p id="error_message"></p>
+                          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                      </div>
+                  </div>
+               </div>
+
           </div>
         </section>
 
@@ -157,11 +179,11 @@
 
             const modal_content = `         
             
-            <form onsubmit="javascript:update_gender(event, ${method_id})">       
+            <form onsubmit="javascript:update_method(event, ${method_id})">       
                 <div class="modal-body">
 
                     <div class="form-outline mb-4">
-                        <input type="text" id="new_name" name="new_name" value="${method_name}" required class="form-control"/>
+                        <input type="text" id="new_name" name="new_name" value="${method_name}" maxlength="50" required class="form-control"/>
                         <label class="form-label">Nombre</label>
                     </div>
 
@@ -202,16 +224,50 @@
         // Función para registrar un método de pago
         async function register_method(event){
           event.preventDefault()
+          const url = "http://localhost:4500/hotel_admins/register_payment_method"
+          const name = document.getElementById("register_name").value
+          const request_body = {name: name}
+          const response = await send_request("POST", url, request_body)
+          show_response(response)
         }
 
         // Función para eliminar un método de pago
         async function delete_method(method_id){
-
+          const url = "http://localhost:4500/hotel_admins/delete_payment_method"
+          const request_body = {method_id: method_id}
+          const response = await send_request("POST", url, request_body)
+          show_response(response)
         }
         
         // Función para actualizar un método de pago
         async function update_method(event, method_id){
           event.preventDefault()
+          const url = "http://localhost:4500/hotel_admins/update_payment_method"
+          const new_name = document.getElementById("new_name").value
+          const request_body = {new_name: new_name, method_id: method_id}
+          const response = await send_request("POST", url, request_body)
+          show_response(response)
         }
+
+        // Muestra el modal con la respuesta de una petición
+        function show_response(response){
+
+            if (!response.error){
+                $('#registration_modal').modal('hide')
+                $('#edition_modal').modal('hide')
+            }
+            
+            if (response.error){
+                document.getElementById("error_message").innerHTML = response.message
+                $('#error_alert_modal').modal('show')
+            } else {
+                document.getElementById("success_message").innerHTML = response.message
+                $('#success_alert_modal').modal('show')
+            }
+        }
+
+        $('#success_alert_modal').on('hidden.bs.modal', function () {
+            location.reload()
+        })
     </script>
 </html>
