@@ -1725,5 +1725,5 @@ VALUES(default, 4, 1);
 
 -- CREACIÓN DE reservation_x_room -------------------------------------------------------------------------
 
-INSERT INTO reservation_x_room(reservation_ref, room_ref, price)
-VALUES(1, 1, 400);
+INSERT INTO reservation_x_room(reservation_ref, room_ref, price, units)
+VALUES(1, 1, 400, 2);
