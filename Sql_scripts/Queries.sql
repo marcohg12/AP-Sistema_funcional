@@ -11,6 +11,7 @@
 --     -7 - id telefono no existe
 --     -8 - columna queda vacía
 --     -9 - el nombre ya existe
+--     -10 - foreing key no existe
 
 -- FUNCIÓN Registra usuario si este no tiene el mismo username, email o numero de identificacion que otro -------------------------------------
 CREATE DEFINER=`root`@`localhost` PROCEDURE `register_user`(IN pfirst_name VARCHAR(50), IN psecond_name VARCHAR(50), IN pfirst_surname VARCHAR(50),
