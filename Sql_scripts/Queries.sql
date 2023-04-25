@@ -1262,3 +1262,97 @@ BODY: BEGIN
 	end IF;
     
 END$$
+
+
+
+
+
+
+
+/*
+Funcion get_room_detail
+recibe el id del cuarto
+devuelve los detalles y el codigo que indica:
+0 si es exitoso
+-1 si falla.
+-5 si el cuarto no es encontrado.
+*/
+DELIMITER //
+DROP PROCEDURE IF EXISTS get_room_detail; // 
+CREATE PROCEDURE get_room_detail(in room_id int, out rname varchar(50), out rcapacity int, out r_price int , out r_discount_code int, out r_discount_rate int, out runits int, out hotel_id int,  OUT execution_code INT)
+BEGIN
+DECLARE check_id INT;
+DECLARE CUSTOM_EXCEPTION CONDITION FOR SQLSTATE '45000';
+DECLARE EXIT HANDLER FOR SQLSTATE '45000'
+  BEGIN
+  ROLLBACK;
+  END;
+DECLARE EXIT HANDLER FOR SQLEXCEPTION
+BEGIN
+    SET execution_code = -1;
+    ROLLBACK;
+END;
+
+SELECT COUNT(*) INTO check_id FROM room WHERE id = room_id;
+
+IF (check_id = 0) THEN
+SET execution_code =-5;
+SIGNAL CUSTOM_EXCEPTION;
+END IF;
+
+SELECT name , capacity , recommended_price , discount_code, discount_rate, units, hotel_ref
+into rname, rcapacity, r_price, r_discount_code, r_discount_rate, runits, hotel_id
+from room where id = room_id;
+
+SET execution_code = 0;
+COMMIT;
+END; // 
+
+/*
+
+/*
+Funcion get_hotel_payment_methods
+retorna los metodos asociados al hotel
+recibe el id del hotel
+*/
+DELIMITER //
+DROP PROCEDURE IF EXISTS get_hotel_payment_methods; // 
+CREATE PROCEDURE get_hotel_payment_methods(in hotel_id int)
+BEGIN
+SELECT id, name from payment_method where hotel_ref = hotel_id;
+END; // 
+
+/*
+
+
+/*
+Funcion get_hotel_rooms
+retorna los cuartos asociados a un hotel
+recibe el id del hotel
+*/
+DELIMITER //
+DROP PROCEDURE IF EXISTS get_hotel_rooms; // 
+CREATE PROCEDURE get_hotel_rooms(in hotel_id int)
+BEGIN
+
+
+SELECT id, name, capacity, recommended_price, discount_code, discount_rate, units from room where hotel_ref = hotel_id;
+END; // 
+
+/*
+
+/*
+Funcion get_hotel_amenities
+retorna los amenities del hotel
+recibe el id del hotel
+*/
+DELIMITER //
+DROP PROCEDURE IF EXISTS get_hotel_amenities; // 
+CREATE PROCEDURE get_hotel_amenities(in hotel_id int)
+BEGIN
+
+
+SELECT id, name from amenity where hotel_ref = hotel_id;
+END; // 
+
+/*
