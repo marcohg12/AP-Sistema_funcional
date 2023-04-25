@@ -38,15 +38,15 @@ router.get("/deal_catalog", check_authenticated, async (req, res) => {
 
 // Responde a la solicitud de vista del edición de una oferta
 router.get("/edit_deal/:deal_id", check_authenticated, async (req, res) => {
-    const deal =  {id: "1", name: "40% Descuento en Habitaciones Doble", initial_date: "2023-03-25", ending_date: "2023-03-30", minimun_reservation_days: 10, discount: 50}
-    const rooms = [{id: "0", name: "Habitación sencilla", price: 150, capacity: 2, units:1},
-                   {id: "1", name: "Habitación doble", price: 290, capacity: 4, units:2},
-                   {id: "2", name: "Habitación deluxe", price: 350, capacity: 2, units:4},
-                   {id: "3", name: "Habitación deluxe doble", price: 600, capacity: 4, units:2}]
 
-    const rooms_in_deal = [{id: "0", name: "Habitación sencilla", price: 150, capacity: 2, units:1, current_price: 100},
-                              {id: "1", name: "Habitación doble", price: 290, capacity: 4, units:1, current_price: 145},
-                              {id: "2", name: "Habitación deluxe", price: 350, capacity: 2, units:2, current_price: 175}]
+    const deal =  (await hotel_admin_controller.get_deal_data(req.params.deal_id))[0]
+    deal.start_date = deal.start_date.toISOString().split("T")[0]
+    deal.ending_date = deal.ending_date.toISOString().split("T")[0]
+
+    const rooms = await hotel_admin_controller.get_rooms_available_for_deal(req.params.deal_id)
+
+    const rooms_in_deal = await hotel_admin_controller.get_rooms_in_deal(req.params.deal_id)
+
     res.render("hotel_ad_edit_deal", {deal: deal, rooms: rooms, rooms_in_deal: rooms_in_deal, profile:req.user.photo})
 })
 
@@ -274,23 +274,39 @@ router.post("/delete_amenity", check_authenticated, async (req, res) => {
 
 // Responde a la solicitud de registro de una oferta
 router.post("/register_deal", check_authenticated, async (req, res) => {
-    const response = null
+    const response = await hotel_admin_controller.register_deal(req.body.name, req.body.start_date, req.body.ending_date,
+                                                                req.body.discount_rate, req.body.minimun_days, req.user.hotel_admin_id)
     res.status(200)
-    res.send(JSON.stringify(response));
+    res.send(JSON.stringify(response))
 })
 
 // Responde a la solicitud de actualización de una oferta
 router.post("/update_deal", check_authenticated, async (req, res) => {
-    const response = null
+    const response = await hotel_admin_controller.update_deal(req.body.deal_id, req.body.name, req.body.start_date, req.body.ending_date,
+                                                              req.body.discount_rate, req.body.minimun_days)
     res.status(200)
-    res.send(JSON.stringify(response));
+    res.send(JSON.stringify(response))
 })
 
 // Responde a la solicitud de eliminación de una oferta
 router.post("/delete_deal", check_authenticated, async (req, res) => {
-    const response = null
+    const response = await hotel_admin_controller.delete_deal(req.body.deal_id)
     res.status(200)
-    res.send(JSON.stringify(response));
+    res.send(JSON.stringify(response))
+})
+
+// Responde a la solicitud de agregar una habitación a una oferta
+router.post("/add_room_to_deal", check_authenticated, async (req, res) => {
+    const response = await hotel_admin_controller.add_room_to_deal(req.body.room_id, req.body.deal_id)
+    res.status(200)
+    res.send(JSON.stringify(response))
+})
+
+// Responde a la solicitud de eliminar una habitación de una oferta
+router.post("/delete_room_from_deal", check_authenticated, async (req, res) => {
+    const response = await hotel_admin_controller.delete_room_from_deal(req.body.room_id, req.body.deal_id)
+    res.status(200)
+    res.send(JSON.stringify(response))
 })
 
 // RUD de métodos de pago -------------------------------------------------------------------------------------- //

@@ -138,7 +138,7 @@
                       <div class="col">
 
                         <div class="form-outline mb-4">
-                          <input type="text" id="name" name="name" class="form-control" required/>
+                          <input type="text" id="name" name="name" maxlength="100" class="form-control" required/>
                           <label class="form-label">Nombre</label>
                         </div> 
 
@@ -157,12 +157,12 @@
                       <div class="col">
 
                         <div class="form-outline mb-4">
-                          <input type="text" id="discount" name="discount" class="form-control" required/>
+                          <input type="number" id="discount" name="discount" min="1" max="100" class="form-control" required/>
                           <label class="form-label">Descuento</label>
                         </div> 
 
                         <div class="form-outline mb-4">
-                          <input type="text" id="minimun_days" name="minimun_days" class="form-control" required/>
+                          <input type="number" id="minimun_days" name="minimun_days" min="1" class="form-control" required/>
                           <label class="form-label">Días mínimos de reserva</label>
                         </div> 
                         
@@ -180,6 +180,29 @@
               </div>
             </div>
           </div>
+
+
+                 <!-- Pop ups de mensajes ----------------------------------------------------------------------->
+
+                 <!-- Pop de mensage de éxito -->  
+                 <div class="modal fade" id="success_alert_modal" tabindex="-1" aria-labelledby="success_alert_modal" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="alert alert-success alert-dismissible">
+                            <p id="success_message"></p>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    </div>
+                 </div>
+
+                 <!-- Pop de mensage de error -->  
+                 <div class="modal fade" id="error_alert_modal" tabindex="-1" aria-labelledby="error_alert_modal" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="alert alert-danger alert-dismissible">
+                            <p id="error_message"></p>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    </div>
+                 </div>
 
           </div>
         </section>
@@ -211,12 +234,63 @@
         // Función para registrar una oferta
         async function register_deal(event){
           event.preventDefault()
+
+          const url = "http://localhost:4500/hotel_admins/register_deal"
+          const name = document.getElementById("name").value
+          const start_date = document.getElementById("start_date").value
+          const ending_date = document.getElementById("ending_date").value
+          const discount_rate = document.getElementById("discount").value
+          const minimun_days = document.getElementById("minimun_days").value
+          const request_body = {name: name, start_date: start_date, ending_date: ending_date, discount_rate: discount_rate, minimun_days: minimun_days}
+          const response = await send_request("POST", url, request_body)
+
+          show_response(response)
         }
 
         // Función para eliminar una oferta
         async function delete_deal(deal_id){
-
+          const url = "http://localhost:4500/hotel_admins/delete_deal"
+          const request_body = {deal_id: deal_id}
+          const response = await send_request("POST", url, request_body)
+          
+          show_response(response)
         }
+
+        // Muestra el modal con la respuesta de una petición
+        function show_response(response){
+
+            if (!response.error){
+                $('#registration_modal').modal('hide')
+                $('#edition_modal').modal('hide')
+            }
+            
+            if (response.error){
+                document.getElementById("error_message").innerHTML = response.message
+                $('#error_alert_modal').modal('show')
+            } else {
+                document.getElementById("success_message").innerHTML = response.message
+                $('#success_alert_modal').modal('show')
+            }
+        }
+
+        $('#success_alert_modal').on('hidden.bs.modal', function () {
+            location.reload()
+        })
+
+        // Configuración de selectores de fechas
+
+        start_date.min = new Date().toISOString().split("T")[0]
+        ending_date.min = new Date().toISOString().split("T")[0]
+
+        $('#start_date').change(function config_check_out_selector() {
+          const start_date_selected = new Date((document.getElementById("start_date").value))
+          ending_date.min = start_date_selected.toISOString().split("T")[0]
+        })
+
+        $('#ending_date').change(function config_check_out_selector() {
+          const ending_date_selected = new Date((document.getElementById("ending_date").value))
+          start_date.max = ending_date_selected.toISOString().split("T")[0]
+        })
         
     </script>
 </html>

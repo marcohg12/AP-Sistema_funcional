@@ -16,7 +16,7 @@ async function render_update_user_data_window(response = false, req, res){
     // Limpieza de datos
     user_data.name = (user_data.name).trim()
     user_data.last_name = (user_data.last_name).trim()
-    user_data.birthdate = user_data.birthdate.toISOString().split("T")[0];
+    user_data.birthdate = user_data.birthdate.toISOString().split("T")[0]
 
     if (response){
         return res.render("user_data_edition_1", {genders: genders, id_types: id_types, user_data: user_data, 

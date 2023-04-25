@@ -211,6 +211,57 @@ async function get_deals(hotel_id){
     return await execute_query(query, fields)
 }
 
+// Función para obtener los datos de una oferta
+async function get_deal_data(deal_id){
+    const fields = [deal_id]
+    const query = "CALL get_deal_data(?);"
+    return await execute_query(query, fields)  
+}
+
+// Función para obtener las habitaciones disponibles para una oferta
+async function get_rooms_available_for_deal(deal_id){
+    const fields = [deal_id]
+    const query = "CALL get_rooms_available_for_deal(?);"
+    return await execute_query(query, fields)  
+}
+
+// Función para obtener las habitaciones de una oferta
+async function get_rooms_in_deal(deal_id){
+    const fields = [deal_id]
+    const query = "CALL get_rooms_in_deal(?);"
+    return await execute_query(query, fields)  
+}
+
+// Función para agregar una habitación a una oferta
+async function add_room_to_deal(room_id, deal_id){
+    const fields = [room_id, deal_id]
+    const query = "CALL add_room_to_deal(?,?,@execution_code); SELECT @execution_code AS execution_code;"
+    const execution_code = await execute_operation(query, fields) 
+    
+    // Generación de la respuesta
+    if (execution_code == -1){
+        return ({error: true, message: "Ocurrió un error inesperado"})
+    } else if (execution_code == -11){
+        return ({error: true, message: "Error: la habitación ya está en una oferta"})
+    } else {
+        return ({error: false, message: "Habitación agregada exitosamente"})
+    }
+}
+
+// Función para eliminar una habitación de una oferta
+async function delete_room_from_deal(room_id, deal_id){
+    const fields = [room_id, deal_id]
+    const query = "CALL delete_room_from_deal(?,?,@execution_code); SELECT @execution_code AS execution_code;"
+    const execution_code = await execute_operation(query, fields) 
+    
+    // Generación de la respuesta
+    if (execution_code == -1){
+        return ({error: true, message: "Ocurrió un error inesperado"})
+    } else {
+        return ({error: false, message: "Habitación eliminada exitosamente"})
+    }  
+}
+
 // Función para registrar una oferta
 async function register_deal(name, start_date, ending_date, discount_rate, minimum_days, hotel_id){
     const fields = [name, start_date, ending_date, discount_rate, minimum_days, hotel_id]
@@ -234,6 +285,8 @@ async function update_deal(deal_id, new_name, new_start_date, new_ending_date, n
     // Generación de respuesta
     if (execution_code == -1){
         return ({error: true, message: "Ocurrió un error inesperado"})
+    } else if (execution_code == -11){
+        return ({error: true, message: "Error: hay habitaciones que quedarían en dos ofertas con las nuevas fechas ingresadas"})
     } else {
         return ({error: false, message: "Oferta actualizada correctamente"})
     }
@@ -415,5 +468,10 @@ module.exports = {
     get_amenities_in_room,
     get_amenities_not_in_room,
     add_amenity_to_room,
-    delete_amenity_from_room
+    delete_amenity_from_room,
+    get_deal_data,
+    get_rooms_available_for_deal,
+    get_rooms_in_deal,
+    add_room_to_deal,
+    delete_room_from_deal
 }

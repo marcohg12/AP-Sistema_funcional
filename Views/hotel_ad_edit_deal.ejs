@@ -64,24 +64,24 @@
             <div class="card">
                 <div class="card-body">
   
-                  <form action="/hotel_admins/update_deal/<%= deal.id %>" method="POST">
+                  <form onsubmit="javascript:update_deal(event, '<%= deal.id %>')" method="POST">
   
                     <div class="row">
       
                       <div class="col">
       
                         <div class="form-group mb-4">
-                          <input required type="text" name="name" value="<%= deal.name %>" class="form-control">
+                          <input required type="text" name="name" id="name" value="<%= deal.name %>" maxlength="100" class="form-control">
                           <label  class="form-label">Nombre</label>
                         </div>
 
                         <div class="form-group mb-4">
-                            <input required type="date" name="start_date" value="<%= deal.initial_date %>" class="form-control">
+                            <input required type="date" name="start_date" id="start_date" value="<%= deal.start_date %>" class="form-control">
                             <label  class="form-label">Fecha de inicio</label>
                         </div>
 
                         <div class="form-group mb-4">
-                            <input required type="date" name="ending_date" value="<%= deal.ending_date %>" class="form-control">
+                            <input required type="date" name="ending_date" id="ending_date" value="<%= deal.ending_date %>" class="form-control">
                             <label  class="form-label">Fecha de fin</label>
                         </div>
       
@@ -90,12 +90,12 @@
                       <div class="col">
 
                         <div class="form-group mb-4">
-                            <input required type="number" name="discount" value="<%= deal.discount %>" min="0" max="100" class="form-control">
+                            <input required type="number" name="discount" id="discount" value="<%= deal.discount_rate %>" min="1" max="100" class="form-control">
                             <label  class="form-label">Porcentaje de descuento</label>
                         </div>
 
                         <div class="form-group mb-4">
-                            <input required type="number" name="minimun_reservation_days" min="1" value="<%= deal.minimun_reservation_days %>" class="form-control">
+                            <input required type="number" name="minimun_days" id="minimun_days" min="1" value="<%= deal.minimun_reservation_days %>" class="form-control">
                             <label  class="form-label">Días de reserva mínimos</label>
                         </div>
       
@@ -126,9 +126,7 @@
                         <div class="card-body">
                           <h5 class="card-title"><%= room.name %></h5>
                           <p class="card-text">Precio por noche: <%= room.price%>$</p>
-                          <p class="card-text"><small class="text-muted">Capacidad: <%= room.capacity%> personas</small></p>
-                          <p class="card-text"><small class="text-muted">Unidades: <%= room.units%></small></p>
-                          <a href="/hotel_admins/add_room_to_deal/<%= room.id %>" class="btn text-white" style="background-color: #606c38;">Agregar</a>
+                          <button onclick="javascript:add_room_to_deal(event, '<%= room.id %>', '<%= deal.id %>')" class="btn text-white" style="background-color: #606c38;">Agregar</button>
                         </div>
 
                       </div>
@@ -149,16 +147,38 @@
   
                         <div class="card-body">
                           <h5 class="card-title"><%= room.name %></h5>
-                          <p class="card-text">Precio por noche: <s><%= room.price%>$</s> <%= room.current_price%>$</p>
-                          <p class="card-text"><small class="text-muted">Capacidad: <%= room.capacity%> personas</small></p>
-                          <p class="card-text"><small class="text-muted">Unidades: <%= room.units%></small></p>
-                          <a href="/hotel_admins/delete_room_from_deal/<%= room.id %>" class="btn btn-danger">Eliminar</a>
+                          <p class="card-text">Precio recomendado: <%= room.price%>$</p>
+                          <p class="card-text">Precio en oferta: <%= room.current_price%>$</p>
+                          <button onclick="javascript:delete_room_from_deal(event, '<%= room.id %>', '<%= deal.id %>')" class="btn btn-danger">Eliminar</button>
                         </div>
                       </div>
                       <% }) %>
                   </div>
                 </div>
               </div>
+
+
+                               <!-- Pop ups de mensajes ----------------------------------------------------------------------->
+
+                 <!-- Pop de mensage de éxito -->  
+                 <div class="modal fade" id="success_alert_modal" tabindex="-1" aria-labelledby="success_alert_modal" aria-hidden="true">
+                  <div class="modal-dialog">
+                      <div class="alert alert-success alert-dismissible">
+                          <p id="success_message"></p>
+                          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                      </div>
+                  </div>
+               </div>
+
+               <!-- Pop de mensage de error -->  
+               <div class="modal fade" id="error_alert_modal" tabindex="-1" aria-labelledby="error_alert_modal" aria-hidden="true">
+                  <div class="modal-dialog">
+                      <div class="alert alert-danger alert-dismissible">
+                          <p id="error_message"></p>
+                          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                      </div>
+                  </div>
+               </div>
 
 
           </div>
@@ -188,15 +208,86 @@
             })
         }
 
-        // Función para registrar una oferta
-        async function add_room_to_deal(event){
+        async function update_deal(event, deal_id){
           event.preventDefault()
+
+          const url = "http://localhost:4500/hotel_admins/update_deal"
+          const name = document.getElementById("name").value
+          const start_date = document.getElementById("start_date").value
+          const ending_date = document.getElementById("ending_date").value
+          const discount_rate = document.getElementById("discount").value
+          const minimun_days = document.getElementById("minimun_days").value
+          const request_body = {deal_id: deal_id, name: name, start_date: start_date, ending_date: ending_date, discount_rate: discount_rate, minimun_days: minimun_days}
+          const response = await send_request("POST", url, request_body)
+
+          show_response(response)
+        }
+
+        // Función para registrar una oferta
+        async function add_room_to_deal(event, room_id, deal_id){
+          event.preventDefault()
+
+          const url = "http://localhost:4500/hotel_admins/add_room_to_deal"
+          const request_body = {deal_id: deal_id, room_id: room_id}
+          const response = await send_request("POST", url, request_body)
+
+          if (response.error){
+            show_response(response)
+          } else {
+            location.reload()
+          }
         }
 
         // Función para eliminar una oferta
-        async function delete_room_from_deal(deal_id){
+        async function delete_room_from_deal(event, room_id, deal_id){
+          event.preventDefault()
 
+          const url = "http://localhost:4500/hotel_admins/delete_room_from_deal"
+          const request_body = {deal_id: deal_id, room_id: room_id}
+          const response = await send_request("POST", url, request_body)
+
+          if (response.error){
+            show_response(response)
+          } else {
+            location.reload()
+          }
         }
+
+                // Muestra el modal con la respuesta de una petición
+        function show_response(response){
+
+            if (!response.error){
+                $('#registration_modal').modal('hide')
+                $('#edition_modal').modal('hide')
+            }
+            
+            if (response.error){
+                document.getElementById("error_message").innerHTML = response.message
+                $('#error_alert_modal').modal('show')
+            } else {
+                document.getElementById("success_message").innerHTML = response.message
+                $('#success_alert_modal').modal('show')
+            }
+        }
+
+        $('#success_alert_modal').on('hidden.bs.modal', function () {
+            location.reload()
+        })
+
+        // Configuración de selectores de fechas
+
+        start_date.min = new Date().toISOString().split("T")[0]
+        ending_date.min = new Date().toISOString().split("T")[0]
+
+        $('#start_date').change(function config_check_out_selector() {
+          const start_date_selected = new Date((document.getElementById("start_date").value))
+          ending_date.min = start_date_selected.toISOString().split("T")[0]
+        })
+
+        $('#ending_date').change(function config_check_out_selector() {
+          const ending_date_selected = new Date((document.getElementById("ending_date").value))
+          start_date.max = ending_date_selected.toISOString().split("T")[0]
+        })
         
     </script>
 </html>
