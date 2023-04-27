@@ -211,6 +211,57 @@ async function get_deals(hotel_id){
     return await execute_query(query, fields)
 }
 
+// Función para obtener los datos de una oferta
+async function get_deal_data(deal_id){
+    const fields = [deal_id]
+    const query = "CALL get_deal_data(?);"
+    return await execute_query(query, fields)  
+}
+
+// Función para obtener las habitaciones disponibles para una oferta
+async function get_rooms_available_for_deal(deal_id){
+    const fields = [deal_id]
+    const query = "CALL get_rooms_available_for_deal(?);"
+    return await execute_query(query, fields)  
+}
+
+// Función para obtener las habitaciones de una oferta
+async function get_rooms_in_deal(deal_id){
+    const fields = [deal_id]
+    const query = "CALL get_rooms_in_deal(?);"
+    return await execute_query(query, fields)  
+}
+
+// Función para agregar una habitación a una oferta
+async function add_room_to_deal(room_id, deal_id){
+    const fields = [room_id, deal_id]
+    const query = "CALL add_room_to_deal(?,?,@execution_code); SELECT @execution_code AS execution_code;"
+    const execution_code = await execute_operation(query, fields) 
+    
+    // Generación de la respuesta
+    if (execution_code == -1){
+        return ({error: true, message: "Ocurrió un error inesperado"})
+    } else if (execution_code == -11){
+        return ({error: true, message: "Error: la habitación ya está en una oferta"})
+    } else {
+        return ({error: false, message: "Habitación agregada exitosamente"})
+    }
+}
+
+// Función para eliminar una habitación de una oferta
+async function delete_room_from_deal(room_id, deal_id){
+    const fields = [room_id, deal_id]
+    const query = "CALL delete_room_from_deal(?,?,@execution_code); SELECT @execution_code AS execution_code;"
+    const execution_code = await execute_operation(query, fields) 
+    
+    // Generación de la respuesta
+    if (execution_code == -1){
+        return ({error: true, message: "Ocurrió un error inesperado"})
+    } else {
+        return ({error: false, message: "Habitación eliminada exitosamente"})
+    }  
+}
+
 // Función para registrar una oferta
 async function register_deal(name, start_date, ending_date, discount_rate, minimum_days, hotel_id){
     const fields = [name, start_date, ending_date, discount_rate, minimum_days, hotel_id]
@@ -234,6 +285,8 @@ async function update_deal(deal_id, new_name, new_start_date, new_ending_date, n
     // Generación de respuesta
     if (execution_code == -1){
         return ({error: true, message: "Ocurrió un error inesperado"})
+    } else if (execution_code == -11){
+        return ({error: true, message: "Error: hay habitaciones que quedarían en dos ofertas con las nuevas fechas ingresadas"})
     } else {
         return ({error: false, message: "Oferta actualizada correctamente"})
     }
@@ -378,7 +431,96 @@ async function get_bookins(hotel_id){
     return await execute_query(query, fields)
 }
 
+// Función para obtener un usuario por nombre de usuario
+async function get_person_by_username(username){
+    const fields = [username]
+    const query = "CALL get_person_by_username(?);"
+    const user = await execute_query(query, fields)
+
+    // Generación de la respuesta
+    if (user.length == 0){
+        return ({error: true, message: "Error: no se encontró el usuario con el nombre ingresado"})
+    } else {
+        return ({error: false, message: "", user: user[0]})
+    }
+}
+
+// Función para obtener un usuario por email
+async function get_person_by_email(email){
+    const fields = [email]
+    const query = "CALL get_person_by_email(?);"
+    const user = await execute_query(query, fields)
+
+    // Generación de la respuesta
+    if (user.length == 0){
+        return ({error: true, message: "Error: no se encontró el usuario con el email ingresado"})
+    } else {
+        return ({error: false, message: "", user: user[0]})
+    }
+}
+
+// Función para obtener un usuario por número de identificación
+async function get_person_by_id_number(id_number, id_type_id){
+    const fields = [id_number, id_type_id]
+    const query = "CALL get_person_by_id_number(?,?);"
+    const user = await execute_query(query, fields)
+
+    // Generación de la respuesta
+    if (user.length == 0){
+        return ({error: true, message: "Error: no se encontró el usuario con el número de identificación ingresado"})
+    } else {
+        return ({error: false, message: "", user: user[0]})
+    }
+}
+
+
+// Función para registrar una reserva en la base de datos
+// Retorna el código de ejecución y el id de la reserva registrada
+function register_booking_in_db(query, fields){
+    return new Promise(async (resolve, reject) => {
+        const connection = await get_connection()
+        connection.query(query, fields, (error, result) => {
+            return resolve({execution_code: result[1][0].execution_code, booking_id: result[1][0].booking_id})
+        })
+        connection.end()
+    })
+}
+
+// Función para registrar una reserva
+async function register_booking(username, check_in, check_out, hotel_id){
+    const fields = [username, check_in, check_out, hotel_id]
+    const query = "CALL register_booking(?,?,?,?,@execution_code, @booking_id); SELECT @execution_code AS execution_code, @booking_id AS booking_id;"
+    const response = await register_booking_in_db(query, fields)
+
+    // Generación de la respuesta
+    if (response.execute_operation == -1){
+        return ({error: true, message: "Ocurrió un error inesperado"})
+    } else {
+        return ({error: false, message: "", booking_id: response.booking_id})
+    } 
+}
+
+// Función para eliminar una reserva
+async function delete_booking(booking_id){
+    const fields = [booking_id]
+    const query = "CALL delete_booking(?,@execution_code); SELECT @execution_code AS execution_code;"
+    const response = await execute_operation(query, fields)
+
+    // Generación de la respuesta
+    if (response.execute_operation == -1){
+        return ({error: true, message: "Ocurrió un error inesperado"})
+    } else {
+        return ({error: false, message: "Reserva eliminada exitosamente"})
+    } 
+}
+
 // Edición del hotel ------------------------------------------------------------------------------------------- //
+
+// Función para obtener las fotos de un hotel
+async function get_hotel_photos(hotel_id){
+    const query = "CALL get_hotel_photos(?);"
+    return await execute_query(query, [hotel_id])
+}
 
 // Función que retorna los datos de un hotel
 async function get_hotel_data(hotel_id){
@@ -386,7 +528,48 @@ async function get_hotel_data(hotel_id){
     return await execute_query(query, [hotel_id])
 }
 
-// Función para actualizar un hotel
+// Función que actualiza los datos de un hotel
+async function update_hotel(name, address, classification_id, district_id, hotel_id){
+    const fields = [name, address, classification_id, district_id, hotel_id]
+    const query = "CALL update_hotel(?,?,?,?,?,@execution_code); SELECT @execution_code AS execution_code;"
+    const response = await execute_operation(query, fields)
+
+    // Generación de la respuesta
+    if (response.execute_operation == -1){
+        return ({error: true, message: "Ocurrió un error inesperado"})
+    } else {
+        return ({error: false, message: "Datos actualizados exitosamente"})
+    } 
+}
+
+// Función para agregar una foto a un hotel
+async function add_photo_to_hotel(hotel_id, photo){
+    const fields = [hotel_id, photo]
+    console.log(fields)
+    const query = "CALL add_photo_to_hotel(?,?,@execution_code); SELECT @execution_code AS execution_code;"
+    const execution_code = await execute_operation(query, fields)
+
+    // Generación de la respuesta
+    if (execution_code == -1){
+        return ({error: true, message: "Ocurrió un error inesperado"})
+    } else {
+        return ({error: false, message: "Foto agregada exitosamente"})
+    } 
+}
+
+// Función para eliminar una foto de un hotel
+async function delete_photo_from_hotel(photo_id){
+    const fields = [photo_id]
+    const query = "CALL delete_photo_from_hotel(?,@execution_code); SELECT @execution_code AS execution_code;"
+    const execution_code = await execute_operation(query, fields)
+
+    // Generación de la respuesta
+    if (execution_code == -1){
+        return ({error: true, message: "Ocurrió un error inesperado"})
+    } else {
+        return ({error: false, message: "Foto eliminada exitosamente"})
+    }  
+}
 
 // Nombres de cada funcion que hay arriba
 module.exports = {
@@ -415,5 +598,19 @@ module.exports = {
     get_amenities_in_room,
     get_amenities_not_in_room,
     add_amenity_to_room,
-    delete_amenity_from_room
+    delete_amenity_from_room,
+    get_deal_data,
+    get_rooms_available_for_deal,
+    get_rooms_in_deal,
+    add_room_to_deal,
+    delete_room_from_deal,
+    get_person_by_email,
+    get_person_by_id_number,
+    get_person_by_username,
+    register_booking,
+    delete_booking,
+    update_hotel,
+    add_photo_to_hotel,
+    get_hotel_photos,
+    delete_photo_from_hotel
 }

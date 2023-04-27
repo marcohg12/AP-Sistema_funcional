@@ -3,6 +3,8 @@ const router = require("express").Router()
 const user_controller = require("../controllers/user_controller")
 const master_admin_controller = require("../controllers/master_admin_controller")
 const hotel_admin_controller = require("../controllers/hotel_admin_controller")
+const multer = require("multer")
+const upload = multer({storage:multer.memoryStorage()})
 
 // Atiende la petición de ventana de menú principal
 router.get("/", check_authenticated, async (req, res) => {
@@ -19,9 +21,10 @@ router.get("/edit_hotel", check_authenticated, async (req, res) => {
     const provinces = await master_admin_controller.get_provinces(hotel_data[0].country_id)
     const cantons = await master_admin_controller.get_cantons(hotel_data[0].province_id)
     const districts = await master_admin_controller.get_districts(hotel_data[0].canton_id)
+    const photos = await hotel_admin_controller.get_hotel_photos(req.user.hotel_admin_id)
     res.render("hotel_ad_hotel_edition", {hotel_data: hotel_data[0], classifications: classifications, 
                                           countries: countries, provinces: provinces,
-                                          cantons: cantons, districts: districts, profile:req.user.photo})
+                                          cantons: cantons, districts: districts, photos: photos, profile:req.user.photo})
 })
 
 // Responde a la solicitud de vista del catálogo de habitaciones
@@ -38,15 +41,15 @@ router.get("/deal_catalog", check_authenticated, async (req, res) => {
 
 // Responde a la solicitud de vista del edición de una oferta
 router.get("/edit_deal/:deal_id", check_authenticated, async (req, res) => {
-    const deal =  {id: "1", name: "40% Descuento en Habitaciones Doble", initial_date: "2023-03-25", ending_date: "2023-03-30", minimun_reservation_days: 10, discount: 50}
-    const rooms = [{id: "0", name: "Habitación sencilla", price: 150, capacity: 2, units:1},
-                   {id: "1", name: "Habitación doble", price: 290, capacity: 4, units:2},
-                   {id: "2", name: "Habitación deluxe", price: 350, capacity: 2, units:4},
-                   {id: "3", name: "Habitación deluxe doble", price: 600, capacity: 4, units:2}]
 
-    const rooms_in_deal = [{id: "0", name: "Habitación sencilla", price: 150, capacity: 2, units:1, current_price: 100},
-                              {id: "1", name: "Habitación doble", price: 290, capacity: 4, units:1, current_price: 145},
-                              {id: "2", name: "Habitación deluxe", price: 350, capacity: 2, units:2, current_price: 175}]
+    const deal =  (await hotel_admin_controller.get_deal_data(req.params.deal_id))[0]
+    deal.start_date = deal.start_date.toISOString().split("T")[0]
+    deal.ending_date = deal.ending_date.toISOString().split("T")[0]
+
+    const rooms = await hotel_admin_controller.get_rooms_available_for_deal(req.params.deal_id)
+
+    const rooms_in_deal = await hotel_admin_controller.get_rooms_in_deal(req.params.deal_id)
+
     res.render("hotel_ad_edit_deal", {deal: deal, rooms: rooms, rooms_in_deal: rooms_in_deal, profile:req.user.photo})
 })
 
@@ -76,7 +79,8 @@ router.get("/bookin_catalog", check_authenticated, async (req, res) => {
 
 // Response a la solicitud de vista de la ventana de creación de reserva, paso 1
 router.get("/register_bookin_step_1", check_authenticated, async (req, res) => {
-    res.render("hotel_ad_register_booking", {profile:req.user.photo})
+    const id_types = await user_controller.get_id_types()
+    res.render("hotel_ad_register_booking", {id_types: id_types, profile:req.user.photo})
 })
 
 
@@ -206,6 +210,27 @@ router.get("/get_log_query", check_authenticated, async (req, res) => {
     res.render("hotel_ad_log_query", {profile: req.user.photo})
 })
 
+// Responde a la solicitud de consulta de usuario por nombre de usuario
+router.get("/get_person_by_username/:username", check_authenticated, async (req, res) => {
+    const response = await hotel_admin_controller.get_person_by_username(req.params.username)
+    res.status(200)
+    res.send(JSON.stringify(response))
+})
+
+// Responde a la solicitud de consulta de usuario por email
+router.get("/get_person_by_email/:email", check_authenticated, async (req, res) => {
+    const response = await hotel_admin_controller.get_person_by_email(req.params.email)
+    res.status(200)
+    res.send(JSON.stringify(response))
+})
+
+// Responde a la solicitud de consulta de usuario por número de identificación
+router.get("/get_person_by_id_number/:id_number/:id_type_id", check_authenticated, async (req, res) => {
+    const response = await hotel_admin_controller.get_person_by_id_number(req.params.id_number, req.params.id_type_id)
+    res.status(200)
+    res.send(JSON.stringify(response))
+})
+
 // RUD de habitaciones ----------------------------------------------------------------------------------------- //
 
 
@@ -253,44 +278,60 @@ router.post("/delete_amenity_from_room", check_authenticated, async (req, res) =
 router.post("/register_amenity", check_authenticated, async (req, res) => {
     const response = await hotel_admin_controller.register_amenity(req.body.name, req.user.hotel_admin_id)
     res.status(200)
-    res.send(JSON.stringify(response));
+    res.send(JSON.stringify(response))
 })
 
 // Responde a la solicitud de actualización de una amenidad
 router.post("/update_amenity", check_authenticated, async (req, res) => {
     const response = await hotel_admin_controller.update_amenity(req.body.amenity_id, req.body.new_name)
     res.status(200)
-    res.send(JSON.stringify(response));
+    res.send(JSON.stringify(response))
 })
 
 // Responde a la solicitud de eliminación de una amenidad
 router.post("/delete_amenity", check_authenticated, async (req, res) => {
     const response = await hotel_admin_controller.delete_amenity(req.body.amenity_id)
     res.status(200)
-    res.send(JSON.stringify(response));
+    res.send(JSON.stringify(response))
 })
 
 // RUD de ofertas      ----------------------------------------------------------------------------------------- //
 
 // Responde a la solicitud de registro de una oferta
 router.post("/register_deal", check_authenticated, async (req, res) => {
-    const response = null
+    const response = await hotel_admin_controller.register_deal(req.body.name, req.body.start_date, req.body.ending_date,
+                                                                req.body.discount_rate, req.body.minimun_days, req.user.hotel_admin_id)
     res.status(200)
-    res.send(JSON.stringify(response));
+    res.send(JSON.stringify(response))
 })
 
 // Responde a la solicitud de actualización de una oferta
 router.post("/update_deal", check_authenticated, async (req, res) => {
-    const response = null
+    const response = await hotel_admin_controller.update_deal(req.body.deal_id, req.body.name, req.body.start_date, req.body.ending_date,
+                                                              req.body.discount_rate, req.body.minimun_days)
     res.status(200)
-    res.send(JSON.stringify(response));
+    res.send(JSON.stringify(response))
 })
 
 // Responde a la solicitud de eliminación de una oferta
 router.post("/delete_deal", check_authenticated, async (req, res) => {
-    const response = null
+    const response = await hotel_admin_controller.delete_deal(req.body.deal_id)
     res.status(200)
-    res.send(JSON.stringify(response));
+    res.send(JSON.stringify(response))
+})
+
+// Responde a la solicitud de agregar una habitación a una oferta
+router.post("/add_room_to_deal", check_authenticated, async (req, res) => {
+    const response = await hotel_admin_controller.add_room_to_deal(req.body.room_id, req.body.deal_id)
+    res.status(200)
+    res.send(JSON.stringify(response))
+})
+
+// Responde a la solicitud de eliminar una habitación de una oferta
+router.post("/delete_room_from_deal", check_authenticated, async (req, res) => {
+    const response = await hotel_admin_controller.delete_room_from_deal(req.body.room_id, req.body.deal_id)
+    res.status(200)
+    res.send(JSON.stringify(response))
 })
 
 // RUD de métodos de pago -------------------------------------------------------------------------------------- //
@@ -299,21 +340,21 @@ router.post("/delete_deal", check_authenticated, async (req, res) => {
 router.post("/register_payment_method", check_authenticated, async (req, res) => {
     const response = await hotel_admin_controller.register_payment_method(req.body.name, req.user.hotel_admin_id)
     res.status(200)
-    res.send(JSON.stringify(response));
+    res.send(JSON.stringify(response))
 })
 
 // Responde a la solicitud de actualización de un método de pago
 router.post("/update_payment_method", check_authenticated, async (req, res) => {
     const response = await hotel_admin_controller.update_payment_method(req.body.method_id, req.body.new_name)
     res.status(200)
-    res.send(JSON.stringify(response));
+    res.send(JSON.stringify(response))
 })
 
 // Responde a la solicitud de eliminación de un método de pago
 router.post("/delete_payment_method", check_authenticated, async (req, res) => {
     const response = await hotel_admin_controller.delete_payment_method(req.body.method_id)
     res.status(200)
-    res.send(JSON.stringify(response));
+    res.send(JSON.stringify(response))
 })
 
 // RUD de políticas de cancelación ----------------------------------------------------------------------------- //
@@ -323,7 +364,7 @@ router.post("/register_cancelation_policy", check_authenticated, async (req, res
     const response = await hotel_admin_controller.register_cancelation_policy(req.body.name, req.body.anticipation_time, 
                                                                               req.body.cancelation_fee, req.user.hotel_admin_id)
     res.status(200)
-    res.send(JSON.stringify(response));
+    res.send(JSON.stringify(response))
 })
 
 // Responde a la solicitud de actualización de una política de cancelación
@@ -331,23 +372,51 @@ router.post("/update_cancelation_policy", check_authenticated, async (req, res) 
     const response = await hotel_admin_controller.update_cancelation_policy(req.body.policy_id, req.body.new_name, 
                                                                             req.body.new_anticipation_time, req.body.new_cancelation_fee)
     res.status(200)
-    res.send(JSON.stringify(response));
+    res.send(JSON.stringify(response))
 })
 
 // Responde a la solicitud de eliminación de una política de cancelación
 router.post("/delete_cancelation_policy", check_authenticated, async (req, res) => {
     const response = await hotel_admin_controller.delete_cancelation_policy(req.body.policy_id)
     res.status(200)
-    res.send(JSON.stringify(response));
+    res.send(JSON.stringify(response))
 })
 
 // Edición del hotel ------------------------------------------------------------------------------------------- //
 
 // Responde a la solicitud de actualización del hotel
 router.post("/update_hotel", check_authenticated, async (req, res) => {
-    const response = null
+    const response = await hotel_admin_controller.update_hotel(req.body.name, req.body.address,
+                                                               req.body.classification_id, req.body.district_id, req.user.hotel_admin_id)
     res.status(200)
-    res.send(JSON.stringify(response));
+    res.send(JSON.stringify(response))
+})
+
+// Responde a la solicitud de agregar una foto a un hotel
+router.post("/add_photo_to_hotel", check_authenticated, upload.single("photo"), async (req, res) => {
+    const response = await hotel_admin_controller.add_photo_to_hotel(req.user.hotel_admin_id, req.file.buffer.toString("base64"))
+    res.redirect("/hotel_admins/edit_hotel")
+})
+
+// Responde a la solicitud de eliminar una foto de un hotel
+router.post("/delete_photo_from_hotel", check_authenticated, async (req, res) => {
+    const response = await hotel_admin_controller.delete_photo_from_hotel(req.body.photo_id)
+    res.status(200)
+    res.send(JSON.stringify(response))
+})
+
+// RUD de reserva -------------------------------------------------------------------------------------------- //
+router.post("/register_booking", check_authenticated, async (req, res) => {
+    const response = await hotel_admin_controller.register_booking(req.body.username, req.body.check_in,
+                                                                   req.body.check_out, req.user.hotel_admin_id)
+    res.status(200)
+    res.send(JSON.stringify(response))
+})
+
+router.post("/delete_booking", check_authenticated, async (req, res) => {
+    const response = await hotel_admin_controller.delete_booking(req.body.booking_id)
+    res.status(200)
+    res.send(JSON.stringify(response))
 })
 
 // Funciones de verificación de autenticación

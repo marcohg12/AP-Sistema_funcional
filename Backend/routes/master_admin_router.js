@@ -3,6 +3,8 @@ const router = require("express").Router()
 const user_controller = require("../controllers/user_controller")
 const master_admin_controller = require("../controllers/master_admin_controller")
 const hotel_admin_controller = require("../controllers/hotel_admin_controller")
+const multer = require("multer")
+const upload = multer({storage:multer.memoryStorage()})
 
 // Responde a la solicitud de vista del menú principal
 router.get("/", check_authenticated, async (req, res) => {
@@ -108,10 +110,11 @@ router.get("/edit_hotel/:hotel_id", check_authenticated, async (req, res) => {
     const provinces = await master_admin_controller.get_provinces(hotel_data[0].country_id)
     const cantons = await master_admin_controller.get_cantons(hotel_data[0].province_id)
     const districts = await master_admin_controller.get_districts(hotel_data[0].canton_id)
+    const photos = await hotel_admin_controller.get_hotel_photos(req.params.hotel_id)
 
     res.render("master_ad_edit_hotel", {hotel_data: hotel_data[0], classifications: classifications, 
                                           countries: countries, provinces: provinces,
-                                          cantons: cantons, districts: districts, profile:req.user.photo})
+                                          cantons: cantons, districts: districts, photos: photos, profile:req.user.photo})
 })
 
 // RUD de género ---------------------------------------------------------------------------------------------------------------- //
@@ -309,9 +312,23 @@ router.post("/register_hotel", check_authenticated, async (req, res) => {
     res.send(JSON.stringify(response))
 })
 
-// Responde a la solicitud de actualización de hotel
+// Responde a la solicitud de actualización del hotel
 router.post("/update_hotel", check_authenticated, async (req, res) => {
-    const response = null
+    const response = await hotel_admin_controller.update_hotel(req.body.name, req.body.address,
+                                                               req.body.classification_id, req.body.district_id, req.body.hotel_id)
+    res.status(200)
+    res.send(JSON.stringify(response))
+})
+
+// Responde a la solicitud de agregar una foto a un hotel
+router.post("/add_photo_to_hotel/:hotel_id", check_authenticated, upload.single("photo"), async (req, res) => {
+    await hotel_admin_controller.add_photo_to_hotel(req.params.hotel_id, req.file.buffer.toString("base64"))
+    res.redirect("/master_admins/edit_hotel/" + req.params.hotel_id)
+})
+
+// Responde a la solicitud de eliminar una foto de un hotel
+router.post("/delete_photo_from_hotel", check_authenticated, async (req, res) => {
+    const response = await hotel_admin_controller.delete_photo_from_hotel(req.body.photo_id)
     res.status(200)
     res.send(JSON.stringify(response))
 })

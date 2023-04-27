@@ -170,8 +170,8 @@ async function register_user(first_name, second_name, first_surname, second_surn
         email = email.toLowerCase()
 
         // Encriptación de contraseña
-        const salt = await bcrypt.genSalt();
-        const hashed_password = await bcrypt.hash(password, salt);
+        const salt = await bcrypt.genSalt()
+        const hashed_password = await bcrypt.hash(password, salt)
 
         const fields = [first_name, second_name, first_surname, second_surname,
                         birthday, identification_number, username, hashed_password, photo, nationality_id,

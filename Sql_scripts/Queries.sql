@@ -1356,3 +1356,229 @@ SELECT id, name from amenity where hotel_ref = hotel_id;
 END; // 
 
 /*
+
+
+
+/*
+Funcion add_hotel_to_favorites
+Registra un favorito
+retorna el codigo
+0 si es exitoso
+-1 fallo generico
+-2 ya se encuentra el favorito registrado.
+-10 si el user no existe
+-11 si el hotel no existe
+*/
+DELIMITER //
+DROP PROCEDURE IF EXISTS add_hotel_to_favorites; // 
+CREATE PROCEDURE add_hotel_to_favorites(in username varchar(50), in hotel_id int, OUT execution_code INT)
+BEGIN
+DECLARE check_id INT;
+DECLARE check_hotel INT;
+DECLARE check_user INT; 
+DECLARE CUSTOM_EXCEPTION CONDITION FOR SQLSTATE '45000';
+DECLARE EXIT HANDLER FOR SQLSTATE '45000'
+  BEGIN
+  ROLLBACK;
+  END;
+DECLARE EXIT HANDLER FOR SQLEXCEPTION
+BEGIN
+    SET execution_code = -1;
+    ROLLBACK;
+END;
+SELECT COUNT(*) INTO check_id from hotel_x_user where hotel_ref = hotel_id and user_ref = username;
+SELECT COUNT(*) INTO check_hotel from hotel where id = hotel_id;
+SELECT COUNT(*) INTO check_user from user_table where user_table.username = username;
+
+IF (check_id > 0) THEN
+SET execution_code =-2;
+SIGNAL CUSTOM_EXCEPTION;
+END IF;
+
+IF (check_hotel = 0) THEN
+SET execution_code =-10;
+SIGNAL CUSTOM_EXCEPTION;
+END IF;
+
+IF (check_user = 0) THEN
+SET execution_code =-11;
+SIGNAL CUSTOM_EXCEPTION;
+END IF;
+
+
+INSERT INTO hotel_x_user(hotel_ref, user_ref)
+VALUES(hotel_id, username);
+set execution_code = 0;
+commit;
+END; // 
+
+/*
+
+
+/*
+Funcion delete_hotel_from_favorites
+borra un favorito del usuario
+retorna el codigo
+0 si es exitoso
+-1 fallo generico
+-5 fila no encontrada
+*/
+DELIMITER //
+DROP PROCEDURE IF EXISTS delete_hotel_from_favorites; // 
+CREATE PROCEDURE delete_hotel_from_favorites(in username varchar(50), in hotel_id int, OUT execution_code INT)
+BEGIN
+DECLARE check_id INT;
+DECLARE CUSTOM_EXCEPTION CONDITION FOR SQLSTATE '45000';
+DECLARE EXIT HANDLER FOR SQLSTATE '45000'
+  BEGIN
+  ROLLBACK;
+  END;
+DECLARE EXIT HANDLER FOR SQLEXCEPTION
+BEGIN
+    SET execution_code = -1;
+    ROLLBACK;
+END;
+SELECT COUNT(*) INTO check_id from hotel_x_user where hotel_ref = hotel_id and user_ref = username;
+
+IF (check_id = 0) THEN
+SET execution_code =-5;
+SIGNAL CUSTOM_EXCEPTION;
+END IF;
+
+DELETE FROM hotel_x_user where hotel_ref = hotel_id and user_ref = username; 
+SET execution_code = 0;
+commit;
+END; // 
+
+/*
+
+/*
+Funcion get_hotel_reviews
+devuelve las reviews con el siguiente orden
+estrellas, usuario y id de reserva.
+*/
+DELIMITER //
+DROP PROCEDURE IF EXISTS get_hotel_reviews; // 
+CREATE PROCEDURE get_hotel_reviews(in hotel_id int)
+BEGIN
+
+SELECT re.user_ref, r.stars, re.id from reservation re
+inner join review r
+on r.reservation_ref = re.id and re.hotel_ref = hotel_id;
+END; // 
+
+/*
+/*
+Funcion get_hotel_deals
+devuelve las ofertas del hotel
+recibe el hotel
+*/
+DELIMITER //
+DROP PROCEDURE IF EXISTS get_hotel_deals; // 
+CREATE PROCEDURE get_hotel_deals(in hotel_id int)
+BEGIN
+
+SELECT f.id , f.name, f.start_date, f.ending_date, f.discount_rate, f.minimun_reservation_days from offer f
+where f.hotel_ref = hotel_id;
+
+END; // 
+
+/*
+*/
+-- Proceso: retornar los detalles de una oferta
+-- Recibe: el id de la oferta
+-- Retorna: nombre, fecha de inicio, fecha final, descuento, minimo de días
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_deal_details`(IN deal_id INT)
+BEGIN
+
+SELECT name, start_date, ending_date, discount_rate, minimun_reservation_days 
+FROM offer
+WHERE id = deal_id;
+
+END //
+
+-- Proceso: retornar la información de las habitaciones en una reserva
+-- Recibe: el id de la reserva
+-- Retorna: id de la habitación, nombre, precio, precio en oferta, capacidad, unidades
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_rooms_in_booking`(IN booking_id INT)
+BEGIN
+DECLARE id_room INT;
+DECLARE price_offer INT;
+
+SELECT room.id
+INTO id_room FROM room 
+JOIN reservation_x_room ON reservation_x_room.room_ref = room.id
+WHERE reservation_x_room.reservation_ref = booking_id;
+
+SET price_offer = get_current_room_price(id_room);
+
+SELECT room.id, room.name, room.capacity, room.recommended_price, reservation_x_room.units, price_offer
+FROM room JOIN reservation_x_room ON reservation_x_room.room_ref = room.id
+WHERE reservation_x_room.reservation_ref = booking_id;
+
+END//
+
+-- Proceso: retornar la información de las habitaciones de un hotel
+-- Recibe: el id del hotel
+-- Retorna: id de la habitación, nombre, precio, precio en oferta, capacidad
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_rooms_to_book`(IN hotel_id INT)
+BEGIN
+DECLARE id_room INT;
+DECLARE price_offer INT;
+
+SELECT room.id
+INTO id_room FROM room 
+WHERE room.hotel_ref = hotel_id;
+
+SET price_offer = get_current_room_price(id_room);
+
+SELECT room.id, room.name, room.capacity, room.recommended_price, price_offer
+FROM room 
+WHERE room.hotel_ref = hotel_id;
+
+END//
+
+-- Proceso: retornar la información de las habitaciones relacionadas a una oferta
+-- Recibe: el id de la oferta
+-- Retorna: id de la habitación, nombre, precio, precio en oferta, capacidad, código de descuento,
+-- descuento, id del hotel
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_rooms_in_deal`(IN deal_id INT)
+BEGIN
+DECLARE id_room INT;
+DECLARE price_offer INT;
+
+SELECT room.id
+INTO id_room FROM room 
+JOIN offer_x_room ON offer_x_room.room_ref = room.id
+WHERE offer_x_room.offer_ref = deal_id;
+
+SET price_offer = get_current_room_price(id_room); 
+
+SELECT room.id, room.name, room.capacity, room.recommended_price, room.discount_code, 
+room.discount_rate, room.hotel_ref, price_offer
+FROM room JOIN offer_x_room ON offer_x_room.room_ref = room.id
+WHERE offer_x_room.offer_ref = deal_id;
+
+END//
+
+-- Proceso: retornar los comentarios de un hotel 
+-- Recibe: el id del hotel
+-- Retorna: el id del comentario, la fecha y el comentario
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_hotel_comments`(IN hotel_id INT)
+BEGIN
+
+SELECT commentary.id, commentary.commentary_date, commentary.commentary
+FROM commentary 
+JOIN reservation ON reservation.id = commentary.reservation_ref
+WHERE reservation.hotel_ref = hotel_id;
+
+COMMIT;
+END//
+
+
+
