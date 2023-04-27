@@ -516,13 +516,60 @@ async function delete_booking(booking_id){
 
 // Edición del hotel ------------------------------------------------------------------------------------------- //
 
+// Función para obtener las fotos de un hotel
+async function get_hotel_photos(hotel_id){
+    const query = "CALL get_hotel_photos(?);"
+    return await execute_query(query, [hotel_id])
+}
+
 // Función que retorna los datos de un hotel
 async function get_hotel_data(hotel_id){
     const query = "CALL get_hotel_data(?);"
     return await execute_query(query, [hotel_id])
 }
 
-// Función para actualizar un hotel
+// Función que actualiza los datos de un hotel
+async function update_hotel(name, address, classification_id, district_id, hotel_id){
+    const fields = [name, address, classification_id, district_id, hotel_id]
+    const query = "CALL update_hotel(?,?,?,?,?,@execution_code); SELECT @execution_code AS execution_code;"
+    const response = await execute_operation(query, fields)
+
+    // Generación de la respuesta
+    if (response.execute_operation == -1){
+        return ({error: true, message: "Ocurrió un error inesperado"})
+    } else {
+        return ({error: false, message: "Datos actualizados exitosamente"})
+    } 
+}
+
+// Función para agregar una foto a un hotel
+async function add_photo_to_hotel(hotel_id, photo){
+    const fields = [hotel_id, photo]
+    console.log(fields)
+    const query = "CALL add_photo_to_hotel(?,?,@execution_code); SELECT @execution_code AS execution_code;"
+    const execution_code = await execute_operation(query, fields)
+
+    // Generación de la respuesta
+    if (execution_code == -1){
+        return ({error: true, message: "Ocurrió un error inesperado"})
+    } else {
+        return ({error: false, message: "Foto agregada exitosamente"})
+    } 
+}
+
+// Función para eliminar una foto de un hotel
+async function delete_photo_from_hotel(photo_id){
+    const fields = [photo_id]
+    const query = "CALL delete_photo_from_hotel(?,@execution_code); SELECT @execution_code AS execution_code;"
+    const execution_code = await execute_operation(query, fields)
+
+    // Generación de la respuesta
+    if (execution_code == -1){
+        return ({error: true, message: "Ocurrió un error inesperado"})
+    } else {
+        return ({error: false, message: "Foto eliminada exitosamente"})
+    }  
+}
 
 // Nombres de cada funcion que hay arriba
 module.exports = {
@@ -561,5 +608,9 @@ module.exports = {
     get_person_by_id_number,
     get_person_by_username,
     register_booking,
-    delete_booking
+    delete_booking,
+    update_hotel,
+    add_photo_to_hotel,
+    get_hotel_photos,
+    delete_photo_from_hotel
 }

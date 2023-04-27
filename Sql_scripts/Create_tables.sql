@@ -158,7 +158,7 @@ FOREIGN KEY (person_ref) REFERENCES Person(id)
 
 CREATE TABLE IF NOT EXISTS Photo(
 id        INT NOT NULL AUTO_INCREMENT,
-photo     BLOB,
+photo     MEDIUMBLOB,
 hotel_ref INT NOT NULL,
 
 CONSTRAINT photo_pk PRIMARY KEY (id),

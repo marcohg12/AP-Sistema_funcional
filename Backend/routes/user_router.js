@@ -1,8 +1,8 @@
 // Importación de dependencias
 const router = require("express").Router()
 const user_controller = require("../controllers/user_controller")
-const multer = require("multer");
-const upload = multer({storage:multer.memoryStorage()});
+const multer = require("multer")
+const upload = multer({storage:multer.memoryStorage()})
 
 // Despliegues de ventanas ------------------------------------------------------------------------------------------------- //
 
@@ -77,7 +77,7 @@ router.post("/", check_not_authenticated, upload.single("photo"), async (req, re
 
     var photo = null
     if (req.file){
-        photo = req.file.buffer.toString("base64");
+        photo = req.file.buffer.toString("base64")
     }
 
     response = await user_controller.register_user(first_name, second_name, first_last_name, second_last_name,

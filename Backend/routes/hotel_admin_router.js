@@ -3,6 +3,8 @@ const router = require("express").Router()
 const user_controller = require("../controllers/user_controller")
 const master_admin_controller = require("../controllers/master_admin_controller")
 const hotel_admin_controller = require("../controllers/hotel_admin_controller")
+const multer = require("multer")
+const upload = multer({storage:multer.memoryStorage()})
 
 // Atiende la petición de ventana de menú principal
 router.get("/", check_authenticated, async (req, res) => {
@@ -19,9 +21,10 @@ router.get("/edit_hotel", check_authenticated, async (req, res) => {
     const provinces = await master_admin_controller.get_provinces(hotel_data[0].country_id)
     const cantons = await master_admin_controller.get_cantons(hotel_data[0].province_id)
     const districts = await master_admin_controller.get_districts(hotel_data[0].canton_id)
+    const photos = await hotel_admin_controller.get_hotel_photos(req.user.hotel_admin_id)
     res.render("hotel_ad_hotel_edition", {hotel_data: hotel_data[0], classifications: classifications, 
                                           countries: countries, provinces: provinces,
-                                          cantons: cantons, districts: districts, profile:req.user.photo})
+                                          cantons: cantons, districts: districts, photos: photos, profile:req.user.photo})
 })
 
 // Responde a la solicitud de vista del catálogo de habitaciones
@@ -383,7 +386,21 @@ router.post("/delete_cancelation_policy", check_authenticated, async (req, res) 
 
 // Responde a la solicitud de actualización del hotel
 router.post("/update_hotel", check_authenticated, async (req, res) => {
-    const response = null
+    const response = await hotel_admin_controller.update_hotel(req.body.name, req.body.address,
+                                                               req.body.classification_id, req.body.district_id, req.user.hotel_admin_id)
+    res.status(200)
+    res.send(JSON.stringify(response))
+})
+
+// Responde a la solicitud de agregar una foto a un hotel
+router.post("/add_photo_to_hotel", check_authenticated, upload.single("photo"), async (req, res) => {
+    const response = await hotel_admin_controller.add_photo_to_hotel(req.user.hotel_admin_id, req.file.buffer.toString("base64"))
+    res.redirect("/hotel_admins/edit_hotel")
+})
+
+// Responde a la solicitud de eliminar una foto de un hotel
+router.post("/delete_photo_from_hotel", check_authenticated, async (req, res) => {
+    const response = await hotel_admin_controller.delete_photo_from_hotel(req.body.photo_id)
     res.status(200)
     res.send(JSON.stringify(response))
 })
