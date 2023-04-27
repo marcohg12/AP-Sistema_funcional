@@ -1484,8 +1484,101 @@ where f.hotel_ref = hotel_id;
 END; // 
 
 /*
+*/
+-- Proceso: retornar los detalles de una oferta
+-- Recibe: el id de la oferta
+-- Retorna: nombre, fecha de inicio, fecha final, descuento, minimo de días
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_deal_details`(IN deal_id INT)
+BEGIN
 
+SELECT name, start_date, ending_date, discount_rate, minimun_reservation_days 
+FROM offer
+WHERE id = deal_id;
 
+END //
+
+-- Proceso: retornar la información de las habitaciones en una reserva
+-- Recibe: el id de la reserva
+-- Retorna: id de la habitación, nombre, precio, precio en oferta, capacidad, unidades
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_rooms_in_booking`(IN booking_id INT)
+BEGIN
+DECLARE id_room INT;
+DECLARE price_offer INT;
+
+SELECT room.id
+INTO id_room FROM room 
+JOIN reservation_x_room ON reservation_x_room.room_ref = room.id
+WHERE reservation_x_room.reservation_ref = booking_id;
+
+SET price_offer = get_current_room_price(id_room);
+
+SELECT room.id, room.name, room.capacity, room.recommended_price, reservation_x_room.units, price_offer
+FROM room JOIN reservation_x_room ON reservation_x_room.room_ref = room.id
+WHERE reservation_x_room.reservation_ref = booking_id;
+
+END//
+
+-- Proceso: retornar la información de las habitaciones de un hotel
+-- Recibe: el id del hotel
+-- Retorna: id de la habitación, nombre, precio, precio en oferta, capacidad
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_rooms_to_book`(IN hotel_id INT)
+BEGIN
+DECLARE id_room INT;
+DECLARE price_offer INT;
+
+SELECT room.id
+INTO id_room FROM room 
+WHERE room.hotel_ref = hotel_id;
+
+SET price_offer = get_current_room_price(id_room);
+
+SELECT room.id, room.name, room.capacity, room.recommended_price, price_offer
+FROM room 
+WHERE room.hotel_ref = hotel_id;
+
+END//
+
+-- Proceso: retornar la información de las habitaciones relacionadas a una oferta
+-- Recibe: el id de la oferta
+-- Retorna: id de la habitación, nombre, precio, precio en oferta, capacidad, código de descuento,
+-- descuento, id del hotel
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_rooms_in_deal`(IN deal_id INT)
+BEGIN
+DECLARE id_room INT;
+DECLARE price_offer INT;
+
+SELECT room.id
+INTO id_room FROM room 
+JOIN offer_x_room ON offer_x_room.room_ref = room.id
+WHERE offer_x_room.offer_ref = deal_id;
+
+SET price_offer = get_current_room_price(id_room); 
+
+SELECT room.id, room.name, room.capacity, room.recommended_price, room.discount_code, 
+room.discount_rate, room.hotel_ref, price_offer
+FROM room JOIN offer_x_room ON offer_x_room.room_ref = room.id
+WHERE offer_x_room.offer_ref = deal_id;
+
+END//
+
+-- Proceso: retornar los comentarios de un hotel 
+-- Recibe: el id del hotel
+-- Retorna: el id del comentario, la fecha y el comentario
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_hotel_comments`(IN hotel_id INT)
+BEGIN
+
+SELECT commentary.id, commentary.commentary_date, commentary.commentary
+FROM commentary 
+JOIN reservation ON reservation.id = commentary.reservation_ref
+WHERE reservation.hotel_ref = hotel_id;
+
+COMMIT;
+END//
 
 
 
