@@ -1356,3 +1356,136 @@ SELECT id, name from amenity where hotel_ref = hotel_id;
 END; // 
 
 /*
+
+
+
+/*
+Funcion add_hotel_to_favorites
+Registra un favorito
+retorna el codigo
+0 si es exitoso
+-1 fallo generico
+-2 ya se encuentra el favorito registrado.
+-10 si el user no existe
+-11 si el hotel no existe
+*/
+DELIMITER //
+DROP PROCEDURE IF EXISTS add_hotel_to_favorites; // 
+CREATE PROCEDURE add_hotel_to_favorites(in username varchar(50), in hotel_id int, OUT execution_code INT)
+BEGIN
+DECLARE check_id INT;
+DECLARE check_hotel INT;
+DECLARE check_user INT; 
+DECLARE CUSTOM_EXCEPTION CONDITION FOR SQLSTATE '45000';
+DECLARE EXIT HANDLER FOR SQLSTATE '45000'
+  BEGIN
+  ROLLBACK;
+  END;
+DECLARE EXIT HANDLER FOR SQLEXCEPTION
+BEGIN
+    SET execution_code = -1;
+    ROLLBACK;
+END;
+SELECT COUNT(*) INTO check_id from hotel_x_user where hotel_ref = hotel_id and user_ref = username;
+SELECT COUNT(*) INTO check_hotel from hotel where id = hotel_id;
+SELECT COUNT(*) INTO check_user from user_table where user_table.username = username;
+
+IF (check_id > 0) THEN
+SET execution_code =-2;
+SIGNAL CUSTOM_EXCEPTION;
+END IF;
+
+IF (check_hotel = 0) THEN
+SET execution_code =-10;
+SIGNAL CUSTOM_EXCEPTION;
+END IF;
+
+IF (check_user = 0) THEN
+SET execution_code =-11;
+SIGNAL CUSTOM_EXCEPTION;
+END IF;
+
+
+INSERT INTO hotel_x_user(hotel_ref, user_ref)
+VALUES(hotel_id, username);
+set execution_code = 0;
+commit;
+END; // 
+
+/*
+
+
+/*
+Funcion delete_hotel_from_favorites
+borra un favorito del usuario
+retorna el codigo
+0 si es exitoso
+-1 fallo generico
+-5 fila no encontrada
+*/
+DELIMITER //
+DROP PROCEDURE IF EXISTS delete_hotel_from_favorites; // 
+CREATE PROCEDURE delete_hotel_from_favorites(in username varchar(50), in hotel_id int, OUT execution_code INT)
+BEGIN
+DECLARE check_id INT;
+DECLARE CUSTOM_EXCEPTION CONDITION FOR SQLSTATE '45000';
+DECLARE EXIT HANDLER FOR SQLSTATE '45000'
+  BEGIN
+  ROLLBACK;
+  END;
+DECLARE EXIT HANDLER FOR SQLEXCEPTION
+BEGIN
+    SET execution_code = -1;
+    ROLLBACK;
+END;
+SELECT COUNT(*) INTO check_id from hotel_x_user where hotel_ref = hotel_id and user_ref = username;
+
+IF (check_id = 0) THEN
+SET execution_code =-5;
+SIGNAL CUSTOM_EXCEPTION;
+END IF;
+
+DELETE FROM hotel_x_user where hotel_ref = hotel_id and user_ref = username; 
+SET execution_code = 0;
+commit;
+END; // 
+
+/*
+
+/*
+Funcion get_hotel_reviews
+devuelve las reviews con el siguiente orden
+estrellas, usuario y id de reserva.
+*/
+DELIMITER //
+DROP PROCEDURE IF EXISTS get_hotel_reviews; // 
+CREATE PROCEDURE get_hotel_reviews(in hotel_id int)
+BEGIN
+
+SELECT re.user_ref, r.stars, re.id from reservation re
+inner join review r
+on r.reservation_ref = re.id and re.hotel_ref = hotel_id;
+END; // 
+
+/*
+/*
+Funcion get_hotel_deals
+devuelve las ofertas del hotel
+recibe el hotel
+*/
+DELIMITER //
+DROP PROCEDURE IF EXISTS get_hotel_deals; // 
+CREATE PROCEDURE get_hotel_deals(in hotel_id int)
+BEGIN
+
+SELECT f.id , f.name, f.start_date, f.ending_date, f.discount_rate, f.minimun_reservation_days from offer f
+where f.hotel_ref = hotel_id;
+
+END; // 
+
+/*
+
+
+
+
+
