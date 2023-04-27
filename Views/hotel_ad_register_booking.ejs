@@ -88,13 +88,16 @@
                     <form onsubmit="javascript:search_by_id(event)">
 
                       <div class="form-outline mt-4 mb-4">
-                        <input type="text" id="identification_number" name="identification_number" class="form-control" required/>
+                        <input type="text" id="id_number" name="id_number" class="form-control" required/>
                         <label class="form-label">Número de identificación</label>
                       </div>
   
                       <div class="form-outline mb-4">
-                        <select class="form-select" name="id_type" id="id_type" required>
+                        <select class="form-select" name="id_type_id" id="id_type_id" required>
                           <option value="">Tipo de identificación</option>
+                          <% id_types.forEach( id_type => { %>
+                            <option value="<%= id_type.id %>"><%= id_type.name %></option>
+                          <% }) %>
                         </select>
                         <label class="form-label">Tipo de identificación</label>
                       </div>
@@ -128,13 +131,15 @@
 
                     <span class="h5">Confirmación del usuario</span>
 
+                    <form onsubmit="javascript:register_booking(event)">
+
                       <div class="form-outline mt-4 mb-2">
-                        <input type="text" id="user" name="user" class="form-control" disabled required/>
+                        <input type="text" id="user" name="user" class="form-control"  onkeydown="return false;" autocomplete="off" required/>
                         <label class="form-label">Usuario seleccionado</label>
                       </div> 
 
                       <div class="form-outline mt-4 mb-4">
-                        <input type="text" id="name" name="name" class="form-control" disabled/>
+                        <input type="text" id="name" name="name" class="form-control" readonly/>
                         <label class="form-label">Nombre del usuario</label>
                       </div>
   
@@ -157,7 +162,7 @@
                   <div class="col">
 
                     <div class="form-outline mb-4">
-                      <input type="date" id="check-in" name="check-in" required class="form-control" />
+                      <input type="date" id="check_in" name="check_in" required class="form-control" />
                       <label class="form-label">Fecha de check-in</label>
                     </div>
 
@@ -165,7 +170,7 @@
                   <div class="col">
 
                     <div class="form-outline mb-4">
-                      <input type="date" id="check-out" name="check-out" required class="form-control" />
+                      <input type="date" id="check_out" name="check_out" required class="form-control" />
                       <label class="form-label">Fecha de check-out</label>
                     </div>
 
@@ -176,8 +181,31 @@
             </div>
 
             <div class="mt-4">
-              <a href="/hotel_admins/register_bookin" class="btn text-white" style="background-color: #606c38;">Crear reserva</a>
+              <button type="submit" class="btn text-white" style="background-color: #606c38;">Crear reserva</button>
             </div>
+          </form>
+
+                <!-- Pop ups de mensajes ----------------------------------------------------------------------->
+
+                 <!-- Pop de mensage de éxito -->  
+                 <div class="modal fade" id="success_alert_modal" tabindex="-1" aria-labelledby="success_alert_modal" aria-hidden="true">
+                  <div class="modal-dialog">
+                      <div class="alert alert-success alert-dismissible">
+                          <p id="success_message"></p>
+                          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                      </div>
+                  </div>
+               </div>
+
+               <!-- Pop de mensage de error -->  
+               <div class="modal fade" id="error_alert_modal" tabindex="-1" aria-labelledby="error_alert_modal" aria-hidden="true">
+                  <div class="modal-dialog">
+                      <div class="alert alert-danger alert-dismissible">
+                          <p id="error_message"></p>
+                          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                      </div>
+                  </div>
+               </div>
 
           </div>
         </section>
@@ -212,17 +240,104 @@
       // Función para buscar el usuario por nombre de usuario
       async function search_by_username(event){
         event.preventDefault()
+        const username = document.getElementById("username").value
+        const url = "http://localhost:4500/hotel_admins/get_person_by_username/" + username
+        const response = await send_request("GET", url, {})
+
+        if (response.error){
+          show_response(response)
+        } else {
+          document.getElementById("user").value = response.user.username
+          document.getElementById("name").value = response.user.name + " " + response.user.last_name
+        }
+            
       }
 
       // Función para buscar el usuario por email 
       async function search_by_email(event){
         event.preventDefault()
+        const email = document.getElementById("email").value
+        const url = "http://localhost:4500/hotel_admins/get_person_by_email/" + email
+        const response = await send_request("GET", url, {})
+
+        if (response.error){
+          show_response(response)
+        } else {
+          document.getElementById("user").value = response.user.username
+          document.getElementById("name").value = response.user.name + " " + response.user.last_name
+        }
       }
 
       // Función para buscar el usuario por identificación
       async function search_by_id(event){
         event.preventDefault()
+        const id_number = document.getElementById("id_number").value
+        const id_type_id = document.getElementById("id_type_id").value
+        const url = "http://localhost:4500/hotel_admins/get_person_by_id_number/" + id_number + "/" + id_type_id
+        const response = await send_request("GET", url, {})
+
+        if (response.error){
+          show_response(response)
+        } else {
+          document.getElementById("user").value = response.user.username
+          document.getElementById("name").value = response.user.name + " " + response.user.last_name
+        }
       }
+
+      // Función para buscar el usuario por identificación
+      async function register_booking(event){
+        event.preventDefault()
+        const username = document.getElementById("user").value
+        const check_in = document.getElementById("check_in").value
+        const check_out = document.getElementById("check_out").value
+        const url = "http://localhost:4500/hotel_admins/register_booking"
+        const response = await send_request("POST", url, {username: username, check_in: check_in, check_out: check_out})
+
+        if (response.error){
+          show_response(response)
+        } else {
+          location.replace("http://localhost:4500/hotel_admins/edit_bookin_rooms/" + response.booking_id)
+        }
+      }
+
+      // Muestra el modal con la respuesta de una petición
+      function show_response(response){
+            
+            if (!response.error){
+                $('#registration_modal').modal('hide')
+                $('#edition_modal').modal('hide')
+            }
+
+            if (response.error){
+                document.getElementById("error_message").innerHTML = response.message
+                $('#error_alert_modal').modal('show')
+            } else {
+                document.getElementById("success_message").innerHTML = response.message
+                $('#success_alert_modal').modal('show')
+            }
+        }
+
+        $('#success_alert_modal').on('hidden.bs.modal', function () {
+            location.reload()
+        })
+
+        // Configuración de selectores de fechas
+        const current_date = new Date()
+        current_date.setDate(current_date.getDate()-1)
+        check_in.min = current_date.toISOString().split("T")[0]
+        check_out.min = current_date.toISOString().split("T")[0]
+
+        $('#check_in').change(function config_check_out_selector() {
+          const start_date_selected = new Date((document.getElementById("check_in").value))
+          start_date_selected.setDate(start_date_selected.getDate()+1)
+          check_out.min = start_date_selected.toISOString().split("T")[0]
+        })
+
+        $('#check_out').change(function config_check_out_selector() {
+          const ending_date_selected = new Date((document.getElementById("check_out").value))
+          ending_date_selected.setDate(ending_date_selected.getDate()-1)
+          check_in.max = ending_date_selected.toISOString().split("T")[0]
+        })
 
     </script>
 </html>

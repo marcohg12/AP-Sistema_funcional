@@ -431,6 +431,89 @@ async function get_bookins(hotel_id){
     return await execute_query(query, fields)
 }
 
+// Función para obtener un usuario por nombre de usuario
+async function get_person_by_username(username){
+    const fields = [username]
+    const query = "CALL get_person_by_username(?);"
+    const user = await execute_query(query, fields)
+
+    // Generación de la respuesta
+    if (user.length == 0){
+        return ({error: true, message: "Error: no se encontró el usuario con el nombre ingresado"})
+    } else {
+        return ({error: false, message: "", user: user[0]})
+    }
+}
+
+// Función para obtener un usuario por email
+async function get_person_by_email(email){
+    const fields = [email]
+    const query = "CALL get_person_by_email(?);"
+    const user = await execute_query(query, fields)
+
+    // Generación de la respuesta
+    if (user.length == 0){
+        return ({error: true, message: "Error: no se encontró el usuario con el email ingresado"})
+    } else {
+        return ({error: false, message: "", user: user[0]})
+    }
+}
+
+// Función para obtener un usuario por número de identificación
+async function get_person_by_id_number(id_number, id_type_id){
+    const fields = [id_number, id_type_id]
+    const query = "CALL get_person_by_id_number(?,?);"
+    const user = await execute_query(query, fields)
+
+    // Generación de la respuesta
+    if (user.length == 0){
+        return ({error: true, message: "Error: no se encontró el usuario con el número de identificación ingresado"})
+    } else {
+        return ({error: false, message: "", user: user[0]})
+    }
+}
+
+
+// Función para registrar una reserva en la base de datos
+// Retorna el código de ejecución y el id de la reserva registrada
+function register_booking_in_db(query, fields){
+    return new Promise(async (resolve, reject) => {
+        const connection = await get_connection()
+        connection.query(query, fields, (error, result) => {
+            return resolve({execution_code: result[1][0].execution_code, booking_id: result[1][0].booking_id})
+        })
+        connection.end()
+    })
+}
+
+// Función para registrar una reserva
+async function register_booking(username, check_in, check_out, hotel_id){
+    const fields = [username, check_in, check_out, hotel_id]
+    const query = "CALL register_booking(?,?,?,?,@execution_code, @booking_id); SELECT @execution_code AS execution_code, @booking_id AS booking_id;"
+    const response = await register_booking_in_db(query, fields)
+
+    // Generación de la respuesta
+    if (response.execute_operation == -1){
+        return ({error: true, message: "Ocurrió un error inesperado"})
+    } else {
+        return ({error: false, message: "", booking_id: response.booking_id})
+    } 
+}
+
+// Función para eliminar una reserva
+async function delete_booking(booking_id){
+    const fields = [booking_id]
+    const query = "CALL delete_booking(?,@execution_code); SELECT @execution_code AS execution_code;"
+    const response = await execute_operation(query, fields)
+
+    // Generación de la respuesta
+    if (response.execute_operation == -1){
+        return ({error: true, message: "Ocurrió un error inesperado"})
+    } else {
+        return ({error: false, message: "Reserva eliminada exitosamente"})
+    } 
+}
+
 // Edición del hotel ------------------------------------------------------------------------------------------- //
 
 // Función que retorna los datos de un hotel
@@ -473,5 +556,10 @@ module.exports = {
     get_rooms_available_for_deal,
     get_rooms_in_deal,
     add_room_to_deal,
-    delete_room_from_deal
+    delete_room_from_deal,
+    get_person_by_email,
+    get_person_by_id_number,
+    get_person_by_username,
+    register_booking,
+    delete_booking
 }

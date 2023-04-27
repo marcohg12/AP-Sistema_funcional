@@ -181,7 +181,6 @@
             </div>
           </div>
 
-
                  <!-- Pop ups de mensajes ----------------------------------------------------------------------->
 
                  <!-- Pop de mensage de éxito -->  
@@ -278,9 +277,10 @@
         })
 
         // Configuración de selectores de fechas
-
-        start_date.min = new Date().toISOString().split("T")[0]
-        ending_date.min = new Date().toISOString().split("T")[0]
+        const current_date = new Date()
+        current_date.setDate(current_date.getDate()-1)
+        start_date.min = current_date.toISOString().split("T")[0]
+        ending_date.min = current_date.toISOString().split("T")[0]
 
         $('#start_date').change(function config_check_out_selector() {
           const start_date_selected = new Date((document.getElementById("start_date").value))
