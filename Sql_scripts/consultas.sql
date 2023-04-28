@@ -50,3 +50,17 @@ BEGIN
 	WHERE commentary.reservation_ref = pReservation_id;
 END$$
 DELIMITER ;
+
+
+-- Consulta que obtiene el porcentaje de las reviews de un respectivo hotel
+DROP PROCEDURE IF EXISTS get_review_average;
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_review_average`(IN pHotel_id INT)
+BEGIN
+    SELECT  IFNULL(SUM(review.stars)/COUNT(review.id),0)  AS "Promedio"
+    FROM reservation
+    INNER JOIN review
+    ON review.reservation_ref = reservation.id
+    WHERE reservation.hotel_ref = pHotel_id;
+END$$
+DELIMITER ;
