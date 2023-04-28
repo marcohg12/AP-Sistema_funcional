@@ -159,14 +159,14 @@
                           <% photos.forEach( (photo, i) => { %>
 
                             <% if (i == 0){ %> 
-                              <div class="carousel-item active">
+                              <div class="carousel-item active" id="<%= photo.id %>">
                                 <img class="d-block w-100 card-img" style="height: 400px" src="data:image/png;base64, <%= photo.photo %>">
                                 <div class="carousel-caption d-none d-md-block">
                                   <button class="btn btn-danger" onclick="javascript:delete_photo_from_hotel('<%= photo.id %>')">Eliminar</button>
                                 </div>
                               </div>
                             <% } else { %> 
-                              <div class="carousel-item">
+                              <div class="carousel-item" id="<%= photo.id %>">
                                 <img class="d-block w-100 card-img" style="height: 400px" src="data:image/png;base64, <%= photo.photo %>">
                                 <div class="carousel-caption d-none d-md-block">
                                   <button class="btn btn-danger" onclick="javascript:delete_photo_from_hotel('<%= photo.id %>')">Eliminar</button>
@@ -284,7 +284,7 @@
                   http.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
                   http.send(JSON.stringify(request_body))
               })
-          }
+        }
   
         // Función que se activa cuando se cambia el país
         async function country_selected(country_id){
@@ -337,7 +337,7 @@
         if (response.error){
           show_response(response)
         } else {
-          location.reload()
+          document.getElementById(photo_id).remove()
         }
 
       }

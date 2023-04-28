@@ -59,18 +59,18 @@
 
               <!-- Filtros de la consulta ------------------------------------------------------------->
               <div>
-                <form>
+                <form action="/master_admins/get_hotels_query" method="POST">
                   <div class="row">
                     <div class="col">
                       <div class="form-outline">
-                        <input type="text" id="deal_name" name="deal_name" class="form-control"/>
+                        <input type="text" id="hotel_name" name="hotel_name" class="form-control"/>
                         <label class="form-label">Nombre del hotel</label>
                       </div>
                     </div>
 
                     <div class="col">
                       <div class="form-outline">
-                        <input type="date" id="initial_date" name="initial_date" class="form-control"/>
+                        <input type="date" id="start_date" name="start_date" class="form-control"/>
                         <label class="form-label">Fecha de inicio</label>
                       </div>
                     </div>
@@ -104,61 +104,26 @@
                       </thead>
       
                       <tbody>
-  
-                          <tr>
-                              <td>
-                                  <p>Hotel Maracuyá</p>
-                              </td>
-                              <td>
-                                <p>2015-05-04</p>
-                              </td>
-                              <td>
-                                  <p>50</p>
-                              </td>
-                              <td>
-                                  <p>500</p>
-                              </td>
-                              <td>
-                                  <p>50000$</p>
-                              </td>
-                          </tr>
 
+                        <% hotels.forEach( (hotel) => { %>
                           <tr>
                             <td>
-                                <p>Hotel Buena Vista</p>
+                                <p><%= hotel.name %></p>
                             </td>
                             <td>
-                              <p>2017-07-24</p>
+                              <p><%= hotel.registration_date.toLocaleDateString() %></p>
                             </td>
                             <td>
-                                <p>40</p>
+                                <p><%= hotel.room_count %></p>
                             </td>
                             <td>
-                                <p>340</p>
+                                <p><%= hotel.bookings_count %></p>
                             </td>
                             <td>
-                                <p>67000$</p>
+                                <p><%= hotel.profit %>$</p>
                             </td>
                         </tr>
-
-                        <tr>
-                          <td>
-                              <p>Hotel Barceló</p>
-                          </td>
-                          <td>
-                            <p>2011-10-25</p>
-                          </td>
-                          <td>
-                              <p>500</p>
-                          </td>
-                          <td>
-                              <p>5600</p>
-                          </td>
-                          <td>
-                              <p>1000000$</p>
-                          </td>
-                      </tr>
-          
+                        <% }) %>          
                       </tbody>
                   </table>
               </div>
@@ -173,4 +138,6 @@
         </section>
 
     </body>
+    <script>
+    </script>
 </html>

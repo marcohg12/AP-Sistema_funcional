@@ -431,6 +431,28 @@ async function get_bookins(hotel_id){
     return await execute_query(query, fields)
 }
 
+// Función para obtener los datos de una reserva
+async function get_booking_data(booking_id){
+    const fields = [booking_id]
+    const query = "CALL get_booking_data(?);"
+    const data = await execute_query(query, fields)
+    return data[0]
+}
+
+// Función para obtener las habitaciones de una reserva
+async function get_rooms_in_booking(booking_id){
+    const fields = [booking_id]
+    const query = "CALL get_rooms_in_booking(?);"
+    return await execute_query(query, fields)
+}
+
+// Función para obtener las habitaciones disponibles para reservar
+async function get_rooms_to_book(hotel_id){
+    const fields = [hotel_id]
+    const query = "CALL get_rooms_to_book(?);"
+    return await execute_query(query, fields)
+}
+
 // Función para obtener un usuario por nombre de usuario
 async function get_person_by_username(username){
     const fields = [username]
@@ -545,7 +567,6 @@ async function update_hotel(name, address, classification_id, district_id, hotel
 // Función para agregar una foto a un hotel
 async function add_photo_to_hotel(hotel_id, photo){
     const fields = [hotel_id, photo]
-    console.log(fields)
     const query = "CALL add_photo_to_hotel(?,?,@execution_code); SELECT @execution_code AS execution_code;"
     const execution_code = await execute_operation(query, fields)
 
@@ -612,5 +633,6 @@ module.exports = {
     update_hotel,
     add_photo_to_hotel,
     get_hotel_photos,
-    delete_photo_from_hotel
+    delete_photo_from_hotel,
+    get_booking_data
 }

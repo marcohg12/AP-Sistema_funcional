@@ -74,29 +74,34 @@
         <section class="mb-4">
           <div class="container">
 
-            <a href="/clients/hotel_info/1" class="btn btn-light mt-2"><span class="bi bi-arrow-left"></span></a>
+            <a href="/clients/hotel_info/<%= room.hotel_id %>" class="btn btn-light mt-2"><span class="bi bi-arrow-left"></span></a>
 
             <div class="card mt-2">
               <div class="card-body">
-                <h5 class="card-title"><%= name %></h5>
-                <p class="card-text">Capacidad: <%= capacity %> personas</p>
-                <p class="card-text">Precio por noche: <%= price %>$</p>
-                <% if (discount_code){ %>
-                  <p class="card-text">Código de descuento: <%= discount_code %> &nbsp;&nbsp;&nbsp; Descuento aplicable: <%= discount_rate %>%</p>
+                <h5 class="card-title"><%= room.name %></h5>
+                <p class="card-text">Capacidad: <%= room.capacity %> personas</p>
+                <% if (room.is_in_offer){ %>
+                  <p class="card-text">Precio por noche: <s><%= room.price%>$</s> <%= room.current_price%>$</p>
+                <% } else { %>
+                  <p class="card-text">Precio por noche: <%= room.price%>$</p>
+                <% } %>
+
+                <% if (room.discount_code){ %>
+                  <p class="card-text">Código de descuento: <%= room.discount_code %> &nbsp;&nbsp;&nbsp; Descuento aplicable: <%= room.discount_rate %>%</p>
                 <% }%>
 
                 <button class="btn btn-outline-secondary me-2" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_amenities" aria-expanded="false" aria-controls="collapse_amenities">Amenidades</button>
 
                 <div class="collapse" id="collapse_amenities">
                 <div class="row mb-3 mt-3 text-center">
-                  <% for (i in amenities){ %>
+                  <% amenities.forEach( (amenity, i) => { %>
                     <div class="col-lg-3 col-md-6 mb-5 mb-md-5 mb-lg-0 position-relative">
-                      <h6 class="fw-normal mb-4"><%= amenities[i] %></h6>
+                      <h6 class="fw-normal mb-4"><%= amenity.name %></h6>
                       <% if (i == 0 || i % 3 != 0){ %>
                       <div class="vr vr-blurry position-absolute my-0 h-50 d-none d-md-block top-0 end-0"></div>
                       <% } %>
                     </div>
-                <% } %>
+                  <% }) %>
                 </div>
               </div>
               
@@ -105,18 +110,18 @@
 
             <!--------------------------------------------------------------------------------------------------------------->
 
-            <% if (is_in_offer) { %>
+            <% if (room.is_in_offer) { %>
 
               <div class="card mt-4">
                 <h5 class="card-header">Oferta disponible</h5>
                 <div class="card-body">
-                  <h5 class="card-title"><%= offer_data.name %></h5>
+                  <h5 class="card-title"><%= offer.name %></h5>
                   <div class="card-text">
-                    Desde el: <%= offer_data.initial_date%> &nbsp;&nbsp;&nbsp;
-                    Hasta el: <%= offer_data.ending_date%>
+                    Desde el: <%= offer.start_date.toLocaleDateString() %> &nbsp;&nbsp;&nbsp;
+                    Hasta el: <%= offer.ending_date.toLocaleDateString() %>
                   </div>
-                  <p class="card-text mt-2">Porcentaje de descuento: <%= offer_data.discount_rate %>%</p>
-                  <a href="/clients/deal_info/<%= offer_data.id %>" class="btn btn-outline-secondary">Ver detalles</a>
+                  <p class="card-text mt-2">Porcentaje de descuento: <%= offer.discount_rate %>%</p>
+                  <a href="/clients/deal_info/<%= offer.id %>" class="btn btn-outline-secondary">Ver detalles</a>
                 </div>
               </div>
 

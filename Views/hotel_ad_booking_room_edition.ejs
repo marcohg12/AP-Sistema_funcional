@@ -65,14 +65,14 @@
 
                     <div class="col">
                       <div class="form-outline">
-                        <input type="date" id="check-out" name="check-out" required class="form-control" />
+                        <input type="date" id="check-out" name="check-out" value="<%= booking_data.check_in_date %>" required class="form-control" />
                         <label class="form-label">Fecha de check-in</label>
                       </div>
                     </div>
 
                     <div class="col">
                       <div class="form-outline">
-                        <input type="date" id="check-out" name="check-out" required class="form-control" />
+                        <input type="date" id="check-out" name="check-out" value="<%= booking_data.check_out_date %>" required class="form-control" />
                         <label class="form-label">Fecha de check-out</label>
                       </div>
                     </div>
@@ -95,7 +95,7 @@
                   <span class="h3 fw-bold mb-0">Habitaciones disponibles</span>
                 </div>
 
-                <div style="max-height: 500px; display: block; overflow: auto; position: relative;">
+                <div style="height: 500px; display: block; overflow: auto; position: relative;">
                   <% rooms.forEach( room => {%>
                     <div class="card mb-4" id="room-<%= room.id %>">
 
@@ -112,7 +112,7 @@
                         <% } else { %>
                           <p class="card-text">Precio por noche: <%= room.price%>$</p>
                         <% } %>
-                        <p class="card-text"><small class="text-muted">Capacidad: <%= room.capacity%> personas</small></p>
+                        <p class="card-text"><small class="text-muted">Capacidad: <%= room.capacity%> personas &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Unidades: <%= room.units %></small></p>
 
                         <form method="POST" action="">   
                           <!-- Formulario para agregar la habitación a la reserva ----------------------->
@@ -146,13 +146,13 @@
                   <span class="h3 fw-bold mb-0">Habitaciones de la reserva</span>
                 </div>
 
-                <div style="max-height: 500px; display: block; overflow: auto; position: relative;">
+                <div style="height: 500px; display: block; overflow: auto; position: relative;">
                   <% rooms_in_booking.forEach( room => {%>
                     <div class="card mb-4" id="room-<%= room.id %>">
 
                       <% if (room.is_in_offer){ %>
                         <div class="card-header">
-                            En oferta
+                            Aplicable a oferta
                         </div>
                       <% } %>
 

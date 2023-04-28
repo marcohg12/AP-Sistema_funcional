@@ -567,14 +567,18 @@ async function delete_hotel(hotel_id){
     }
 }
 
-async function update_hotel(hotel_id, new_name, new_adress, new_district_id, new_classification_id){}
+// Funciones de consultas ------------------------------------------------------------------------------------------- //
 
-async function add_photo_to_hotel(hotel_id, photo){}
-
-async function delete_photo_from_hotel(){}
+// Retorna la consulta de hoteles (hoteles registrados con total de habitaciones, reservas y montos facturados)
+async function get_hotels_query(name, start_date, ending_date){
+    const fields = [name, start_date, ending_date]
+    const query = "CALL get_hotels_query(?,?,?);"
+    return await execute_query(query, fields)
+}
 
 // Nombres de cada funcion que hay arriba
 module.exports = {
+    get_hotels_query,
     register_gender,
     update_gender,
     delete_gender,

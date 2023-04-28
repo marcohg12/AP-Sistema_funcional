@@ -74,18 +74,18 @@
         <section class="mb-4">
           <div class="container">
 
-            <a href="/clients/hotel_info/1" class="btn btn-light mt-2"><span class="bi bi-arrow-left"></span></a>
+            <a href="/clients/hotel_info/<%= deal.hotel_id %>" class="btn btn-light mt-2"><span class="bi bi-arrow-left"></span></a>
 
             <div class="card mt-2">
                 <h5 class="card-header">Oferta</h5>
                 <div class="card-body">
-                  <h3 class="card-title"><%= name %></h3>
+                  <h3 class="card-title"><%= deal.name %></h3>
                   <div class="card-text">
-                    Desde el: <%= initial_date%> &nbsp;&nbsp;&nbsp;
-                    Hasta el: <%= ending_date%>
+                    Desde el: <%= deal.start_date.toLocaleDateString() %> &nbsp;&nbsp;&nbsp;
+                    Hasta el: <%= deal.ending_date.toLocaleDateString() %>
                   </div>
-                  <p class="card-text mt-4">Porcentaje de descuento: <%= discount_rate %>%</p>
-                  <p class="card-text">Días mínimos de reserva: <%= minimun_days %></p>
+                  <p class="card-text mt-4">Porcentaje de descuento: <%= deal.discount_rate %>%</p>
+                  <p class="card-text">Días mínimos de reserva: <%= deal.minimun_reservation_days %></p>
                 </div>
             </div>
 

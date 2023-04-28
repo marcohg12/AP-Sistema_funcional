@@ -1,6 +1,9 @@
 // Importación de dependencias
 const router = require("express").Router()
+const user_controller = require("../controllers/user_controller")
+const master_admin_controller = require("../controllers/master_admin_controller")
 const hotel_admin_controller = require("../controllers/hotel_admin_controller")
+const client_controller = require("../controllers/client_controller")
 
 // Atiende la petición de ventana de lista de hoteles
 router.get("/hotel_list", async (req, res) => {
@@ -12,9 +15,8 @@ router.get("/hotel_list", async (req, res) => {
         profile = req.user.photo
     }
 
-    res.render("client_hotel_list", {hotels: [{name: "Hotel Maracuyá", classification: "4 Estrellas", province: "Guanacaste" }, 
-                                              {name: "Hotel Vista Buena", classification: "3 Estrellas", province: "Puntarenas"}],
-                                     is_authenticated: is_authenticated, profile: profile})
+    const hotels = await client_controller.get_hotels()
+    res.render("client_hotel_list", {hotels: hotels, is_authenticated: is_authenticated, profile: profile})
 })
 
 // Atiende la petición de ventana de información de un hotel
@@ -27,6 +29,13 @@ router.get("/hotel_info/:hotel_id", async (req, res) => {
         profile = req.user.photo
     }
 
+    const hotel_data = await client_controller.get_hotel_data(req.params.hotel_id)
+    const photos = await hotel_admin_controller.get_hotel_photos(req.params.hotel_id)
+    const amenities = await hotel_admin_controller.get_amenities(req.params.hotel_id)
+    const payment_methods = await hotel_admin_controller.get_payment_methods(req.params.hotel_id)
+    const rooms = await client_controller.get_rooms_to_book(req.params.hotel_id)
+    const offers = await hotel_admin_controller.get_deals(req.params.hotel_id)
+
     const comments = [{name: "Marco Herrera", date: "2023-04-05", content: "Habitaciones muy ordenadas"},
                       {name: "Cristina Solís", date: "2023-04-03", content: "La comida del restaurantes es muy buena"},
                       {name: "Andrés Carvajal", date: "2023-01-23", content: "Muy buena atención del personal"}]
@@ -35,21 +44,9 @@ router.get("/hotel_info/:hotel_id", async (req, res) => {
                      {name: "Cristina Solís", date: "2023-04-03", value: 4},
                      {name: "Marcela Ramos", date: "2023-01-23", value: 3}]
 
-    res.render("client_hotel_main", {hotel_id: "", hotel_name: "Hotel Linda Vista", hotel_classification: "4 Estrellas", 
-                                     hotel_address: "Playa Tamarindo, Tamarindo, Guanacaste", 
-                                     amenities: ["Piscina", "Restaurante", "Gimnasio", "Campo de golf"],
-                                     payment_methods: ["Tarjeta", "Efectivo", "Transferencia"],
+    res.render("client_hotel_main", {hotel_data: hotel_data, amenities: amenities, payment_methods: payment_methods, photos: photos,
                                      hotel_review_avg: 4.6, comments: comments, reviews: reviews,
-                                     offers: [{id: "1", name: "40% Descuento en Habitaciones Doble", 
-                                               initial_date: "2023-03-25", ending_date: "2023-03-30"},
-                                               {id: "2", name: "50% Descuento en Habitaciones Sencillas", 
-                                               initial_date: "2023-03-25", ending_date: "2023-03-30"}],
-                                     rooms: [{id: "1", name: "Habitación sencilla", price: 150, capacity: 2, is_in_offer: 1, current_price: 75},
-                                             {id: "2", name: "Habitación doble", price: 290, capacity: 4, is_in_offer: 0, current_price: 550},
-                                             {id: "3", name: "Habitación deluxe", price: 350, capacity: 2, is_in_offer: 0, current_price: 550},
-                                             {id: "4", name: "Habitación deluxe doble", price: 600, capacity: 4, is_in_offer: 1, current_price: 300},
-                                             {id: "5", name: "Habitación royal", price: 750, capacity: 2, is_in_offer: 0, current_price: 550}],
-                                     is_authenticated: is_authenticated, profile: profile})
+                                     offers: offers, rooms: rooms, is_authenticated: is_authenticated, profile: profile})
 
 })
 
@@ -63,15 +60,10 @@ router.get("/deal_info/:deal_id", async (req, res) => {
         profile = req.user.photo
     }
 
-    res.render("client_deal_detail", {name: "50% Descuento en Habitaciones Sencillas", 
-                                     initial_date: "2023-03-25", ending_date: "2023-03-30", discount_rate: 50,
-                                     minimun_days: 5,
-                                     rooms: [{id: "0", name: "Habitación sencilla", price: 150, current_price: 75, capacity: 2},
-                                     {id: "1", name: "Habitación doble", price: 290, current_price: 145, capacity: 4},
-                                     {id: "2", name: "Habitación deluxe", price: 350, current_price: 175, capacity: 2},
-                                     {id: "3", name: "Habitación deluxe doble", price: 600, current_price: 300, capacity: 4},
-                                     {id: "4", name: "Habitación royal", price: 750, current_price: 375, capacity: 2}],
-                                     is_authenticated: is_authenticated, profile: profile})
+    const deal = await hotel_admin_controller.get_deal_data(req.params.deal_id)
+    const rooms = await hotel_admin_controller.get_rooms_in_deal(req.params.deal_id)
+
+    res.render("client_deal_detail", {deal: deal[0], rooms: rooms, is_authenticated: is_authenticated, profile: profile})
     
 })
 
@@ -85,14 +77,14 @@ router.get("/room_info/:room_id", async (req, res) => {
         profile = req.user.photo
     }
 
-    res.render("client_room_detail", {id: "", name: "Habitación sencilla", capacity: 2, price: 150, is_in_offer: true,
-                                     offer_data: {id: "1", name: "50% Descuento en Habitaciones Sencillas", 
-                                                  initial_date: "2023-03-25", ending_date: "2023-03-30",
-                                                  discount_rate: 50}, 
-                                     discount_code: "AJDFBVF", discount_rate: 15,
-                                     amenities: ["Vista al mar", "Agua caliente", "Cama doble", "Aire acondicionado"],
-                                     is_authenticated: is_authenticated, profile: profile})
-    
+    const room = await client_controller.get_room_detail(req.params.room_id)
+    var offer = []
+    if (room.is_in_offer){
+        offer = await hotel_admin_controller.get_deal_data(room.offer_id)
+    }
+    const amenities = await hotel_admin_controller.get_amenities_in_room(req.params.room_id)
+
+    res.render("client_room_detail", {room: room, offer: offer[0], amenities: amenities, is_authenticated: is_authenticated, profile: profile})   
 })
 
 // Atiende la petición de ventana de lista de hoteles favoritos del cliente

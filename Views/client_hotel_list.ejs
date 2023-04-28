@@ -84,7 +84,7 @@
                 <div class="col-md-4">
 
                   <div>
-                    <img class="d-block w-100 card-img" style="width:200px; height: 200px;" src="../Photos/hotel-presidente-4s.jpg">
+                    <img class="d-block w-100 card-img" style="width:200px; height: 200px;" src="data:image/png;base64, <%= hotel.photo %>">
                   </div>
 
                 </div>
@@ -92,10 +92,10 @@
                 <div class="col-md-8">
                   <div class="card-body">
 
-                    <h5 class="card-title"><%= hotel.name %></h5>
-                    <p class="card-text"><%= hotel.classification%></p>
-                    <p class="card-text"><small class="text-muted"><%= hotel.province%></small></p>
-                    <a href="/clients/hotel_info/:hotel_id" class="btn text-white" style="background-color: #606c38;">Ver más</a>
+                    <h5 class="card-title"><%= hotel.hotel_name %></h5>
+                    <p class="card-text"><%= hotel.classification_name%></p>
+                    <p class="card-text"><small class="text-muted"><%= hotel.country_name%>, <%= hotel.province_name%></small></p>
+                    <a href="/clients/hotel_info/<%= hotel.id %>" class="btn text-white" style="background-color: #606c38;">Ver más</a>
 
                   </div>
                 </div>

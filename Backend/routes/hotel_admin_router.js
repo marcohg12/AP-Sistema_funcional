@@ -3,6 +3,7 @@ const router = require("express").Router()
 const user_controller = require("../controllers/user_controller")
 const master_admin_controller = require("../controllers/master_admin_controller")
 const hotel_admin_controller = require("../controllers/hotel_admin_controller")
+const client_controller = require("../controllers/client_controller")
 const multer = require("multer")
 const upload = multer({storage:multer.memoryStorage()})
 
@@ -15,6 +16,7 @@ router.get("/", check_authenticated, async (req, res) => {
 
 // Atiende la petición de ventana de edición del hotel
 router.get("/edit_hotel", check_authenticated, async (req, res) => {
+
     const hotel_data = await hotel_admin_controller.get_hotel_data(req.user.hotel_admin_id)
     const classifications = await master_admin_controller.get_classifications()
     const countries = await master_admin_controller.get_countries()
@@ -22,6 +24,7 @@ router.get("/edit_hotel", check_authenticated, async (req, res) => {
     const cantons = await master_admin_controller.get_cantons(hotel_data[0].province_id)
     const districts = await master_admin_controller.get_districts(hotel_data[0].canton_id)
     const photos = await hotel_admin_controller.get_hotel_photos(req.user.hotel_admin_id)
+
     res.render("hotel_ad_hotel_edition", {hotel_data: hotel_data[0], classifications: classifications, 
                                           countries: countries, provinces: provinces,
                                           cantons: cantons, districts: districts, photos: photos, profile:req.user.photo})
@@ -83,19 +86,18 @@ router.get("/register_bookin_step_1", check_authenticated, async (req, res) => {
     res.render("hotel_ad_register_booking", {id_types: id_types, profile:req.user.photo})
 })
 
-
 // Response a la solicitud de vista de la ventana de edición de habitaciones para la reserva
 router.get("/edit_bookin_rooms/:bookin_id", check_authenticated, async (req, res) => {
     const booking_id = req.params.bookin_id
-    const rooms = [{id: "0", name: "Habitación sencilla", price: 150, capacity: 2,  units:1, is_in_offer: 1, current_price: 100},
-                   {id: "1", name: "Habitación doble", price: 290, capacity: 4,  units:2, is_in_offer: 0, current_price: 290},
-                   {id: "2", name: "Habitación deluxe", price: 350, capacity: 2,  units:4, is_in_offer: 0, current_price: 350},
-                   {id: "3", name: "Habitación deluxe doble", price: 600, capacity: 4,  units:2, is_in_offer: 1, current_price: 550}]
 
-    const rooms_in_booking = [{id: "0", name: "Habitación sencilla", price: 150, capacity: 2, units:1, is_in_offer: 1, current_price: 100},
-                              {id: "1", name: "Habitación doble", price: 290, capacity: 4, units:1, is_in_offer: 0, current_price: 290},
-                              {id: "2", name: "Habitación deluxe", price: 350, capacity: 2, units:2, is_in_offer: 0, current_price: 350}]
-    res.render("hotel_ad_booking_room_edition", {booking_id: booking_id, rooms: rooms, rooms_in_booking: rooms_in_booking, profile:req.user.photo})
+    const booking_data = await hotel_admin_controller.get_booking_data(booking_id)
+    booking_data.check_in_date = booking_data.check_in_date.toISOString().split("T")[0]
+    booking_data.check_out_date = booking_data.check_out_date.toISOString().split("T")[0]
+
+    const rooms = await client_controller.get_rooms_to_book(req.user.hotel_admin_id)
+
+    const rooms_in_booking = await client_controller.get_rooms_in_booking(req.params.bookin_id)
+    res.render("hotel_ad_booking_room_edition", {booking_id: booking_id, booking_data: booking_data, rooms: rooms, rooms_in_booking: rooms_in_booking, profile:req.user.photo})
 })
 
 // Atiende la petición de ventana de confirmación de reserva

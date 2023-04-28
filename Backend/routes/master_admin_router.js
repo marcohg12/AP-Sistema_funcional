@@ -97,8 +97,15 @@ router.get("/get_hotels_to_admin", check_authenticated, async (req, res) => {
 })
 
 // Responde a la solicitud de obtener la consulta de hoteles registrados en el sistema
-router.get("/get_hotels_query", check_authenticated, async (req, res) => {
-    res.render("master_ad_hotels_query", {profile: req.user.photo})
+router.get("/get_hotels_query/", check_authenticated, async (req, res) => {
+    const hotels = await master_admin_controller.get_hotels_query("","","")
+    res.render("master_ad_hotels_query", {hotels: hotels, profile: req.user.photo})
+})
+
+// Responde a la solicitud de obtener la consulta de hoteles registrados en el sistema con filtros aplicados
+router.post("/get_hotels_query", check_authenticated, async (req, res) => {
+    const hotels = await master_admin_controller.get_hotels_query(req.body.hotel_name, req.body.start_date, req.body.ending_date)
+    res.render("master_ad_hotels_query", {hotels: hotels, profile: req.user.photo})
 })
 
 // Responde a la solicitud de obtener la vista de edición de hotel
