@@ -8,7 +8,7 @@
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
-        <title>Menú Principal</title>
+        <title>Consultas</title>
     </head>
 
     <body>
@@ -54,7 +54,7 @@
             <div class="container">
 
               <div class="d-flex align-items-center mb-3 pb-1">
-                <span class="h3 fw-bold mb-0">Consulta: detalle de hoteles registrados</span>
+                <span class="h3 fw-bold mb-0">Consulta: Detalle de hoteles registrados</span>
               </div>
 
               <!-- Filtros de la consulta ------------------------------------------------------------->
@@ -63,27 +63,40 @@
                   <div class="row">
                     <div class="col">
                       <div class="form-outline">
+                      <% if(locals.name_filter){ %>
+                        <input type="text" id="hotel_name" value="<%= name_filter %>" name="hotel_name" class="form-control"/>
+                      <% } else { %>
                         <input type="text" id="hotel_name" name="hotel_name" class="form-control"/>
+                      <% } %>
                         <label class="form-label">Nombre del hotel</label>
                       </div>
                     </div>
 
                     <div class="col">
-                      <div class="form-outline">
-                        <input type="date" id="start_date" name="start_date" class="form-control"/>
+                      <div class="form-outline">     
+                        <% if(locals.start_date_filter){ %>
+                          <input type="date" id="start_date" value="<%= start_date_filter %>" name="start_date" class="form-control"/>
+                        <% } else { %>
+                          <input type="date" id="start_date" name="start_date" class="form-control"/>
+                        <% } %>
                         <label class="form-label">Fecha de inicio</label>
                       </div>
                     </div>
 
                     <div class="col">
                       <div class="form-outline">
-                        <input type="date" id="ending_date" name="ending_date" class="form-control"/>
+                        <% if(locals.ending_date_filter){ %>
+                          <input type="date" id="ending_date" value="<%= ending_date_filter %>" name="ending_date" class="form-control"/>
+                        <% } else { %>
+                          <input type="date" id="ending_date" name="ending_date" class="form-control"/>
+                        <% } %>
                         <label class="form-label">Fecha de fin</label>
                       </div>
                     </div>
                     
                     <div class="col">
-                        <button type="submit" class="btn text-white" style="background-color: #606c38;">Filtrar</button>
+                        <button type="submit" class="btn text-white me-3" style="background-color: #606c38;">Filtrar</button>
+                        <button onclick="javascript:clean_filters()" class="btn btn-secondary" >Limpiar</button>
                     </div>
                   </div>
                 </form>
@@ -92,7 +105,7 @@
               <!-- Resultados de la consulta ---------------------------------------------------------->
               <div>
                 <div style="height: 450px; display: block; overflow: auto; position: relative;">
-                  <table class="table mt-4 table-striped table-bordered">
+                  <table class="table mt-4 table-striped table-bordered" id="query_table">
                       <thead class="bg-light">
                         <tr>
                           <th>Nombre</th>
@@ -130,7 +143,7 @@
               </div>
 
               <div class="d-flex align-items-center mt-3 pb-1">
-                <span class="h4 mb-0">Total de hoteles registrados: 3</span>
+                <span class="h4 mb-0" id="hotel_query_count">Total de hoteles registrados: 3</span>
               </div>
 
 
@@ -139,5 +152,19 @@
 
     </body>
     <script>
+    
+    const name_filter = document.getElementById("hotel_name")
+    const start_date_filter = document.getElementById("start_date")
+    const ending_date_filter = document.getElementById("ending_date")
+    const hotel_count = document.getElementById("hotel_query_count")
+
+    hotel_count.innerHTML = "Total de hoteles registrados: " + ($("#query_table tr").length-1)
+
+    function clean_filters(){
+      name_filter.value = ""
+      start_date_filter.value = ""
+      ending_date_filter.value = ""
+    }
+
     </script>
 </html>

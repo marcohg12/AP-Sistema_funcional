@@ -592,8 +592,46 @@ async function delete_photo_from_hotel(photo_id){
     }  
 }
 
+// Consultas del hotel ------------------------------------------------------------------------------------ //
+
+// Reporte de reservas con calificación y comentarios
+async function get_hotel_review_average_report(hotel_id){
+    const query = "CALL get_hotel_review_average_report(?);"
+    return await execute_query(query, [hotel_id])  
+}
+
+// Obtiene los comentarios de una reserva
+async function get_booking_comments(booking_id){
+    const query = "CALL get_booking_comments(?);"
+    return await execute_query(query, [booking_id]) 
+}
+
+// Obtiene el promedio de calificación de un hotel
+async function get_review_avarage(hotel_id){
+    const query = "CALL get_review_avarage(?);"
+    const data = await execute_query(query, [hotel_id]) 
+    return data[0]
+}
+
+// Obtiene los comentarios del hotel
+async function get_hotel_comments(hotel_id){
+    const query = "CALL get_hotel_comments(?);"
+    return await execute_query(query, [hotel_id]) 
+}
+
+// Obtiene las reviews del hotel
+async function get_hotel_reviews(hotel_id){
+    const query = "CALL get_hotel_reviews(?);"
+    return await execute_query(query, [hotel_id]) 
+}
+
 // Nombres de cada funcion que hay arriba
 module.exports = {
+    get_hotel_reviews,
+    get_hotel_comments,
+    get_review_avarage,
+    get_booking_comments,
+    get_hotel_review_average_report,
     get_rooms,
     register_room,
     update_room,

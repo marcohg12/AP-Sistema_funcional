@@ -163,6 +163,7 @@ router.get("/get_amenities_not_in_room/:room_id", check_authenticated, async (re
 
 // Responde a la solicitud de consulta de personas hospedadas
 router.get("/get_booked_people", check_authenticated, async (req, res) => {
+    const data = null
     res.render("hotel_ad_booked_people_query", {profile: req.user.photo})
 })
 
@@ -173,7 +174,19 @@ router.get("/get_deals_report", check_authenticated, async (req, res) => {
 
 // Responde a la solicitud de promedio de reviews del hotel
 router.get("/get_review_avarage", check_authenticated, async (req, res) => {
-    res.render("hotel_ad_review_avarage_query", {profile: req.user.photo})
+    const data = await hotel_admin_controller.get_hotel_review_average_report(req.user.hotel_admin_id)
+    const avarage = await hotel_admin_controller.get_review_avarage(req.user.hotel_admin_id)
+    res.render("hotel_ad_review_avarage_query", {data: data, avarage: avarage, profile: req.user.photo})
+})
+
+// Responde a la solicitud de obtener los comentarios de una reserva
+router.get("/get_booking_comments/:booking_id/:username", check_authenticated, async (req, res) => {
+    const comments = await hotel_admin_controller.get_booking_comments(req.params.booking_id)
+    const user_data = await user_controller.get_user_by_username(req.params.username)
+    user_data.photo = user_data.photo.toString('ascii')
+    console.log(user_data)
+    res.status(200)
+    res.send(JSON.stringify({comments: comments, user_data: {name: user_data.name, photo: user_data.photo}}))
 })
 
 // Responde a la solicitud de consulta de tops de ventas por días
@@ -188,12 +201,14 @@ router.get("/get_rooms_available", check_authenticated, async (req, res) => {
 
 // Responde a la solicitud de consulta de comentarios de un hotel
 router.get("/get_hotel_comments", check_authenticated, async (req, res) => {
-    res.render("hotel_ad_comments_query", {profile: req.user.photo})
+    const comments = await hotel_admin_controller.get_hotel_comments(req.user.hotel_admin_id)
+    res.render("hotel_ad_comments_query", {comments: comments, profile: req.user.photo})
 })
 
 // Responde a la solicitud de consulta de reviews de un hotel
 router.get("/get_hotel_reviews", check_authenticated, async (req, res) => {
-    res.render("hotel_ad_reviews_query", {profile: req.user.photo})
+    const reviews = await hotel_admin_controller.get_hotel_reviews(req.user.hotel_admin_id)
+    res.render("hotel_ad_reviews_query", {reviews: reviews, profile: req.user.photo})
 })
 
 // Responde a la solicitud de estadística de clientes por rango de edad

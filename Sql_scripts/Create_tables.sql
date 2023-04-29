@@ -245,6 +245,7 @@ CREATE TABLE IF NOT EXISTS Review(
 id              INT NOT NULL AUTO_INCREMENT,
 stars 		    INT NOT NULL,
 reservation_ref INT NOT NULL,
+date            DATE NOT NULL,
 
 CONSTRAINT review_pk PRIMARY KEY (id),
 FOREIGN KEY (reservation_ref) REFERENCES RESERVATION(id)  ON DELETE CASCADE

@@ -71,6 +71,7 @@
                     <thead class="bg-light">
                       <tr>
                         <th>Nombre</th>
+                        <th>Nombre de usuario</th>
                         <th>Review</th>
                         <th>Fecha</th>
                       </tr>
@@ -78,63 +79,33 @@
     
                     <tbody>
 
-                        <tr>
-                            <td>
-                                <p>Marco Herrera</p>
-                            </td>
-
-                            <td>
-                              <div class="card-body">
-                                <% for(i = 0; i < 5; i++){ %>
-                                  <span class = "fa fa-star checked"></span> 
-                                <% } %>
-                              </div>
-                            </td>
-
-                            <td>
-                              <p>2023-04-05</p>
-                           </td>
-                        </tr>
-
+                      <% reviews.forEach( review => { %>
                         <tr>
                           <td>
-                              <p>Cristina Solís</p>
+                              <p><%= review.name %></p>
                           </td>
 
+                          <td>
+                            <p><%= review.username %></p>
+                        </td>
+  
                           <td>
                             <div class="card-body">
-                              <% for(i = 0; i < 4; i++){ %>
+                              <% for(i = 0; i < review.stars; i++){ %>
                                 <span class = "fa fa-star checked"></span> 
                               <% } %>
+                              <% for(i = 0; i < 5 - review.stars; i++){ %>
                               <span class = "fa fa-star unchecked"></span> 
+                              <% } %>
                             </div>
                           </td>
-
+  
                           <td>
-                            <p>2023-04-03</p>
+                            <p><%= review.date.toLocaleDateString() %></p>
                          </td>
                       </tr>
-
-                      <tr>
-                        <td>
-                            <p>Marcela Ramos</p>
-                        </td>
-
-                        <td>
-                          <div class="card-body">
-                            <% for(i = 0; i < 3; i++){ %>
-                              <span class = "fa fa-star checked"></span> 
-                            <% } %>
-                            <% for(i = 0; i < 2; i++){ %>
-                            <span class = "fa fa-star unchecked"></span> 
-                            <% } %>
-                          </div>
-                        </td>
-
-                        <td>
-                          <p>2023-01-23</p>
-                       </td>
-                    </tr>
+                        
+                      <% }) %>
 
                     </tbody>
                 </table>

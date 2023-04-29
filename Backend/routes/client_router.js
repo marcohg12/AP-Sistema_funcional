@@ -35,17 +35,12 @@ router.get("/hotel_info/:hotel_id", async (req, res) => {
     const payment_methods = await hotel_admin_controller.get_payment_methods(req.params.hotel_id)
     const rooms = await client_controller.get_rooms_to_book(req.params.hotel_id)
     const offers = await hotel_admin_controller.get_deals(req.params.hotel_id)
-
-    const comments = [{name: "Marco Herrera", date: "2023-04-05", content: "Habitaciones muy ordenadas"},
-                      {name: "Cristina Solís", date: "2023-04-03", content: "La comida del restaurantes es muy buena"},
-                      {name: "Andrés Carvajal", date: "2023-01-23", content: "Muy buena atención del personal"}]
-                      
-    const reviews = [{name: "Marco Herrera", date: "2023-04-05", value: 5},
-                     {name: "Cristina Solís", date: "2023-04-03", value: 4},
-                     {name: "Marcela Ramos", date: "2023-01-23", value: 3}]
-
+    const avarage = await hotel_admin_controller.get_review_avarage(req.params.hotel_id)
+    const comments = await hotel_admin_controller.get_hotel_comments(req.params.hotel_id)               
+    const reviews = await hotel_admin_controller.get_hotel_reviews(req.params.hotel_id)
+    
     res.render("client_hotel_main", {hotel_data: hotel_data, amenities: amenities, payment_methods: payment_methods, photos: photos,
-                                     hotel_review_avg: 4.6, comments: comments, reviews: reviews,
+                                     avarage: avarage, comments: comments, reviews: reviews,
                                      offers: offers, rooms: rooms, is_authenticated: is_authenticated, profile: profile})
 
 })

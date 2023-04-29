@@ -28,7 +28,7 @@ function get_user_by_username(username){
             }
             user = {username: result[0][0].username, password: result[0][0].user_password, 
                     photo: result[0][0].photo, user_type_id: result[0][0].user_type_ref,
-                    hotel_admin_id: result[0][0].hotel_ref, hotel_client_id: result[0][0].hotel_client_id}
+                    hotel_admin_id: result[0][0].hotel_ref, hotel_client_id: result[0][0].hotel_client_id, name: result[0][0].name}
             return resolve(user);
         })
         connection.end()
