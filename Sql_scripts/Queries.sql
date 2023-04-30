@@ -1580,5 +1580,60 @@ WHERE reservation.hotel_ref = hotel_id;
 COMMIT;
 END//
 
+/* 
+	PROCESO: get_booking_detail
+    Retorna 
+	-5 : booking_id no existe
+    -1 : error generico base
+     0 : éxito
+     
+     call get_booking_detail(1,@execution_code);
+
+*/
+drop procedure if exists get_booking_detail;
+delimiter //
+CREATE DEFINER='root'@'localhost' PROCEDURE get_booking_detail(IN booking_id int,  OUT execution_code INT) 	 
+BODY: BEGIN
+	DECLARE check_booking float;
+	DECLARE iva float;
+    DECLARE rooms int;
+    DECLARE pprice float;
+	DECLARE CUSTOM_EXCEPTION CONDITION FOR SQLSTATE '45000';
+	DECLARE EXIT HANDLER FOR SQLSTATE '45000'
+	  BEGIN
+	  ROLLBACK;
+	  END;
+	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+	BEGIN
+		SET execution_code = -1;
+		ROLLBACK;
+	END;
+    
+    select if(count(id) = 1, true, false) into check_booking from reservation where id = booking_id;
+    if(check_booking) = false then 
+		SET execution_code = -5;
+        SIGNAL CUSTOM_EXCEPTION;
+	else
+		select value + 1 into iva from setting where name = 'IVA';
+		select SUM(price) into pprice from reservation_x_room where reservation_ref = booking_id;
+		select SUM(units) into rooms from reservation_x_room where reservation_ref = booking_id;
+
+		select reservation.check_in_date, reservation.check_out_date, reservation_status.name AS status_name, reservation.reservation_status_ref AS status_id, 
+		TIMESTAMPDIFF(DAY, reservation.check_in_date, reservation.check_out_date) AS noches, 
+		rooms, pprice, ROUND(pprice * iva)  as iva_price, payment_method.name AS metodo_pago
+		FROM reservation
+		JOIN reservation_status ON
+		reservation_status.id = reservation.reservation_status_ref
+		JOIN payment_method ON
+		payment_method.id = reservation.payment_method_ref
+		JOIN reservation_x_room ON
+		reservation_ref = reservation.id
+		WHERE reservation.id = booking_id
+		LIMIT 1;
+        SET execution_code = 0;
+        COMMIT;
+	end IF;
+    
+END//
 
 
