@@ -12,6 +12,7 @@
 --     -8 - columna queda vacía
 --     -9 - el nombre ya existe
 --     -10 - foreing key no existe
+--     -11 - si ya estaba la información 
 
 -- FUNCIÓN Registra usuario si este no tiene el mismo username, email o numero de identificacion que otro -------------------------------------
 CREATE DEFINER=`root`@`localhost` PROCEDURE `register_user`(IN pfirst_name VARCHAR(50), IN psecond_name VARCHAR(50), IN pfirst_surname VARCHAR(50),
@@ -1634,6 +1635,44 @@ BODY: BEGIN
         COMMIT;
 	end IF;
     
+END//
+
+-- Proceso: Cancelar una reserva 
+-- Recibe: el id de la reserva
+-- Retorna: -1 si hay error en el proceso, -11 si ya se econtraba cancelada y 0 si se hizo con éxito 
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `cancel_booking`(IN p_booking_id INT, OUT execution_code INT)
+BEGIN
+DECLARE id_policy INT;
+DECLARE EXIT HANDLER FOR SQLEXCEPTION
+BEGIN
+	SET execution_code = -1;
+	ROLLBACK;
+END;
+
+SELECT cancellation_policy.id INTO id_policy FROM cancellation_policy 
+JOIN reservation ON cancellation_policy.hotel_ref = reservation.hotel_ref
+WHERE reservation.id = p_booking_id
+AND cancellation_policy.anticipation_time >= ABS(DATEDIFF(reservation.check_in_date, NOW()))
+ORDER BY anticipation_time ASC
+LIMIT 1;
+IF ROW_COUNT() = 0 THEN
+		SET execution_code = -11;
+    ROLLBACK;
+    ELSE 
+		UPDATE reservation SET cancellation_policy_ref =  id_policy
+		WHERE id = p_booking_id;
+    END IF;
+
+UPDATE reservation SET reservation_status_ref =  2
+WHERE id = p_booking_id;
+IF ROW_COUNT() = 0 THEN
+    SET execution_code = -11;
+    ROLLBACK;
+ELSE
+    SET execution_code = 0;
+    COMMIT;
+END IF;
 END//
 
 
