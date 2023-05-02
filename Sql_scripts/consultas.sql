@@ -79,13 +79,13 @@ BEGIN
     FROM offer o
     INNER JOIN hotel h
     ON h.id = o.hotel_ref
-    INNER JOIN offer_x_room oxr
+    LEFT JOIN offer_x_room oxr
     ON oxr.offer_ref = o.id
-    INNER JOIN room r
+    LEFT JOIN room r
     ON oxr.room_ref = r.id
-    INNER JOIN reservation_x_room rxr
+    LEFT JOIN reservation_x_room rxr
     ON rxr.room_ref = r.id
-    INNER JOIN reservation re     
+    LEFT JOIN reservation re     
 	ON re.hotel_ref = r.hotel_ref 
     WHERE o.hotel_ref = pHotel_id AND o.start_date >= IFNULL(STR_TO_DATE(NULLIF(pStart_date,''), '%d/%m/%Y'), STR_TO_DATE('01/01/1000 00:00:00', '%d/%m/%Y'))  
 	AND o.ending_date <= IFNULL(STR_TO_DATE(NULLIF(pEnding_date,''), '%d/%m/%Y'), SYSDATE())
