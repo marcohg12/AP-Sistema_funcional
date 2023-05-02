@@ -1999,3 +1999,70 @@ SET executionCode = 0;
 COMMIT;
 
 END //
+
+
+-- Proceso: registra un nuevo tipo de usuario
+-- Recibe: El nombre del usuario 
+-- Retorna: -1 si no hubo un problema, 0 si éxito 
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `register_user_type`(IN p_name VARCHAR (50), OUT executionCode INT)
+BEGIN
+DECLARE exitCode INT DEFAULT 0;
+
+DECLARE EXIT HANDLER FOR SQLEXCEPTION
+BEGIN
+	SET executionCode = -1;
+	ROLLBACK;
+END;
+
+INSERT INTO user_type
+VALUES (default, p_Name);
+
+SET executionCode = exitCode;
+
+COMMIT;
+END//
+
+-- Proceso: actualiza un tipo de ususario
+-- Recibe: El nombre del usuario 
+-- Retorna: -1 si no hubo un problema, 0 si éxito 
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `update_user_type`(IN p_type_id INT, IN p_name VARCHAR(50), OUT executionCode INT)
+BEGIN
+DECLARE exitCode INT DEFAULT 0;
+
+DECLARE EXIT HANDLER FOR SQLEXCEPTION
+BEGIN
+	SET executionCode = -1;
+	ROLLBACK;
+END;
+
+UPDATE user_type SET name = p_name
+WHERE id = p_type_id;
+
+SET executionCode = exitCode;
+
+COMMIT;
+END//
+
+-- Proceso: elimina un tipo de usuario
+-- Recibe: El id del tipo de usuario 
+-- Retorna: -1 si no hubo un problema, 0 si éxito 
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `delete_user_type`(IN p_type_id INT, OUT executionCode INT)
+BEGIN
+DECLARE exitCode INT DEFAULT 0;
+
+DECLARE EXIT HANDLER FOR SQLEXCEPTION
+BEGIN
+	SET executionCode = -1;
+	ROLLBACK;
+END;
+
+DELETE FROM user_type 
+WHERE id = p_type_id;
+
+SET executionCode = exitCode;
+
+COMMIT;
+END//
