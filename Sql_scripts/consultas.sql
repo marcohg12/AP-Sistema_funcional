@@ -64,3 +64,31 @@ BEGIN
     WHERE reservation.hotel_ref = pHotel_id;
 END$$
 DELIMITER ;
+
+
+
+-- Consulta que obtiene las ofertas de un hotel y el monto facturado por filtros de fecha
+DROP PROCEDURE IF EXISTS get_deals_report;
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_deals_report`(IN pHotel_id INT, pStart_date VARCHAR(50), pEnding_date VARCHAR(50))
+BEGIN
+	
+	SELECT o.name as 'Nombre', h.name as "Hotel",  o.discount_rate as "Descuento", 
+		   o.minimun_reservation_days as "Cantidad de Días", o.start_date as "Inicio", o.ending_date as "Final"
+           , IFNULL(SUM(rxr.price * rxr.units * (get_reservated_days(rxr.reservation_ref) - 1) ), 0) as "Total facturado"
+    FROM offer o
+    INNER JOIN hotel h
+    ON h.id = o.hotel_ref
+    INNER JOIN offer_x_room oxr
+    ON oxr.offer_ref = o.id
+    INNER JOIN room r
+    ON oxr.room_ref = r.id
+    INNER JOIN reservation_x_room rxr
+    ON rxr.room_ref = r.id
+    INNER JOIN reservation re     
+	ON re.hotel_ref = r.hotel_ref 
+    WHERE o.hotel_ref = pHotel_id AND o.start_date >= IFNULL(STR_TO_DATE(NULLIF(pStart_date,''), '%d/%m/%Y'), STR_TO_DATE('01/01/1000 00:00:00', '%d/%m/%Y'))  
+	AND o.ending_date <= IFNULL(STR_TO_DATE(NULLIF(pEnding_date,''), '%d/%m/%Y'), SYSDATE())
+    GROUP BY o.id;
+END$$
+DELIMITER ;
