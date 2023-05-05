@@ -591,6 +591,20 @@ async function apply_discount_code(booking_id, code){
     }
 }
 
+// Función para actualizar las fechas de estadía de una reserva
+async function update_booking_dates(check_in, check_out, bookin_id){
+    const fields = [check_in, check_out, bookin_id]
+    const query = "CALL update_booking_dates(?,?,?,@execution_code); SELECT @execution_code AS execution_code;"
+    const execution_code = await execute_operation(query, fields)
+
+    // Generación de la respuesta
+    if (execution_code == -1){
+        return ({error: true, message: "Ocurrió un error inesperado"})
+    } else {
+        return ({error: false, message: "Fechas actualizadas exitosamente"})
+    }
+}
+
 // Edición del hotel ------------------------------------------------------------------------------------------- //
 
 // Función para obtener las fotos de un hotel
@@ -739,5 +753,6 @@ module.exports = {
     confirm_booking,
     get_cancel_policy_to_apply_in_booking,
     cancel_booking,
-    apply_discount_code
+    apply_discount_code,
+    update_booking_dates
 }

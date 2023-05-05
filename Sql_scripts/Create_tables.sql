@@ -304,7 +304,7 @@ FOREIGN KEY (person_ref) REFERENCES Person(id)
 CREATE TABLE Reservation_X_Room(
 reservation_ref INT NOT NULL,
 room_ref        INT NOT NULL,
-price           INT,
+price           DOUBLE,
 units           INT NOT NULL,
 is_code_applied TINYINT(1) NOT NULL,
   

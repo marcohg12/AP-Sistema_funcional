@@ -504,6 +504,13 @@ router.post("/apply_discount_code", check_authenticated, async (req, res) => {
     res.send(JSON.stringify(response))
 })
 
+// Atiende la petición de actualizar las fechas de una reserva
+router.post("/update_booking_dates", check_authenticated, async (req, res) => {
+    const response = await hotel_admin_controller.update_booking_dates(req.body.check_in, req.body.check_out, req.body.booking_id)
+    res.status(200)
+    res.send(JSON.stringify(response))
+})
+
 // Funciones de verificación de autenticación
 function check_authenticated(req, res, next){
     if (req.isAuthenticated()){
