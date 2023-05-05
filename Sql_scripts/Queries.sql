@@ -12,6 +12,7 @@
 --     -8 - columna queda vacía
 --     -9 - el nombre ya existe
 --     -10 - foreing key no existe
+--     -11 - si ya estaba la información 
 
 -- FUNCIÓN Registra usuario si este no tiene el mismo username, email o numero de identificacion que otro -------------------------------------
 CREATE DEFINER=`root`@`localhost` PROCEDURE `register_user`(IN pfirst_name VARCHAR(50), IN psecond_name VARCHAR(50), IN pfirst_surname VARCHAR(50),
@@ -1580,5 +1581,567 @@ WHERE reservation.hotel_ref = hotel_id;
 COMMIT;
 END//
 
+/* 
+	PROCESO: get_booking_detail
+    Retorna 
+	-5 : booking_id no existe
+    -1 : error generico base
+     0 : éxito
+     
+     call get_booking_detail(1,@execution_code);
+
+*/
+drop procedure if exists get_booking_detail;
+delimiter //
+CREATE DEFINER='root'@'localhost' PROCEDURE get_booking_detail(IN booking_id int,  OUT execution_code INT) 	 
+BODY: BEGIN
+	DECLARE check_booking float;
+	DECLARE iva float;
+    DECLARE rooms int;
+    DECLARE pprice float;
+	DECLARE CUSTOM_EXCEPTION CONDITION FOR SQLSTATE '45000';
+	DECLARE EXIT HANDLER FOR SQLSTATE '45000'
+	  BEGIN
+	  ROLLBACK;
+	  END;
+	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+	BEGIN
+		SET execution_code = -1;
+		ROLLBACK;
+	END;
+    
+    select if(count(id) = 1, true, false) into check_booking from reservation where id = booking_id;
+    if(check_booking) = false then 
+		SET execution_code = -5;
+        SIGNAL CUSTOM_EXCEPTION;
+	else
+		select value + 1 into iva from setting where name = 'IVA';
+		select SUM(price) into pprice from reservation_x_room where reservation_ref = booking_id;
+		select SUM(units) into rooms from reservation_x_room where reservation_ref = booking_id;
+
+		select reservation.check_in_date, reservation.check_out_date, reservation_status.name AS status_name, reservation.reservation_status_ref AS status_id, 
+		TIMESTAMPDIFF(DAY, reservation.check_in_date, reservation.check_out_date) AS noches, 
+		rooms, pprice, ROUND(pprice * iva)  as iva_price, payment_method.name AS metodo_pago
+		FROM reservation
+		JOIN reservation_status ON
+		reservation_status.id = reservation.reservation_status_ref
+		JOIN payment_method ON
+		payment_method.id = reservation.payment_method_ref
+		JOIN reservation_x_room ON
+		reservation_ref = reservation.id
+		WHERE reservation.id = booking_id
+		LIMIT 1;
+        SET execution_code = 0;
+        COMMIT;
+	end IF;
+    
+END//
+
+-- Proceso: Cancelar una reserva 
+-- Recibe: el id de la reserva
+-- Retorna: -1 si hay error en el proceso, -11 si ya se econtraba cancelada y 0 si se hizo con éxito 
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `cancel_booking`(IN p_booking_id INT, OUT execution_code INT)
+BEGIN
+DECLARE id_policy INT;
+DECLARE EXIT HANDLER FOR SQLEXCEPTION
+BEGIN
+	SET execution_code = -1;
+	ROLLBACK;
+END;
+
+SELECT cancellation_policy.id INTO id_policy FROM cancellation_policy 
+JOIN reservation ON cancellation_policy.hotel_ref = reservation.hotel_ref
+WHERE reservation.id = p_booking_id
+AND cancellation_policy.anticipation_time >= ABS(DATEDIFF(reservation.check_in_date, NOW()))
+ORDER BY anticipation_time ASC
+LIMIT 1;
+IF ROW_COUNT() = 0 THEN
+		SET execution_code = -11;
+    ROLLBACK;
+    ELSE 
+		UPDATE reservation SET cancellation_policy_ref =  id_policy
+		WHERE id = p_booking_id;
+    END IF;
+
+UPDATE reservation SET reservation_status_ref =  2
+WHERE id = p_booking_id;
+IF ROW_COUNT() = 0 THEN
+    SET execution_code = -11;
+    ROLLBACK;
+ELSE
+    SET execution_code = 0;
+    COMMIT;
+END IF;
+END//
+
+-- Proceso: Retorna la lista de hoteles con el id del hotel, nombre del hotel, nombre de la clasificación del hotel, 
+nombre de la provincia del hotel y 1 foto del hotel
+-- Recibe: nada
+-- Retorna: Ademas del select, retorna -1 si hay error en el proceso y 0 si se hizo con éxito 
+DELIMITER //
+DROP PROCEDURE IF EXISTS get_hotels_list; //
+CREATE PROCEDURE `get_hotels_list`(OUT executionCode INT)
+BODY: BEGIN
+
+DECLARE CUSTOM_EXCEPTION CONDITION FOR SQLSTATE '45000';
+DECLARE EXIT HANDLER FOR SQLSTATE '45000'
+  BEGIN
+  ROLLBACK;
+  END;
+  
+DECLARE EXIT HANDLER FOR SQLEXCEPTION
+BEGIN
+    SET executionCode = -1;
+    ROLLBACK;
+END;
+
+SELECT main.id, main.hotel_name, main.classification_name, main.province_name, MIN(photo.photo) as photo
+FROM photo
+RIGHT JOIN (SELECT hotel.id, hotel.name as hotel_name, classification.name as classification_name, province.name as province_name 
+	FROM hotel 
+	LEFT JOIN classification ON hotel.classification_ref = classification.id
+	LEFT JOIN district ON hotel.district_ref = district.id
+	LEFT JOIN canton ON district.canton_ref = canton.id
+	LEFT JOIN province ON canton.province_ref = province.id) as main ON photo.hotel_ref = main.id
+    GROUP BY main.id, main.hotel_name, main.classification_name, main.province_name;
+
+SET executionCode = 0;
+COMMIT;
+
+END //
+
+-- Proceso: Retorna la lista de ofertas con el id de la oferta, el nombre de la oferta, el id del hotel de la oferta, 
+el nombre del hotel de la oferta, la fecha de inicio de la oferta y la fecha de fin de la oferta
+-- Recibe: nada
+-- Retorna: Ademas del select, retorna -1 si hay error en el proceso y 0 si se hizo con éxito 
+DELIMITER //
+DROP PROCEDURE IF EXISTS get_deals_list; //
+CREATE PROCEDURE `get_deals_list`(OUT executionCode INT)
+BODY: BEGIN
+
+DECLARE CUSTOM_EXCEPTION CONDITION FOR SQLSTATE '45000';
+DECLARE EXIT HANDLER FOR SQLSTATE '45000'
+  BEGIN
+  ROLLBACK;
+  END;
+  
+DECLARE EXIT HANDLER FOR SQLEXCEPTION
+BEGIN
+	SET executionCode = -1;
+	ROLLBACK;
+END;
 
 
+SELECT offer.id, offer.name, offer.hotel_ref, hotel.name, start_date, ending_date FROM offer LEFT JOIN hotel ON offer.hotel_ref = hotel.id;
+
+SET executionCode = 0;
+COMMIT;
+
+END //
+
+
+-- Proceso: Crea una reservación nueva
+-- Recibe: Nombre de usuario, fecha de check in, fecha de check out y la id del hotel
+-- Retorna: -10 si el usuario o el hotel no existen, -1 si hay error en el proceso y 0 si se hizo con éxito
+DELIMITER //
+DROP PROCEDURE IF EXISTS create_booking; //
+CREATE PROCEDURE `create_booking`(IN pusername VARCHAR(50), IN pcheck_in_date DATE, IN pcheck_out_date DATE, IN photel_id INT, OUT executionCode INT)
+BODY: BEGIN
+
+DECLARE check_user INT;
+DECLARE check_hotel INT;
+
+DECLARE CUSTOM_EXCEPTION CONDITION FOR SQLSTATE '45000';
+DECLARE EXIT HANDLER FOR SQLSTATE '45000'
+  BEGIN
+  ROLLBACK;
+  END;
+  
+DECLARE EXIT HANDLER FOR SQLEXCEPTION
+BEGIN
+	SET executionCode = -1;
+	ROLLBACK;
+END;
+
+SELECT COUNT(*) INTO check_user FROM user_table WHERE username = pusername;
+SELECT COUNT(*) INTO check_hotel FROM hotel WHERE id = photel_id;
+
+IF (check_user = 0) THEN
+SET executionCode = -10;
+SIGNAL CUSTOM_EXCEPTION;
+END IF;
+
+IF (check_hotel = 0) THEN
+SET executionCode = -10;
+SIGNAL CUSTOM_EXCEPTION;
+END IF;
+
+INSERT INTO reservation (id, check_in_date, check_out_date, confirmation_date, reservation_status_ref, cancellation_policy_ref, payment_method_ref, hotel_ref, user_ref) 
+VALUES (default, pcheck_in_date, pcheck_out_date, null, 3, null, null, photel_id, pusername);
+
+SET executionCode = 0;
+COMMIT;
+
+END //
+
+
+-- Proceso: Actualiza las fechas de una reservación
+-- Recibe: El id de la reservación, fecha de check in nueva y fecha de check out nueva
+-- Retorna: -5 la reservación no existe, -1 si hay error en el proceso y 0 si se hizo con éxito
+DELIMITER //
+DROP PROCEDURE IF EXISTS update_booking_dates; //
+CREATE PROCEDURE `update_booking_dates`(IN pid INT, IN pcheck_in_date DATE, IN pcheck_out_date DATE, OUT executionCode INT)
+BODY: BEGIN
+
+DECLARE check_id INT;
+
+DECLARE CUSTOM_EXCEPTION CONDITION FOR SQLSTATE '45000';
+DECLARE EXIT HANDLER FOR SQLSTATE '45000'
+  BEGIN
+  ROLLBACK;
+  END;
+  
+DECLARE EXIT HANDLER FOR SQLEXCEPTION
+BEGIN
+	SET executionCode = -1;
+	ROLLBACK;
+END;
+
+SELECT COUNT(*) INTO check_id FROM reservation WHERE id = pid;
+
+IF (check_id = 0) THEN
+SET executionCode = -5;
+SIGNAL CUSTOM_EXCEPTION;
+END IF;
+
+
+UPDATE reservation SET check_in_date = pcheck_in_date, check_out_date = pcheck_out_date WHERE id = pid;
+
+SET executionCode = 0;
+COMMIT;
+
+END //
+
+-- Proceso: Hace un select de todas las reservaciones del usuario
+-- Recibe: El nombre de usuario
+-- Retorna: -5 si el usuario no existe, -1 si hay error en el proceso y 0 si se hizo con éxito
+DELIMITER //
+DROP PROCEDURE IF EXISTS get_user_bookings_list; //
+CREATE PROCEDURE `get_user_bookings_list`(IN pusername VARCHAR(50), OUT executionCode INT)
+BODY: BEGIN
+
+DECLARE check_user INT;
+
+DECLARE CUSTOM_EXCEPTION CONDITION FOR SQLSTATE '45000';
+DECLARE EXIT HANDLER FOR SQLSTATE '45000'
+  BEGIN
+  ROLLBACK;
+  END;
+  
+DECLARE EXIT HANDLER FOR SQLEXCEPTION
+ BEGIN
+ SET executionCode = -1;
+	ROLLBACK;
+ END;
+
+SELECT COUNT(*) INTO check_user FROM user_table WHERE username = pusername;
+
+IF (check_user = 0) THEN
+SET executionCode = -5;
+SIGNAL CUSTOM_EXCEPTION;
+END IF;
+
+
+SELECT hotel.id, hotel.name, reservation_status.name, reservation.check_in_date, reservation.check_out_date, reservation.id
+FROM user_table
+INNER JOIN reservation ON reservation.user_ref = user_table.username
+LEFT JOIN hotel ON reservation.hotel_ref = hotel.id
+LEFT JOIN reservation_status ON reservation.reservation_status_ref = reservation_status.id
+WHERE user_table.username = pusername;
+
+SET executionCode = 0;
+COMMIT;
+
+END //
+
+
+-- Proceso: Hace un select de los hoteles favoritos del usuario del usuario, en el select retorna
+el id del hotel, nombre del hotel, nombre de la clasificación del hotel, nombre de la provincia del hotel y 1 foto del hotel
+-- Recibe: El nombre de usuario
+-- Retorna: Ademas del select, retorna -5 si el usuario no existe, -1 si hay error en el proceso y 0 si se hizo con éxito
+DELIMITER //
+DROP PROCEDURE IF EXISTS get_user_favorite_hotels_list; //
+CREATE PROCEDURE `get_user_favorite_hotels_list`(IN pusername VARCHAR(50), OUT executionCode INT)
+BODY: BEGIN
+
+DECLARE check_user INT;
+
+DECLARE CUSTOM_EXCEPTION CONDITION FOR SQLSTATE '45000';
+DECLARE EXIT HANDLER FOR SQLSTATE '45000'
+  BEGIN
+  ROLLBACK;
+  END;
+  
+DECLARE EXIT HANDLER FOR SQLEXCEPTION
+ BEGIN
+ SET executionCode = -1;
+	ROLLBACK;
+ END;
+
+SELECT COUNT(*) INTO check_user FROM user_table WHERE username = pusername;
+
+IF (check_user = 0) THEN
+SET executionCode = -5;
+SIGNAL CUSTOM_EXCEPTION;
+END IF;
+
+
+SELECT main.id, main.hotel_name, main.classification_name, main.province_name, MIN(photo.photo) AS photo
+FROM photo
+RIGHT JOIN (SELECT hotel.id, hotel.name as hotel_name, classification.name as classification_name, province.name as province_name
+	FROM hotel
+	INNER JOIN (SELECT * FROM hotel_x_user WHERE pusername = user_ref) as favs ON favs.hotel_ref = hotel.id
+	LEFT JOIN classification ON hotel.classification_ref = classification.id
+	LEFT JOIN district ON hotel.district_ref = district.id
+	LEFT JOIN canton ON district.canton_ref = canton.id
+	LEFT JOIN province ON canton.province_ref = province.id) as main ON photo.hotel_ref = main.id
+    GROUP BY main.id, main.hotel_name, main.classification_name, main.province_name;
+
+
+SET executionCode = 0;
+COMMIT;
+
+END //
+
+
+-- Proceso: Hace un select de todas las fotos de un hotel, el select retorna el id y la foto
+-- Recibe: El id del hotel
+-- Retorna: -5 si el hotel no existe, -1 si hay error en el proceso y 0 si se hizo con éxito
+DELIMITER //
+DROP PROCEDURE IF EXISTS get_hotel_photos; //
+CREATE PROCEDURE `get_hotel_photos`(IN photel_id VARCHAR(50), OUT executionCode INT)
+BODY: BEGIN
+
+DECLARE check_hotel INT;
+
+DECLARE CUSTOM_EXCEPTION CONDITION FOR SQLSTATE '45000';
+DECLARE EXIT HANDLER FOR SQLSTATE '45000'
+  BEGIN
+  ROLLBACK;
+  END;
+  
+DECLARE EXIT HANDLER FOR SQLEXCEPTION
+ BEGIN
+ SET executionCode = -1;
+	ROLLBACK;
+ END;
+
+SELECT COUNT(*) INTO check_hotel FROM hotel WHERE id = photel_id;
+
+IF (check_hotel = 0) THEN
+SET executionCode = -5;
+SIGNAL CUSTOM_EXCEPTION;
+END IF;
+
+
+SELECT photo.id, photo.photo
+FROM photo
+LEFT JOIN hotel ON photo.hotel_ref = hotel.id WHERE hotel.id = photel_id;
+
+SET executionCode = 0;
+COMMIT;
+
+END //
+
+
+-- Proceso: Hace un select de los datos de un hotel, el select retorna toda la informaci[on del hotel
+incluyendo el nombre de su clasificacion y el distrito, canton y provincia en la que se encuentra
+el id del hotel, nombre del hotel, nombre de la clasificación del hotel, nombre de la provincia del hotel y 1 foto del hotel
+-- Recibe: El id del hotel
+-- Retorna: Ademas del select, retorna -5 si el hotel no existe, -1 si hay error en el proceso y 0 si se hizo con éxito
+DELIMITER //
+DROP PROCEDURE IF EXISTS get_hotel_detail; //
+CREATE PROCEDURE `get_hotel_detail`(IN photel_id VARCHAR(50), OUT executionCode INT)
+BODY: BEGIN
+
+DECLARE check_hotel INT;
+
+DECLARE CUSTOM_EXCEPTION CONDITION FOR SQLSTATE '45000';
+DECLARE EXIT HANDLER FOR SQLSTATE '45000'
+  BEGIN
+  ROLLBACK;
+  END;
+  
+/*DECLARE EXIT HANDLER FOR SQLEXCEPTION
+ BEGIN
+ SET executionCode = -1;
+	ROLLBACK;
+ END;*/
+
+SELECT COUNT(*) INTO check_hotel FROM hotel WHERE id = photel_id;
+
+IF (check_hotel = 0) THEN
+SET executionCode = -5;
+SIGNAL CUSTOM_EXCEPTION;
+END IF;
+
+
+SELECT hotel.id, hotel.name, hotel.registration_date, hotel.address, classification.name as classification, district.name as district, canton.name as canton, province.name as province
+FROM hotel
+LEFT JOIN classification ON hotel.classification_ref = classification.id
+LEFT JOIN district ON hotel.district_ref = district.id
+LEFT JOIN canton ON district.canton_ref = canton.id
+LEFT JOIN province ON canton.province_ref = province.id
+WHERE hotel.id = photel_id;
+
+SET executionCode = 0;
+COMMIT;
+
+END //
+
+
+-- Proceso: registra un nuevo tipo de usuario
+-- Recibe: El nombre del usuario 
+-- Retorna: -1 si no hubo un problema, 0 si éxito 
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `register_user_type`(IN p_name VARCHAR (50), OUT executionCode INT)
+BEGIN
+DECLARE exitCode INT DEFAULT 0;
+
+DECLARE EXIT HANDLER FOR SQLEXCEPTION
+BEGIN
+	SET executionCode = -1;
+	ROLLBACK;
+END;
+
+INSERT INTO user_type
+VALUES (default, p_Name);
+
+SET executionCode = exitCode;
+
+COMMIT;
+END//
+
+-- Proceso: actualiza un tipo de ususario
+-- Recibe: El nombre del usuario 
+-- Retorna: -1 si no hubo un problema, 0 si éxito 
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `update_user_type`(IN p_type_id INT, IN p_name VARCHAR(50), OUT executionCode INT)
+BEGIN
+DECLARE exitCode INT DEFAULT 0;
+
+DECLARE EXIT HANDLER FOR SQLEXCEPTION
+BEGIN
+	SET executionCode = -1;
+	ROLLBACK;
+END;
+
+UPDATE user_type SET name = p_name
+WHERE id = p_type_id;
+
+SET executionCode = exitCode;
+
+COMMIT;
+END//
+
+-- Proceso: elimina un tipo de usuario
+-- Recibe: El id del tipo de usuario 
+-- Retorna: -1 si no hubo un problema, 0 si éxito 
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `delete_user_type`(IN p_type_id INT, OUT executionCode INT)
+BEGIN
+DECLARE exitCode INT DEFAULT 0;
+
+DECLARE EXIT HANDLER FOR SQLEXCEPTION
+BEGIN
+	SET executionCode = -1;
+	ROLLBACK;
+END;
+
+DELETE FROM user_type 
+WHERE id = p_type_id;
+
+SET executionCode = exitCode;
+
+COMMIT;
+END//
+
+/* 
+	PROCESO: send_comment
+    Retorna 
+	-5 : booking_id no existe
+    -1 : error generico base
+     0 : éxito
+     
+     call send_comment('ADG2023', 1, 'very good', '14/02/2023', @execution_code);
+
+*/
+drop procedure if exists send_comment;
+delimiter $$
+CREATE DEFINER='root'@'localhost' PROCEDURE send_comment(IN vusername varchar(50), IN vbooking_id int, IN vcomment varchar(50), IN vdate varchar(10), OUT execution_code INT) 	 
+BODY: BEGIN
+	DECLARE check_booking bool;
+	DECLARE CUSTOM_EXCEPTION CONDITION FOR SQLSTATE '45000';
+	DECLARE EXIT HANDLER FOR SQLSTATE '45000'
+	  BEGIN
+	  ROLLBACK;
+	  END;
+	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+	BEGIN
+		SET execution_code = -1;
+		ROLLBACK;
+	END;
+
+    select if(count(id) = 1, true, false) into check_booking from reservation where id = vbooking_id;
+    if(check_booking) = false then 
+		SET execution_code = -5;
+        SIGNAL CUSTOM_EXCEPTION;
+	else
+        INSERT INTO commentary(id, commentary_date, commentary, reservation_ref, username)
+		VALUES(default, STR_TO_DATE(vdate, '%d/%m/%Y'), vcomment, vbooking_id, vusername);
+        SET execution_code = 0;
+        COMMIT;
+	end IF;
+    
+END$$
+delimiter ;
+
+/* 
+	PROCESO: send_review
+    Retorna 
+	-5 : booking_id no existe
+    -1 : error generico base
+     0 : éxito
+     
+     call send_review('ADG2023', 1, 3, '14/02/2023', @execution_code);
+
+*/
+drop procedure if exists send_review;
+delimiter $$
+CREATE DEFINER='root'@'localhost' PROCEDURE send_review(IN vusername varchar(50), IN vbooking_id int, IN vreview int, IN vdate varchar(10), OUT execution_code INT) 	 
+BODY: BEGIN
+	DECLARE check_booking bool;
+	DECLARE CUSTOM_EXCEPTION CONDITION FOR SQLSTATE '45000';
+	DECLARE EXIT HANDLER FOR SQLSTATE '45000'
+	  BEGIN
+	  ROLLBACK;
+	  END;
+	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+	BEGIN
+		SET execution_code = -1;
+		ROLLBACK;
+	END;
+
+    select if(count(id) = 1, true, false) into check_booking from reservation where id = vbooking_id;
+    if(check_booking) = false then 
+		SET execution_code = -5;
+        SIGNAL CUSTOM_EXCEPTION;
+	else
+        INSERT INTO review(id, review_date, stars, reservation_ref, username)
+		VALUES(default, STR_TO_DATE(vdate, '%d/%m/%Y'), vreview, vbooking_id, vusername);
+        SET execution_code = 0;
+        COMMIT;
+	end IF;
+    
+END$$
