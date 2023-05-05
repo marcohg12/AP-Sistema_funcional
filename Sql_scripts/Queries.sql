@@ -2066,3 +2066,82 @@ SET executionCode = exitCode;
 
 COMMIT;
 END//
+
+/* 
+	PROCESO: send_comment
+    Retorna 
+	-5 : booking_id no existe
+    -1 : error generico base
+     0 : éxito
+     
+     call send_comment('ADG2023', 1, 'very good', '14/02/2023', @execution_code);
+
+*/
+drop procedure if exists send_comment;
+delimiter $$
+CREATE DEFINER='root'@'localhost' PROCEDURE send_comment(IN vusername varchar(50), IN vbooking_id int, IN vcomment varchar(50), IN vdate varchar(10), OUT execution_code INT) 	 
+BODY: BEGIN
+	DECLARE check_booking bool;
+	DECLARE CUSTOM_EXCEPTION CONDITION FOR SQLSTATE '45000';
+	DECLARE EXIT HANDLER FOR SQLSTATE '45000'
+	  BEGIN
+	  ROLLBACK;
+	  END;
+	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+	BEGIN
+		SET execution_code = -1;
+		ROLLBACK;
+	END;
+
+    select if(count(id) = 1, true, false) into check_booking from reservation where id = vbooking_id;
+    if(check_booking) = false then 
+		SET execution_code = -5;
+        SIGNAL CUSTOM_EXCEPTION;
+	else
+        INSERT INTO commentary(id, commentary_date, commentary, reservation_ref, username)
+		VALUES(default, STR_TO_DATE(vdate, '%d/%m/%Y'), vcomment, vbooking_id, vusername);
+        SET execution_code = 0;
+        COMMIT;
+	end IF;
+    
+END$$
+delimiter ;
+
+/* 
+	PROCESO: send_review
+    Retorna 
+	-5 : booking_id no existe
+    -1 : error generico base
+     0 : éxito
+     
+     call send_review('ADG2023', 1, 3, '14/02/2023', @execution_code);
+
+*/
+drop procedure if exists send_review;
+delimiter $$
+CREATE DEFINER='root'@'localhost' PROCEDURE send_review(IN vusername varchar(50), IN vbooking_id int, IN vreview int, IN vdate varchar(10), OUT execution_code INT) 	 
+BODY: BEGIN
+	DECLARE check_booking bool;
+	DECLARE CUSTOM_EXCEPTION CONDITION FOR SQLSTATE '45000';
+	DECLARE EXIT HANDLER FOR SQLSTATE '45000'
+	  BEGIN
+	  ROLLBACK;
+	  END;
+	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+	BEGIN
+		SET execution_code = -1;
+		ROLLBACK;
+	END;
+
+    select if(count(id) = 1, true, false) into check_booking from reservation where id = vbooking_id;
+    if(check_booking) = false then 
+		SET execution_code = -5;
+        SIGNAL CUSTOM_EXCEPTION;
+	else
+        INSERT INTO review(id, review_date, stars, reservation_ref, username)
+		VALUES(default, STR_TO_DATE(vdate, '%d/%m/%Y'), vreview, vbooking_id, vusername);
+        SET execution_code = 0;
+        COMMIT;
+	end IF;
+    
+END$$
