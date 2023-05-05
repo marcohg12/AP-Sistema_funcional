@@ -114,19 +114,19 @@
                         <% } %>
                         <p class="card-text"><small class="text-muted">Capacidad: <%= room.capacity%> personas &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Unidades: <%= room.units %></small></p>
 
-                        <form method="POST" action="">   
+                        <form onsubmit="javascript: add_room_to_booking(event, '<%= booking_id %>', '<%= room.id %>')">   
                           <!-- Formulario para agregar la habitación a la reserva ----------------------->
                           <div class="row">
                             <div class="col">
                               <div class="form-outline mb-4">
-                                <input type="number" id="units" name="units" min="1" max="<%= room.units%>" value="1" class="form-control" required/>
+                                <input type="number" id="units_<%= room.id %>" name="units" min="1" max="<%= room.units%>" value="1" class="form-control" required/>
                                 <label class="form-label">Unidades</label>
                               </div>
                               <button type="submit" class="btn text-white" style="background-color: #606c38;">Agregar</button>
                             </div>
                             <div class="col">
                               <div class="form-outline mb-4">
-                                <input type="number" id="price" name="price" class="form-control"/>
+                                <input type="number" id="price_<%= room.id %>" name="price" min="0" class="form-control"/>
                                 <label class="form-label">Precio</label>
                               </div>
                             </div>
@@ -163,9 +163,12 @@
                         <% } else { %>
                           <p class="card-text">Precio por noche: <%= room.price%>$</p>
                         <% } %>
+                        <% if (room.admin_price){ %>
+                          <p class="card-text">Precio aplicado por noche: <%= room.admin_price%>$</p>
+                        <% } %>
                         <p class="card-text"><small class="text-muted">Capacidad: <%= room.capacity%> personas</small></p>
                         <p class="card-text"><small class="text-muted">Unidades solicitadas: <%= room.units%></small></p>
-                        <a type="submit" class="btn btn-danger">Eliminar</a>
+                        <button onclick="javascript: delete_room_from_bookin(event, '<%= booking_id %>', '<%= room.id %>')" class="btn btn-danger">Eliminar</button>
                       </div>
                     </div>
                     <% }) %>
@@ -173,6 +176,30 @@
                 <a href="/hotel_admins/confirm_booking_view/<%= booking_id %>" class="btn text-white btn-lg float-end mt-3" style="background-color: #606c38;">Confirmar reserva</a>
               </div>
             </div>
+
+            
+                <!-- Pop ups de mensajes ----------------------------------------------------------------------->
+
+                 <!-- Pop de mensage de éxito -->  
+                 <div class="modal fade" id="success_alert_modal" tabindex="-1" aria-labelledby="success_alert_modal" aria-hidden="true">
+                  <div class="modal-dialog">
+                      <div class="alert alert-success alert-dismissible">
+                          <p id="success_message"></p>
+                          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                      </div>
+                  </div>
+               </div>
+
+               <!-- Pop de mensage de error -->  
+               <div class="modal fade" id="error_alert_modal" tabindex="-1" aria-labelledby="error_alert_modal" aria-hidden="true">
+                  <div class="modal-dialog">
+                      <div class="alert alert-danger alert-dismissible">
+                          <p id="error_message"></p>
+                          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                      </div>
+                  </div>
+               </div>
+
           </div>
         </section>
 
@@ -201,20 +228,53 @@
       }
 
       // Función para agregar una habitación a la reserva
-      function add_room_to_bookin(event, room_id){
+      async function add_room_to_booking(event, booking_id, room_id){
         event.preventDefault()
-        const response = null
-        alert(response.message)
-        location.reload()
+
+        const units = document.getElementById("units_" + room_id).value 
+        const price = document.getElementById("price_" + room_id).value 
+        const request_body = {booking_id: booking_id, room_id: room_id, units: units, price: price}
+        const url = "http://localhost:4500/hotel_admins/add_room_to_booking"
+        const response = await send_request("POST", url, request_body)
+
+        if (response.error){
+          show_response(response)
+        } else {
+          location.reload()
+        }
       }
 
       // Función para eliminar una habitación de la reserva
-      function delete_room_from_bookin(event, room_id){
+      async function delete_room_from_bookin(event, booking_id, room_id){
         event.preventDefault()
-        const response = null
-        alert(response.message)
-        location.reload()
+
+        const request_body = {booking_id: booking_id, room_id: room_id}
+        const url = "http://localhost:4500/hotel_admins/delete_room_from_booking"
+        const response = await send_request("POST", url, request_body)
+
+        if (response.error){
+          show_response(response)
+        } else {
+          location.reload()
+        }
       }
+      
+
+      // Muestra el modal con la respuesta de una petición
+      function show_response(response){
+
+        if (response.error){
+            document.getElementById("error_message").innerHTML = response.message
+            $('#error_alert_modal').modal('show')
+        } else {
+            document.getElementById("success_message").innerHTML = response.message
+            $('#success_alert_modal').modal('show')
+        }
+      }
+
+      $('#success_alert_modal').on('hidden.bs.modal', function () {
+        location.reload()
+      })
 
     </script>
 </html>

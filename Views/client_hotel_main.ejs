@@ -7,6 +7,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">  
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
         <style>  
@@ -126,12 +127,27 @@
                   <%= hotel_data.name %> 
 
                   <% if (is_authenticated) { %>
-                    <a href="#" class="btn btn-link">
-                      <span class="bi bi-heart-fill" style="color: red; font-size: 20px;"></span>
-                    </a>
-                    <a href="#" class="btn btn-link">
-                      <span class="bi bi-app" style="color: green; font-size: 20px;"></span>
-                    </a>
+
+                    <% if (is_hotel_favorite) { %>
+                      <button onclick="javascript: delete_hotel_from_favorites('<%= hotel_data.id %>')" class="btn btn-link">
+                        <span class="bi bi-heart-fill" style="color: red; font-size: 20px;"></span>
+                      </button>
+                    <% } else { %>
+                      <button onclick="javascript: add_hotel_to_favorites('<%= hotel_data.id %>')" class="btn btn-link">
+                        <span class="bi bi-heart-fill" style="color: gray; font-size: 20px;"></span>
+                      </button>
+                    <% } %>
+                    
+                    <% if (is_default) { %>
+                      <button onclick="javascript:delete_hotel_from_default()" class="btn btn-link">
+                        <span class="bi bi-check-square-fill" style="color: green; font-size: 20px;"></span>
+                      </button>
+                    <% } else { %>
+                      <button onclick="javascript:set_hotel_as_default('<%= hotel_data.id %>')" class="btn btn-link">
+                        <span class="bi bi-app" style="color: green; font-size: 20px;"></span>
+                      </button>
+                    <% } %>
+
                   <% } %>
 
                 </h3>
@@ -267,20 +283,20 @@
 
             <div class="card mt-4 mb-4">
               <div class="card-body">
-                <form method="POST" action="">
+                <form method="POST" action="/clients/register_booking/<%= hotel_data.id %>">
 
                   <div class="row">
 
                     <div class="col">
                       <div class="form-outline">
-                        <input type="date" id="check-out" name="check-out" required class="form-control" />
+                        <input type="date" id="check_in" name="check_in" required class="form-control" />
                         <label class="form-label">Fecha de check-in</label>
                       </div>
                     </div>
 
                     <div class="col">
                       <div class="form-outline">
-                        <input type="date" id="check-out" name="check-out" required class="form-control" />
+                        <input type="date" id="check_out" name="check_out" required class="form-control" />
                         <label class="form-label">Fecha de check-out</label>
                       </div>
                     </div>
@@ -372,8 +388,146 @@
 
         <!---------------------------------------------------------------------------------------------------------------------->
 
+                 <!-- Pop ups de mensajes ----------------------------------------------------------------------->
+
+                 <!-- Pop de mensage de éxito -->  
+                 <div class="modal fade" id="success_alert_modal" tabindex="-1" aria-labelledby="success_alert_modal" aria-hidden="true">
+                  <div class="modal-dialog">
+                      <div class="alert alert-success alert-dismissible">
+                          <p id="success_message"></p>
+                          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                      </div>
+                  </div>
+               </div>
+
+               <!-- Pop de mensage de error -->  
+               <div class="modal fade" id="error_alert_modal" tabindex="-1" aria-labelledby="error_alert_modal" aria-hidden="true">
+                  <div class="modal-dialog">
+                      <div class="alert alert-danger alert-dismissible">
+                          <p id="error_message"></p>
+                          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                      </div>
+                  </div>
+               </div>
+
         </div>
       </section>
 
     </body>
+    <script>
+
+
+      // Envía una petición http al servidor y retorna la respuesta si hubo éxito
+      function send_request(request_type, url, request_body){
+            
+            return new Promise(async (resolve, reject) => {
+
+                const http = new XMLHttpRequest()
+                
+                http.onreadystatechange = function(){
+                    
+                    if (this.readyState == 4 && this.status == 200){
+                        const response = JSON.parse(this.response)
+                        return resolve(response)    
+                    }
+                }
+
+                http.open(request_type, url)
+                http.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
+                http.send(JSON.stringify(request_body))
+            })
+      }
+
+      // Función para agregar un hotel a la lista de favoritos
+      async function add_hotel_to_favorites(hotel_id){
+
+        const request_body = {hotel_id: hotel_id}
+        const url = "http://localhost:4500/clients/add_hotel_to_favorites"
+        const response = await send_request("POST", url, request_body)
+
+        if (response.error){
+          show_response(response)
+        } else {
+          location.reload()
+        }
+      }
+
+      // Función para eliminar un hotel de la lista de favoritos
+      async function delete_hotel_from_favorites(hotel_id){
+
+        const request_body = {hotel_id: hotel_id}
+        const url = "http://localhost:4500/clients/delete_hotel_from_favorites"
+        const response = await send_request("POST", url, request_body)
+
+        if (response.error){
+          show_response(response)
+        } else {
+          location.reload()
+        }
+      }
+
+      // Función para definir el hotel para conexión predeterminada
+      async function set_hotel_as_default(hotel_id){
+
+        const request_body = {hotel_id: hotel_id}
+        const url = "http://localhost:4500/clients/set_hotel_as_default"
+        const response = await send_request("POST", url, request_body)
+
+        if (response.error){
+          show_response(response)
+        } else {
+          location.reload()
+        }
+      }
+
+      // Función para eliminar el hotel de conexión predeterminada
+      async function delete_hotel_from_default(){
+
+        const request_body = {}
+        const url = "http://localhost:4500/clients/delete_hotel_from_default"
+        const response = await send_request("POST", url, request_body)
+
+        if (response.error){
+          show_response(response)
+        } else {
+          location.reload()
+        }
+      }
+      
+
+      // Muestra el modal con la respuesta de una petición
+      function show_response(response){
+
+        if (response.error){
+            document.getElementById("error_message").innerHTML = response.message
+            $('#error_alert_modal').modal('show')
+        } else {
+            document.getElementById("success_message").innerHTML = response.message
+            $('#success_alert_modal').modal('show')
+        }
+      }
+
+      $('#success_alert_modal').on('hidden.bs.modal', function () {
+        location.reload()
+      })
+
+      // Configuración de selectores de fechas
+        const current_date = new Date()
+        current_date.setDate(current_date.getDate())
+        check_in.min = current_date.toISOString().split("T")[0]
+        check_out.min = current_date.toISOString().split("T")[0]
+
+        $('#check_in').change(function config_check_out_selector() {
+          const start_date_selected = new Date((document.getElementById("check_in").value))
+          start_date_selected.setDate(start_date_selected.getDate()+1)
+          check_out.min = start_date_selected.toISOString().split("T")[0]
+        })
+
+        $('#check_out').change(function config_check_out_selector() {
+          const ending_date_selected = new Date((document.getElementById("check_out").value))
+          ending_date_selected.setDate(ending_date_selected.getDate()-1)
+          check_in.max = ending_date_selected.toISOString().split("T")[0]
+        })
+
+    </script>
 </html>

@@ -63,7 +63,12 @@ app.get("/user_logged_in", async (req, res) => {
         res.redirect("/master_admins")
 
     } else {
-        res.redirect("/clients/hotel_list")
+
+        if (req.user.hotel_client_id){
+            res.redirect("/clients/hotel_info/" + req.user.hotel_client_id)
+        } else {
+            res.redirect("/clients/hotel_list")
+        }
     }
 }) 
 
