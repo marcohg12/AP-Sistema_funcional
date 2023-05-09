@@ -227,7 +227,28 @@ router.get("/get_booking_comments/:booking_id/:username", check_authenticated, a
 
 // Responde a la solicitud de consulta de tops de ventas por días
 router.get("/get_top_days_bookings", check_authenticated, async (req, res) => {
-    res.render("hotel_ad_top_days_bookings_query", {profile: req.user.photo})
+    const data = await hotel_admin_controller.get_top_n_days_with_most_booking(req.user.hotel_admin_id, null)
+    res.render("hotel_ad_top_days_bookings_query", {data: data, profile: req.user.photo})
+})
+
+// Responde a la solicitud de consulta de tops de ventas por días
+router.post("/get_top_days_bookings", check_authenticated, async (req, res) => {
+
+    var data
+    var top = req.body.top_n
+
+    if (top == ""){
+        top = null
+    }
+
+    if (req.body.type_of_top == 1){
+        data = await hotel_admin_controller.get_top_n_days_with_most_booking(req.user.hotel_admin_id, top)
+    } else if (req.body.type_of_top == 2){
+        data = await hotel_admin_controller.get_top_n_days_with_fewer_booking(req.user.hotel_admin_id, top)
+    }
+
+    res.render("hotel_ad_top_days_bookings_query", {data: data, type_of_top: req.body.type_of_top, 
+                                                    top_n: req.body.top_n, profile: req.user.photo})
 })
 
 // Responde a la solicitud de consulta de habitaciones disponibles (del job)

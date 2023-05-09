@@ -701,8 +701,24 @@ async function get_deals_report(hotel_id, name, start_date, ending_date){
     return await execute_query(query, fields)
 }
 
+// Consulta del Top N días con más reservas
+async function get_top_n_days_with_most_booking(hotel_id, top){
+    const fields = [hotel_id, top]
+    const query = "CALL get_top_n_days_with_most_booking(?,?);"
+    return await execute_query(query, fields)
+}
+
+// Consulta del Top N días con menos reservas
+async function get_top_n_days_with_fewer_booking(hotel_id, top){
+    const fields = [hotel_id, top]
+    const query = "CALL get_top_n_days_with_fewer_booking(?,?);"
+    return await execute_query(query, fields)
+}
+
 // Nombres de cada funcion que hay arriba
 module.exports = {
+    get_top_n_days_with_fewer_booking,
+    get_top_n_days_with_most_booking,
     get_deals_report,
     get_hotel_reviews,
     get_hotel_comments,

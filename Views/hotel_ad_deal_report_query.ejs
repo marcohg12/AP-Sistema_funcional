@@ -159,9 +159,9 @@
     const name_filter = document.getElementById("name")
     const start_date_filter = document.getElementById("start_date")
     const ending_date_filter = document.getElementById("ending_date")
-    const hotel_count = document.getElementById("query_count")
+    const counter = document.getElementById("query_count")
 
-    hotel_count.innerHTML = "Total de registros obtenidos: " + ($("#query_table tr").length-1)
+    counter.innerHTML = "Total de registros obtenidos: " + ($("#query_table tr").length-1)
 
     function clean_filters(){
       name_filter.value = ""
