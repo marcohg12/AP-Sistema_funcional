@@ -174,10 +174,32 @@ async function delete_hotel_from_default(username){
 }
 
 // Agrega un comentario a una reserva
-async function send_comment(username, bookin_id, comment){}
+async function send_comment(booking_id, comment){
+    const fields = [booking_id, comment]
+    const query = "CALL send_comment(?,?,@execution_code); SELECT @execution_code AS execution_code;"
+    const execution_code = await execute_operation(query, fields)
+
+    // Generación de la respuesta
+    if (execution_code == -1){
+        return ({error: true, message: "Ocurrió un error inesperado"})
+    } else {
+        return ({error: false, message: "Comentario enviado exitosamente"})
+    }
+}
 
 // Agregar una review a una reserva
-async function send_review(username, booking_id, review){}
+async function send_review(booking_id, review){
+    const fields = [booking_id, review]
+    const query = "CALL send_review(?,?,@execution_code); SELECT @execution_code AS execution_code;"
+    const execution_code = await execute_operation(query, fields)
+
+    // Generación de la respuesta
+    if (execution_code == -1){
+        return ({error: true, message: "Ocurrió un error inesperado"})
+    } else {
+        return ({error: false, message: "Calificación enviada exitosamente"})
+    }
+}
 
 // Pantalla de reservas del cliente ----------------------------------------------------------------------- //
 
@@ -202,5 +224,7 @@ module.exports = {
     get_rooms_in_booking,
     get_room_detail,
     set_hotel_as_default,
-    delete_hotel_from_default
+    delete_hotel_from_default,
+    send_comment,
+    send_review
 }

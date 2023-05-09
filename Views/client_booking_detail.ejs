@@ -22,6 +22,14 @@
             color: #dda15e;
           }
 
+          .checked {  
+            color : #dda15e;  
+            font-size : 20px;  
+          } 
+
+          .unchecked {  
+            font-size : 20px;  
+          }  
         </style>
     </head>
 
@@ -169,28 +177,34 @@
 
                     </div>
 
-                    <!-- Si la reserva está confirmada y ya pasó la fecha de check in, entonces se habilita el espacio de comentarios -->
-                    <% if (booking_data.status_id == 1 && 1){ %>
+                    <!-- Si la reserva está confirmada, entonces se habilita el espacio de comentarios y reviews -->
+                    <% if (booking_data.status_id == 1){ %>
 
-                      <div class="d-flex align-items-center mb-4 pb-1">
-                        <span class="h2 fw-bold mb-0">Opiniones</span>
-                      </div>
+                      <% if (booking_data.is_checked_in){ %>
+                        <div class="d-flex align-items-center mb-4 pb-1">
+                          <span class="h2 fw-bold mb-0">Opiniones</span>
+                        </div>
+                      <% } %>
 
                       <div class="row">
 
                         <div class="col">
-                          <form>
-                            <label>Comentarios</label>
-                            <textarea class="form-control mb-4" rows="5" id="comment" name="comment" required></textarea>
-                            <button type="submit" class="btn text-white" style="background-color: #606c38;">Enviar</button>
-                          </form>
+
+                          <% if (booking_data.is_checked_in){ %>
+                            <form onsubmit="javascript:send_comment(event, '<%= booking_data.id %>')">
+                              <label class="mb-4">Comentarios</label>
+                              <textarea class="form-control mb-4" rows="5" id="comment" name="comment" maxlength="100" required></textarea>
+                              <button type="submit" class="btn text-white" style="background-color: #606c38;">Enviar</button>
+                            </form>
+                          <% } %>
+
                         </div>
 
                         <!-- Si no se ha enviado una review, se habilita el espacio -->
                         <div class="col">
 
-                          <% if (!1){ %>
-                            <form>
+                          <% if (!booking_data.is_reviewed && booking_data.is_checked_in){ %>
+                            <form onsubmit="javascript:send_review(event, '<%= booking_data.id %>')">
                               <label>Calificación</label>
 
                               <div class="row">
@@ -201,7 +215,7 @@
                                     <span class="fa fa-star-o" data-rating="3"></span>
                                     <span class="fa fa-star-o" data-rating="4"></span>
                                     <span class="fa fa-star-o" data-rating="5"></span>
-                                    <input type="hidden" name="review" class="rating-value" value="5" required>
+                                    <input type="hidden" id="review" name="review" class="rating-value" value="5" required>
                                   </div>
                                 </div>
                                 <div class="col">
@@ -210,7 +224,23 @@
                               </div>
 
                             </form>
-                          <% } else { %>
+                          <% } else if (booking_data.is_reviewed) { %>
+
+                            <label class="mb-3">Calificación</label>
+                            
+                            <div class="mb-2">
+                              <% for(i = 0; i < booking_data.stars; i++){ %>
+                                <span class = "fa fa-star checked"></span> 
+                              <% } %>
+                              <% for(i = 0; i < 5 - booking_data.stars; i++){ %>
+                                <span class = "fa fa-star unchecked"></span> 
+                              <% } %>
+                            </div>
+
+                            <div>
+                              <p class="card-text">Fecha de ingreso: <%= booking_data.review_date.toLocaleDateString() %></p>
+                            </div>
+
                           <% } %>
 
                         </div>
@@ -279,6 +309,26 @@
       async function cancel_booking(booking_id){
         const request_body = {booking_id: booking_id}
         const url = "http://localhost:4500/clients/cancel_booking"
+        const response = await send_request("POST", url, request_body)
+        show_response(response)
+      }
+
+      // Función para enviar la review
+      async function send_review(event, booking_id){
+        event.preventDefault()
+        const review = document.getElementById("review").value
+        const request_body = {booking_id: booking_id, review: review}
+        const url = "http://localhost:4500/clients/send_review"
+        const response = await send_request("POST", url, request_body)
+        show_response(response)
+      }
+
+      // Función para enviar un comentario
+      async function send_comment(event, booking_id){
+        event.preventDefault()
+        const comment = document.getElementById("comment").value
+        const request_body = {booking_id: booking_id, comment: comment}
+        const url = "http://localhost:4500/clients/send_comment"
         const response = await send_request("POST", url, request_body)
         show_response(response)
       }

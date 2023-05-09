@@ -280,6 +280,20 @@ router.post("/update_booking_dates", check_authenticated, async (req, res) => {
     res.send(JSON.stringify(response))
 })
 
+// Atiende la petición de enviar un comentario
+router.post("/send_comment", check_authenticated, async (req, res) => {
+    const response = await client_controller.send_comment(req.body.booking_id, req.body.comment)
+    res.status(200)
+    res.send(JSON.stringify(response))
+})
+
+// Atiende la petición de enviar una review
+router.post("/send_review", check_authenticated, async (req, res) => {
+    const response = await client_controller.send_review(req.body.booking_id, req.body.review)
+    res.status(200)
+    res.send(JSON.stringify(response))
+})
+
 // Funciones de verificación de autenticación
 function check_authenticated(req, res, next){
     if (req.isAuthenticated()){
