@@ -23,6 +23,34 @@ BEGIN
 END$$
 DELIMITER ;
 
+-- Consulta que recupera el top "n" de los dias con mayor numero de reservas de un hotel
+DROP PROCEDURE IF EXISTS get_top_n_days_with_most_booking;
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_top_n_days_with_most_booking`(IN photel_id INT, ptop_n INT) 
+BEGIN
+    SELECT confirmation_date AS Fecha_del_dia, COUNT(*) AS Total_reservas_concretadas
+    FROM reservation
+    WHERE hotel_ref = photel_id
+    GROUP BY Fecha_del_dia
+    ORDER BY Total_reservas_concretadas DESC
+    LIMIT ptop_n;
+END $$
+DELIMITER ;
+
+-- Consulta que recupera el top "n" de los dias con menor numero de reservas de un hotel
+DROP PROCEDURE IF EXISTS get_top_n_days_with_fewer_booking;
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_top_n_days_with_fewer_booking`(IN photel_id INT, ptop_n INT) 
+BEGIN
+	SELECT confirmation_date AS Fecha_del_dia, COUNT(*) AS Total_reservas_concretadas
+    FROM reservation
+    WHERE hotel_ref = photel_id
+    GROUP BY Fecha_del_dia
+    ORDER BY Total_reservas_concretadas ASC
+    LIMIT ptop_n;
+END $$
+DELIMITER ;
+
 -- Consulta que recupera todas las reviews para un hotel junto al usuario que la hizo, la fecha de checkin
 -- y checkout, y sus respectivos comentarios si los hubiera.
 DROP PROCEDURE IF EXISTS get_hotel_review_average_report;
