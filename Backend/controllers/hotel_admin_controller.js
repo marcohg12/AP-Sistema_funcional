@@ -62,7 +62,7 @@ async function register_room(name, capacity, units, price, discount_code, discou
 }
 
 // Función para actualizar una habitación
-async function update_room(room_id, new_name, new_capacity, new_units, new_price, new_discount_code, new_discount_rate){
+async function update_room(room_id, new_name, new_capacity, new_units, new_price, new_discount_code, new_discount_rate, username){
 
     if ((new_discount_code == "" && new_discount_rate != "") || (new_discount_code != "" && new_discount_rate == "")){
         return {error: true, message: "Error: el código de descuento y el porcentaje no pueden estar vacíos"}  
@@ -75,8 +75,8 @@ async function update_room(room_id, new_name, new_capacity, new_units, new_price
         new_discount_rate = null
     }
 
-    const fields = [room_id, new_name, new_capacity, new_price, new_units, new_discount_code, new_discount_rate]
-    const query = "CALL update_room(?,?,?,?,?,?,?,@execution_code); SELECT @execution_code AS execution_code;"
+    const fields = [room_id, new_name, new_capacity, new_price, new_units, new_discount_code, new_discount_rate, username]
+    const query = "CALL update_room(?,?,?,?,?,?,?,?,@execution_code); SELECT @execution_code AS execution_code;"
     const execution_code = await execute_operation(query, fields)
 
     // Generación de respuesta
@@ -715,8 +715,25 @@ async function get_top_n_days_with_fewer_booking(hotel_id, top){
     return await execute_query(query, fields)
 }
 
+// Consulta de la bitácora de cambios de precios de habitación
+async function get_log_query(hotel_id, username, old_price, new_price, room_name, start_date, ending_date){
+
+    if (old_price == ''){
+        old_price = null
+    }
+
+    if (new_price == ''){
+        new_price = null
+    }
+
+    const fields = [hotel_id, username, room_name, old_price, new_price, start_date, ending_date]
+    const query = "CALL get_log_query(?,?,?,?,?,?,?);"
+    return await execute_query(query, fields)
+}
+
 // Nombres de cada funcion que hay arriba
 module.exports = {
+    get_log_query,
     get_top_n_days_with_fewer_booking,
     get_top_n_days_with_most_booking,
     get_deals_report,

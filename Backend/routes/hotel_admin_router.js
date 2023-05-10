@@ -231,7 +231,7 @@ router.get("/get_top_days_bookings", check_authenticated, async (req, res) => {
     res.render("hotel_ad_top_days_bookings_query", {data: data, profile: req.user.photo})
 })
 
-// Responde a la solicitud de consulta de tops de ventas por días
+// Responde a la solicitud de consulta de tops de ventas por días filtrada
 router.post("/get_top_days_bookings", check_authenticated, async (req, res) => {
 
     var data
@@ -281,7 +281,18 @@ router.get("/get_top_n_rooms_stat", check_authenticated, async (req, res) => {
 
 // Responde a la solicitud de consulta de bitácora de cambios
 router.get("/get_log_query", check_authenticated, async (req, res) => {
-    res.render("hotel_ad_log_query", {profile: req.user.photo})
+    const data = await hotel_admin_controller.get_log_query(req.user.hotel_admin_id, "", "", "", "", "", "")
+    res.render("hotel_ad_log_query", {data: data, profile: req.user.photo})
+})
+
+// Responde a la solicitud de consulta de bitácora de cambios filtrada
+router.post("/get_log_query", check_authenticated, async (req, res) => {
+    const data = await hotel_admin_controller.get_log_query(req.user.hotel_admin_id, req.body.username, req.body.old_price,
+                                                            req.body.new_price, req.body.room_name, req.body.start_date,
+                                                            req.body.ending_date)
+    res.render("hotel_ad_log_query", {data: data, username: req.body.username, old_price: req.body.old_price,
+                                      new_price: req.body.new_price, room_name: req.body.room_name,
+                                      start_date: req.body.start_date, ending_date: req.body.ending_date, profile: req.user.photo})
 })
 
 // Responde a la solicitud de consulta de usuario por nombre de usuario
@@ -307,7 +318,6 @@ router.get("/get_person_by_id_number/:id_number/:id_type_id", check_authenticate
 
 // RUD de habitaciones ----------------------------------------------------------------------------------------- //
 
-
 // Responde a la solicitud de registro de una habitación
 router.post("/register_room", check_authenticated, async (req, res) => {
     const response = await hotel_admin_controller.register_room(req.body.name, req.body.capacity, req.body.units,
@@ -320,7 +330,7 @@ router.post("/register_room", check_authenticated, async (req, res) => {
 // Responde a la solicitud de actualización de una habitación
 router.post("/update_room", check_authenticated, async (req, res) => {
     const response = await hotel_admin_controller.update_room(req.body.room_id, req.body.name, req.body.capacity, req.body.units,
-                                                              req.body.price, req.body.discount_code, req.body.discount_rate)
+                                                              req.body.price, req.body.discount_code, req.body.discount_rate, req.user.username)
     res.status(200)
     res.send(JSON.stringify(response))
 })

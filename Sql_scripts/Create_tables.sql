@@ -315,10 +315,12 @@ FOREIGN KEY (room_ref) REFERENCES Room(id)
 
 CREATE TABLE IF NOT EXISTS log(
         id INT NOT NULL AUTO_INCREMENT,
+        hotel_id INT NOT NULL,
+        room_name VARCHAR(50) NOT NULL,
         username VARCHAR(50) NOT NULL,
         old_price INT NOT NULL,
         new_price INT NOT NULL,
-        modification_date DATE,
+        modification_date DATE NOT NULL,
         
         CONSTRAINT log_pk PRIMARY KEY (id)
 );
