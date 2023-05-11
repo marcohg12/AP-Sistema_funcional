@@ -702,16 +702,16 @@ async function get_deals_report(hotel_id, name, start_date, ending_date){
 }
 
 // Consulta del Top N días con más reservas
-async function get_top_n_days_with_most_booking(hotel_id, top){
-    const fields = [hotel_id, top]
-    const query = "CALL get_top_n_days_with_most_booking(?,?);"
+async function get_top_n_days_with_most_booking(hotel_id, top, start_date, ending_date){
+    const fields = [hotel_id, top, start_date, ending_date]
+    const query = "CALL get_top_n_days_with_most_booking(?,?,?,?);"
     return await execute_query(query, fields)
 }
 
 // Consulta del Top N días con menos reservas
-async function get_top_n_days_with_fewer_booking(hotel_id, top){
-    const fields = [hotel_id, top]
-    const query = "CALL get_top_n_days_with_fewer_booking(?,?);"
+async function get_top_n_days_with_fewer_booking(hotel_id, top, start_date, ending_date){
+    const fields = [hotel_id, top, start_date, ending_date]
+    const query = "CALL get_top_n_days_with_fewer_booking(?,?,?,?);"
     return await execute_query(query, fields)
 }
 
@@ -731,8 +731,34 @@ async function get_log_query(hotel_id, username, old_price, new_price, room_name
     return await execute_query(query, fields)
 }
 
+// Consulta de las personas hospedadas por reserva
+async function get_booked_people_query(hotel_id, column, order, name, id_type, id_num, check_in, check_out, price){
+
+    console.log(price)
+    if (column == ''){
+        column = null
+    }
+
+    if (order == ''){
+        order = null
+    }
+
+    if (id_type == ''){
+        id_type = null
+    }
+
+    if (price == ''){
+        price = null
+    }
+
+    const fields = [hotel_id, column, order, name, id_type, id_num, check_in, check_out, price]
+    const query = "CALL get_booked_people(?,?,?,?,?,?,?,?,?);"
+    return await execute_query(query, fields)
+}
+
 // Nombres de cada funcion que hay arriba
 module.exports = {
+    get_booked_people_query,
     get_log_query,
     get_top_n_days_with_fewer_booking,
     get_top_n_days_with_most_booking,

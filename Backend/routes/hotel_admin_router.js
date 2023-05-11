@@ -190,8 +190,21 @@ router.get("/get_amenities_not_in_room/:room_id", check_authenticated, async (re
 
 // Responde a la solicitud de consulta de personas hospedadas
 router.get("/get_booked_people", check_authenticated, async (req, res) => {
-    const data = null
-    res.render("hotel_ad_booked_people_query", {profile: req.user.photo})
+    const data = await hotel_admin_controller.get_booked_people_query(req.user.hotel_admin_id, '', '', '', '', '', '', '', '')
+    const id_types = await user_controller.get_id_types()
+    res.render("hotel_ad_booked_people_query", {data: data, id_types: id_types, profile: req.user.photo})
+})
+
+// Responde a la solicitud de consulta de personas hospedadas filtrada
+router.post("/get_booked_people", check_authenticated, async (req, res) => {
+    const data = await hotel_admin_controller.get_booked_people_query(req.user.hotel_admin_id, req.body.column, req.body.order,
+                                                                      req.body.name, req.body.id_type, req.body.id_num,
+                                                                      req.body.check_in, req.body.check_out, req.body.price)
+    const id_types = await user_controller.get_id_types()
+    res.render("hotel_ad_booked_people_query", {data: data, id_types: id_types, column: req.body.column,
+                                                name: req.body.name, id_type: req.body.id_type, id_num: req.body.id_num,
+                                                check_in: req.body.check_in, check_out: req.body.check_out,
+                                                price: req.body.price, order: req.body.order, profile: req.user.photo})
 })
 
 // Responde a la solicitud de consulta de reporte de ofertas
@@ -242,13 +255,14 @@ router.post("/get_top_days_bookings", check_authenticated, async (req, res) => {
     }
 
     if (req.body.type_of_top == 1){
-        data = await hotel_admin_controller.get_top_n_days_with_most_booking(req.user.hotel_admin_id, top)
+        data = await hotel_admin_controller.get_top_n_days_with_most_booking(req.user.hotel_admin_id, top, req.body.start_date, req.body.ending_date)
     } else if (req.body.type_of_top == 2){
-        data = await hotel_admin_controller.get_top_n_days_with_fewer_booking(req.user.hotel_admin_id, top)
+        data = await hotel_admin_controller.get_top_n_days_with_fewer_booking(req.user.hotel_admin_id, top, req.body.start_date, req.body.ending_date)
     }
 
     res.render("hotel_ad_top_days_bookings_query", {data: data, type_of_top: req.body.type_of_top, 
-                                                    top_n: req.body.top_n, profile: req.user.photo})
+                                                    top_n: req.body.top_n, start_date: req.body.start_date, ending_date: req.body.ending_date, 
+                                                    profile: req.user.photo})
 })
 
 // Responde a la solicitud de consulta de habitaciones disponibles (del job)
@@ -312,6 +326,20 @@ router.get("/get_person_by_email/:email", check_authenticated, async (req, res) 
 // Responde a la solicitud de consulta de usuario por número de identificación
 router.get("/get_person_by_id_number/:id_number/:id_type_id", check_authenticated, async (req, res) => {
     const response = await hotel_admin_controller.get_person_by_id_number(req.params.id_number, req.params.id_type_id)
+    res.status(200)
+    res.send(JSON.stringify(response))
+})
+
+// Responde a la solicitud de habitaciones de una reserva
+router.get("/get_rooms_in_booking/:booking_id", check_authenticated, async (req, res) => {
+    const response = await client_controller.get_rooms_in_booking(req.params.booking_id)
+    res.status(200)
+    res.send(JSON.stringify(response))
+})
+
+// Responde a la solicitud de habitaciones de una reserva
+router.get("/get_user_nationalities/:username", check_authenticated, async (req, res) => {
+    const response = await user_controller.get_user_nationalities(req.params.username)
     res.status(200)
     res.send(JSON.stringify(response))
 })
