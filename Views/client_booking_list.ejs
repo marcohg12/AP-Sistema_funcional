@@ -65,14 +65,15 @@
                   <h5 class="card-title">Estado de reserva: <%= booking.status_name %></h5>
 
                   <p class="card-text">
-                    Fecha de check-in: <%= booking.check_in_date%> &nbsp;&nbsp;&nbsp;
-                    Fecha de check-out: <%= booking.check_out_date%>
+                    Fecha de check-in: <%= booking.check_in_date.toLocaleDateString() %> &nbsp;&nbsp;&nbsp;
+                    Fecha de check-out: <%= booking.check_out_date.toLocaleDateString() %>
                   </p>
 
                   <% if (booking.status_id == 3) { %>
-                    <a href="/clients/booking_room_edition/<%= booking.booking_id %>" class="btn text-white" style="background-color: #606c38;">Continuar reserva</a>
+                    <a href="/clients/booking_room_edition/<%= booking.booking_id %>/ <%= booking.hotel_id %>" class="btn text-white" style="background-color: #606c38;">Continuar reserva</a>
+                  <% } else { %>
+                    <a href="/clients/get_booking_detail/<%= booking.booking_id %>" class="btn btn-outline-secondary me-2">Ver detalles</a>
                   <% } %>
-                  <a href="/clients/get_booking_detail/<%= booking.booking_id %>" class="btn btn-outline-secondary me-2">Ver detalles</a>
                 </div>
               </div>
             <% }) %>

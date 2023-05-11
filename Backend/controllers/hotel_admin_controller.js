@@ -526,14 +526,83 @@ async function register_booking(username, check_in, check_out, hotel_id){
 async function delete_booking(booking_id){
     const fields = [booking_id]
     const query = "CALL delete_booking(?,@execution_code); SELECT @execution_code AS execution_code;"
-    const response = await execute_operation(query, fields)
+    const execution_code = await execute_operation(query, fields)
 
     // Generación de la respuesta
-    if (response.execute_operation == -1){
+    if (execution_code == -1){
         return ({error: true, message: "Ocurrió un error inesperado"})
     } else {
         return ({error: false, message: "Reserva eliminada exitosamente"})
     } 
+}
+
+// Función para confirmar una reserva
+async function confirm_booking(booking_id, payment_method_id){
+    const fields = [booking_id, payment_method_id]
+    const query = "CALL confirm_booking(?,?,@execution_code); SELECT @execution_code AS execution_code;"
+    const execution_code = await execute_operation(query, fields)
+
+    // Generación de la respuesta
+    if (execution_code == -1){
+        return ({error: true, message: "Ocurrió un error inesperado"})
+    } else if (execution_code == -15){
+        return ({error: true, message: "Error: hay habitaciones no disponibles para la fecha de reserva"})
+    } else {
+        return ({error: false, message: "Reserva confirmada exitosamente"})
+    } 
+}
+
+// Función para cancelar una reserva
+async function cancel_booking(booking_id){
+    const fields = [booking_id]
+    const query = "CALL cancel_booking(?,@execution_code); SELECT @execution_code AS execution_code;"
+    const execution_code = await execute_operation(query, fields)
+
+    // Generación de la respuesta
+    if (execution_code == -1){
+        return ({error: true, message: "Ocurrió un error inesperado"})
+    } else {
+        return ({error: false, message: "Reserva cancelada exitosamente"})
+    }
+}
+
+// Función para obtener la política cancelación aplicable a una reserva confirmada
+async function get_cancel_policy_to_apply_in_booking(booking_id){
+    const query = "CALL get_cancel_policy_to_apply_in_booking(?);"
+    const response = await execute_query(query, [booking_id])
+    return response[0]
+}
+
+// Función para aplicar un código de descuento a una reserva
+async function apply_discount_code(booking_id, code){
+    const fields = [booking_id, code]
+    const query = "CALL apply_discount_code(?,?,@execution_code); SELECT @execution_code AS execution_code;"
+    const execution_code = await execute_operation(query, fields)
+
+    // Generación de la respuesta
+    if (execution_code == -1){
+        return ({error: true, message: "Ocurrió un error inesperado"})
+    } else if (execution_code == -16){
+        return ({error: true, message: "Error: el código ingresado no existe"})
+    } else if (execution_code == -17){
+        return ({error: true, message: "Error: el código ya fue aplicado"})
+    }else {
+        return ({error: false, message: "Código aplicado exitosamente"})
+    }
+}
+
+// Función para actualizar las fechas de estadía de una reserva
+async function update_booking_dates(check_in, check_out, bookin_id){
+    const fields = [check_in, check_out, bookin_id]
+    const query = "CALL update_booking_dates(?,?,?,@execution_code); SELECT @execution_code AS execution_code;"
+    const execution_code = await execute_operation(query, fields)
+
+    // Generación de la respuesta
+    if (execution_code == -1){
+        return ({error: true, message: "Ocurrió un error inesperado"})
+    } else {
+        return ({error: false, message: "Fechas actualizadas exitosamente"})
+    }
 }
 
 // Edición del hotel ------------------------------------------------------------------------------------------- //
@@ -625,8 +694,32 @@ async function get_hotel_reviews(hotel_id){
     return await execute_query(query, [hotel_id]) 
 }
 
+// Reporte de ofertas del hotel
+async function get_deals_report(hotel_id, name, start_date, ending_date){
+    const fields = [hotel_id, name, start_date, ending_date]
+    const query = "CALL get_deals_report(?,?,?,?);"
+    return await execute_query(query, fields)
+}
+
+// Consulta del Top N días con más reservas
+async function get_top_n_days_with_most_booking(hotel_id, top){
+    const fields = [hotel_id, top]
+    const query = "CALL get_top_n_days_with_most_booking(?,?);"
+    return await execute_query(query, fields)
+}
+
+// Consulta del Top N días con menos reservas
+async function get_top_n_days_with_fewer_booking(hotel_id, top){
+    const fields = [hotel_id, top]
+    const query = "CALL get_top_n_days_with_fewer_booking(?,?);"
+    return await execute_query(query, fields)
+}
+
 // Nombres de cada funcion que hay arriba
 module.exports = {
+    get_top_n_days_with_fewer_booking,
+    get_top_n_days_with_most_booking,
+    get_deals_report,
     get_hotel_reviews,
     get_hotel_comments,
     get_review_avarage,
@@ -672,5 +765,10 @@ module.exports = {
     add_photo_to_hotel,
     get_hotel_photos,
     delete_photo_from_hotel,
-    get_booking_data
+    get_booking_data,
+    confirm_booking,
+    get_cancel_policy_to_apply_in_booking,
+    cancel_booking,
+    apply_discount_code,
+    update_booking_dates
 }

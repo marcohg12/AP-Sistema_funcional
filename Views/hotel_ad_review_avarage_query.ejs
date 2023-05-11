@@ -71,8 +71,8 @@
               <span class="h4 mb-0">Promedio de calificaciones: <%= avarage.avarage %></span>
           </div>
 
-            <div style="height: 600px; display: block; overflow: auto; position: relative;">
-                <table class="table mt-4 table-striped table-bordered">
+            <div style="height: 450px; display: block; overflow: auto; position: relative;">
+                <table class="table mt-4 table-striped table-bordered" id="query_table">
                     <thead class="bg-light">
                       <tr>
                         <th>Nombre</th>
@@ -125,6 +125,10 @@
 
                     </tbody>
                 </table>
+            </div>
+
+            <div class="d-flex align-items-center mt-3 pb-1">
+              <span class="h4 mb-0" id="query_count"></span>
             </div>
 
           </div>
@@ -226,6 +230,10 @@
       function toBase64(arr) {
         return btoa(arr.reduce((data, byte) => data + String.fromCharCode(byte), ''))
       }
+
+
+      const register_count = document.getElementById("query_count")
+      register_count.innerHTML = "Total de registros obtenidos: " + ($("#query_table tr").length-1)
 
     </script>
 </html>

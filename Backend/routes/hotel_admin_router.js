@@ -102,28 +102,55 @@ router.get("/edit_bookin_rooms/:bookin_id", check_authenticated, async (req, res
 
 // Atiende la petición de ventana de confirmación de reserva
 router.get("/confirm_booking_view/:booking_id", check_authenticated, async (req, res) => {
+    const booking_data = await hotel_admin_controller.get_booking_data(req.params.booking_id)
 
-    const booking = {hotel_id: 1, booking_id: 1, check_in_date: "2023-03-25", check_out_date: "2023-03-25", status_id: 1, status_name: "Confirmada"}
-    const rooms = [{id: "0", name: "Habitación sencilla", price: 150, capacity: 2,  units:1, is_in_offer: 1, current_price: 100},
-                   {id: "1", name: "Habitación doble", price: 290, capacity: 4,  units:2, is_in_offer: 0, current_price: 290},
-                   {id: "2", name: "Habitación deluxe", price: 350, capacity: 2,  units:4, is_in_offer: 0, current_price: 350},
-                   {id: "3", name: "Habitación deluxe doble", price: 600, capacity: 4,  units:2, is_in_offer: 1, current_price: 550}]
-    const payment_methods = await hotel_admin_controller.get_payment_methods(booking.hotel_id);
+    if (booking_data.room_count == 0){
+        return res.redirect("/hotel_admins/edit_bookin_rooms/" + req.params.booking_id)
+    }
+    const rooms = await client_controller.get_rooms_in_booking(req.params.booking_id)
+    const payment_methods = await hotel_admin_controller.get_payment_methods(booking_data.hotel_id);
 
-
-    res.render("hotel_ad_booking_confirmation", {payment_methods: payment_methods, booking: booking, rooms: rooms, profile:req.user.photo}) 
+    return res.render("hotel_ad_booking_confirmation", {payment_methods: payment_methods, booking_data: booking_data, rooms: rooms, profile:req.user.photo}) 
 })
 
 // Atiende la petición de ventana de detalle de una reserva
 router.get("/get_booking_detail/:booking_id", check_authenticated, async (req, res) => {
+    const booking_data = await hotel_admin_controller.get_booking_data(req.params.booking_id)
+    const rooms = await client_controller.get_rooms_in_booking(req.params.booking_id)
 
-    const booking = {is_checked_in: 1, is_reviewed: 0, booking_id: 1, check_in_date: "2023-03-25", check_out_date: "2023-03-25", status_id: 1, status_name: "Confirmada"}
-    const rooms = [{id: "0", name: "Habitación sencilla", price: 150, capacity: 2, units: 1},
-                   {id: "1", name: "Habitación doble", price: 290, capacity: 4, units: 1},
-                   {id: "2", name: "Habitación deluxe", price: 350, capacity: 2, units: 2},
-                   {id: "3", name: "Habitación deluxe doble", price: 600, capacity: 4, units:1}]
+    var cancel_policy
+    var cancel_message
+    var is_cancelable
 
-    res.render("hotel_ad_booking_detail", {booking: booking, rooms: rooms, profile:req.user.photo}) 
+    if (booking_data.status_id == 1){
+        cancel_policy = await hotel_admin_controller.get_cancel_policy_to_apply_in_booking(req.params.booking_id)
+
+        if (cancel_policy){
+            cancel_message = "Si cancela su reserva hoy, se aplicará una multa del " + cancel_policy.value + "% del precio final de su reserva. La multa sería de " 
+                              + (booking_data.price_with_fee * (cancel_policy.value/100)) + "$"
+            is_cancelable = cancel_policy.is_cancelable
+        } else {
+            cancel_message = "Cancele su reserva hoy gratuitamente"
+            is_cancelable = 1
+        }
+    } else if (booking_data.status_id == 2){
+
+        if (booking_data.cancellation_policy_id){
+            cancel_message = "Su reserva fue cancelada, se aplicó una multa del " 
+                             + booking_data.cancelation_fee + "%. El monto de multa fue de " + (booking_data.price_with_fee * (booking_data.cancelation_fee/100)) + "$"
+        } else {
+            cancel_message = "Su reserva fue cancelada gratuitamente"
+        }
+    }
+
+    res.render("hotel_ad_booking_detail", {booking_data: booking_data, is_cancelable: is_cancelable, cancel_message: cancel_message, rooms: rooms, profile:req.user.photo}) 
+})
+
+// Responde a la solicitud de cancelar una reserva
+router.post("/cancel_booking", check_authenticated, async (req, res) => {
+    const response = await hotel_admin_controller.cancel_booking(req.body.booking_id)
+    res.status(200)
+    res.send(JSON.stringify(response))
 })
 
 // Responde a la solicitud de distritos de un cantón
@@ -169,7 +196,17 @@ router.get("/get_booked_people", check_authenticated, async (req, res) => {
 
 // Responde a la solicitud de consulta de reporte de ofertas
 router.get("/get_deals_report", check_authenticated, async (req, res) => {
-    res.render("hotel_ad_deal_report_query", {profile: req.user.photo})  
+    const data = await hotel_admin_controller.get_deals_report(req.user.hotel_admin_id, '', '', '')
+    res.render("hotel_ad_deal_report_query", {data: data, profile: req.user.photo})  
+})
+
+// Responde a la solicitud de consulta de reporte de ofertas con filtros del usuario
+router.post("/get_deals_report", check_authenticated, async (req, res) => {
+    const data = await hotel_admin_controller.get_deals_report(req.user.hotel_admin_id, req.body.name, 
+                                                               req.body.start_date, req.body.ending_date)
+    res.render("hotel_ad_deal_report_query", {data: data, name_filter: req.body.name,
+                                              start_date_filter: req.body.start_date, ending_date_filter: req.body.ending_date, 
+                                              profile: req.user.photo})  
 })
 
 // Responde a la solicitud de promedio de reviews del hotel
@@ -184,14 +221,34 @@ router.get("/get_booking_comments/:booking_id/:username", check_authenticated, a
     const comments = await hotel_admin_controller.get_booking_comments(req.params.booking_id)
     const user_data = await user_controller.get_user_by_username(req.params.username)
     user_data.photo = user_data.photo.toString('ascii')
-    console.log(user_data)
     res.status(200)
     res.send(JSON.stringify({comments: comments, user_data: {name: user_data.name, photo: user_data.photo}}))
 })
 
 // Responde a la solicitud de consulta de tops de ventas por días
 router.get("/get_top_days_bookings", check_authenticated, async (req, res) => {
-    res.render("hotel_ad_top_days_bookings_query", {profile: req.user.photo})
+    const data = await hotel_admin_controller.get_top_n_days_with_most_booking(req.user.hotel_admin_id, null)
+    res.render("hotel_ad_top_days_bookings_query", {data: data, profile: req.user.photo})
+})
+
+// Responde a la solicitud de consulta de tops de ventas por días
+router.post("/get_top_days_bookings", check_authenticated, async (req, res) => {
+
+    var data
+    var top = req.body.top_n
+
+    if (top == ""){
+        top = null
+    }
+
+    if (req.body.type_of_top == 1){
+        data = await hotel_admin_controller.get_top_n_days_with_most_booking(req.user.hotel_admin_id, top)
+    } else if (req.body.type_of_top == 2){
+        data = await hotel_admin_controller.get_top_n_days_with_fewer_booking(req.user.hotel_admin_id, top)
+    }
+
+    res.render("hotel_ad_top_days_bookings_query", {data: data, type_of_top: req.body.type_of_top, 
+                                                    top_n: req.body.top_n, profile: req.user.photo})
 })
 
 // Responde a la solicitud de consulta de habitaciones disponibles (del job)
@@ -423,6 +480,8 @@ router.post("/delete_photo_from_hotel", check_authenticated, async (req, res) =>
 })
 
 // RUD de reserva -------------------------------------------------------------------------------------------- //
+
+// Atiende la petición de registrar una reserva
 router.post("/register_booking", check_authenticated, async (req, res) => {
     const response = await hotel_admin_controller.register_booking(req.body.username, req.body.check_in,
                                                                    req.body.check_out, req.user.hotel_admin_id)
@@ -430,8 +489,45 @@ router.post("/register_booking", check_authenticated, async (req, res) => {
     res.send(JSON.stringify(response))
 })
 
+// Atiende la petición de eliminar una reserva
 router.post("/delete_booking", check_authenticated, async (req, res) => {
     const response = await hotel_admin_controller.delete_booking(req.body.booking_id)
+    res.status(200)
+    res.send(JSON.stringify(response))
+})
+
+// Atiende la petición de agregar una habitación a una reserva
+router.post("/add_room_to_booking", check_authenticated, async (req, res) => {
+    const response = await client_controller.add_room_to_booking(req.body.booking_id, req.body.room_id,
+                                                                 req.body.units, req.body.price)
+    res.status(200)
+    res.send(JSON.stringify(response))
+})
+
+// Atiende la petición de eliminar una habitación de una reserva
+router.post("/delete_room_from_booking", check_authenticated, async (req, res) => {
+    const response = await client_controller.delete_room_from_booking(req.body.booking_id, req.body.room_id)
+    res.status(200)
+    res.send(JSON.stringify(response))
+})
+
+// Atiende la petición de confirmar una reserva
+router.post("/confirm_booking", check_authenticated, async (req, res) => {
+    const response = await hotel_admin_controller.confirm_booking(req.body.booking_id, req.body.payment_method_id)
+    res.status(200)
+    res.send(JSON.stringify(response))
+})
+
+// Atiende la petición de aplicar un código de descuento a una reserva
+router.post("/apply_discount_code", check_authenticated, async (req, res) => {
+    const response = await hotel_admin_controller.apply_discount_code(req.body.booking_id, req.body.code)
+    res.status(200)
+    res.send(JSON.stringify(response))
+})
+
+// Atiende la petición de actualizar las fechas de una reserva
+router.post("/update_booking_dates", check_authenticated, async (req, res) => {
+    const response = await hotel_admin_controller.update_booking_dates(req.body.check_in, req.body.check_out, req.body.booking_id)
     res.status(200)
     res.send(JSON.stringify(response))
 })

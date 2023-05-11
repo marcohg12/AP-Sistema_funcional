@@ -278,12 +278,18 @@
 
         $('#start_date').change(function config_check_out_selector() {
           const start_date_selected = new Date((document.getElementById("start_date").value))
-          ending_date.min = start_date_selected.toISOString().split("T")[0]
+
+          if (start_date_selected > new Date(ending_date.value)){
+            ending_date.value = null
+          }
         })
 
         $('#ending_date').change(function config_check_out_selector() {
           const ending_date_selected = new Date((document.getElementById("ending_date").value))
-          start_date.max = ending_date_selected.toISOString().split("T")[0]
+
+          if (ending_date_selected < new Date(start_date.value)){
+            start_date.value = null
+          }
         })
         
     </script>

@@ -9,6 +9,7 @@
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">  
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css"> 
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
         <title>Reserva</title>
         <style>
@@ -21,6 +22,14 @@
             color: #dda15e;
           }
 
+          .checked {  
+            color : #dda15e;  
+            font-size : 20px;  
+          } 
+
+          .unchecked {  
+            font-size : 20px;  
+          }  
         </style>
     </head>
 
@@ -88,7 +97,7 @@
                       <div class="card-body">
     
                         <h5 class="card-title"><%= room.name %></h5>
-                        <p class="card-text">Precio por noche: <%= room.price%>$</p>
+                        <p class="card-text">Precio por noche: <%= room.admin_price%>$</p>
                         <p class="card-text"><small class="text-muted">Capacidad: <%= room.capacity%> personas</small></p>
                         <p class="card-text"><small class="text-muted">Unidades solicitadas: <%= room.units%></small></p>
 
@@ -110,76 +119,92 @@
 
                     <label class="h5 fw-bold mb-2">Fechas de estadía</label>
                     <p class="card-text mb-4">
-                      Fecha de check-in: <%= booking.check_in_date%> &nbsp;&nbsp;&nbsp;
-                      Fecha de check-out: <%= booking.check_out_date%> &nbsp;&nbsp;&nbsp;
-                      Total de noches: 4
+                      Fecha de check-in: <%= booking_data.check_in_date.toLocaleDateString() %> &nbsp;&nbsp;&nbsp;
+                      Fecha de check-out: <%= booking_data.check_out_date.toLocaleDateString() %> &nbsp;&nbsp;&nbsp;
+                      Total de noches: <%= booking_data.nights %>
                     </p>
 
                     <label class="h5 fw-bold mb-2">Total de habitaciones</label>
                     <p class="card-text mb-4">
-                      5 habitaciones
+                      <%= booking_data.room_count %> habitaciones
                     </p>
 
                     <div class="row">
                       <div class="col">
                         <label class="h5 fw-bold mb-2">Precio total</label>
                         <p class="card-text mb-4">
-                          5000$
+                          <%= booking_data.price %>$
                         </p>
                       </div>
 
                       <div class="col">
                         <label class="h5 fw-bold mb-2">Precio final (I.V.A incluido)</label>
                         <p class="card-text mb-4">
-                          5200$
+                          <%= booking_data.price_with_fee %>$
                         </p>
                       </div>
                     </div>
 
                     <label class="h5 fw-bold mb-2">Método de pago</label>
                     <p class="card-text mb-4">
-                      Tarjeta
+                      <%= booking_data.payment_method_name %>
                     </p>
 
                     <div class="row">
                       <div class="col">
                         <label class="h5 fw-bold mb-2">Estado</label>
                         <p class="card-text mb-4">
-                          <%= booking.status_name %>
+                          <%= booking_data.status_name %>
                         </p>
                       </div>
 
                       <div class="col">
-                        <% if (booking.status_id == 1 && !booking.is_checked_in){ %>
-                          <a href="/clients/cancel_booking/<%= booking.booking_id %>" class="btn btn-danger">Cancelar reserva</a>
-                        <% } else if (booking.status_id == 3) {%>
-                          <a href="/clients/<%= booking.booking_id %>" class="btn text-white" style="background-color: #606c38;">Continuar reserva</a>
-                        <% } %>
+
+                          <!-- Si la reserva está confirmada, se despliega la advertencia de cancelación y el botón para cancelar-->   
+                          <% if (booking_data.status_id == 1 && is_cancelable){ %>
+                            <label class="h5 fw-bold mb-2">Política de cancelación</label>
+                            <p class="card-text mb-4">
+                              <%= cancel_message %>
+                            </p>
+                            <button onclick="javascript:cancel_booking('<%= booking_data.id %>')" class="btn btn-danger">Cancelar reserva</button>
+                          <% } else if (booking_data.status_id == 2) { %>
+                            <label class="h5 fw-bold mb-2">Política de cancelación</label>
+                            <p class="card-text mb-4">
+                              <%= cancel_message %>
+                            </p>
+                          <% } %>
                       </div>
+
                     </div>
 
-                    <!-- Si la reserva está confirmada y ya pasó la fecha de check in, entonces se habilita el espacio de comentarios -->
-                    <% if (booking.status_id == 1 && booking.is_checked_in){ %>
+                    <!-- Si la reserva está confirmada, entonces se habilita el espacio de comentarios y reviews -->
+                    <% if (booking_data.status_id == 1){ %>
 
-                      <div class="d-flex align-items-center mb-4 pb-1">
-                        <span class="h2 fw-bold mb-0">Opiniones</span>
-                      </div>
+                      <% if (booking_data.is_checked_in){ %>
+                        <div class="d-flex align-items-center mb-4 pb-1">
+                          <span class="h2 fw-bold mb-0">Opiniones</span>
+                        </div>
+                      <% } %>
 
                       <div class="row">
 
                         <div class="col">
-                          <form>
-                            <label>Comentarios</label>
-                            <textarea class="form-control mb-4" rows="5" id="comment" name="comment" required></textarea>
-                            <button type="submit" class="btn text-white" style="background-color: #606c38;">Enviar</button>
-                          </form>
+
+                          <% if (booking_data.is_checked_in){ %>
+                            <form onsubmit="javascript:send_comment(event, '<%= booking_data.id %>')">
+                              <label class="mb-4">Comentarios</label>
+                              <textarea class="form-control mb-4" rows="5" id="comment" name="comment" maxlength="100" required></textarea>
+                              <button type="submit" class="btn text-white" style="background-color: #606c38;">Enviar</button>
+                            </form>
+                          <% } %>
+
                         </div>
 
                         <!-- Si no se ha enviado una review, se habilita el espacio -->
                         <div class="col">
 
-                          <% if (!booking.is_reviewed){ %>
-                            <form>
+                          <% if (!booking_data.is_reviewed && booking_data.is_checked_in){ %>
+                            <form onsubmit="javascript:send_review(event, '<%= booking_data.id %>')">
                               <label>Calificación</label>
 
                               <div class="row">
@@ -190,7 +215,7 @@
                                     <span class="fa fa-star-o" data-rating="3"></span>
                                     <span class="fa fa-star-o" data-rating="4"></span>
                                     <span class="fa fa-star-o" data-rating="5"></span>
-                                    <input type="hidden" name="review" class="rating-value" value="5" required>
+                                    <input type="hidden" id="review" name="review" class="rating-value" value="5" required>
                                   </div>
                                 </div>
                                 <div class="col">
@@ -199,7 +224,23 @@
                               </div>
 
                             </form>
-                          <% } else { %>
+                          <% } else if (booking_data.is_reviewed) { %>
+
+                            <label class="mb-3">Calificación</label>
+                            
+                            <div class="mb-2">
+                              <% for(i = 0; i < booking_data.stars; i++){ %>
+                                <span class = "fa fa-star checked"></span> 
+                              <% } %>
+                              <% for(i = 0; i < 5 - booking_data.stars; i++){ %>
+                                <span class = "fa fa-star unchecked"></span> 
+                              <% } %>
+                            </div>
+
+                            <div>
+                              <p class="card-text">Fecha de ingreso: <%= booking_data.review_date.toLocaleDateString() %></p>
+                            </div>
+
                           <% } %>
 
                         </div>
@@ -213,12 +254,103 @@
               </div>
 
             </div>
+
+                <!-- Pop ups de mensajes ----------------------------------------------------------------------->
+
+                 <!-- Pop de mensage de éxito -->  
+                 <div class="modal fade" id="success_alert_modal" tabindex="-1" aria-labelledby="success_alert_modal" aria-hidden="true">
+                  <div class="modal-dialog">
+                      <div class="alert alert-success alert-dismissible">
+                          <p id="success_message"></p>
+                          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                      </div>
+                  </div>
+               </div>
+
+               <!-- Pop de mensage de error -->  
+               <div class="modal fade" id="error_alert_modal" tabindex="-1" aria-labelledby="error_alert_modal" aria-hidden="true">
+                  <div class="modal-dialog">
+                      <div class="alert alert-danger alert-dismissible">
+                          <p id="error_message"></p>
+                          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                      </div>
+                  </div>
+               </div>
+
           </div>
         </section>
 
     </body>
     <script>
-    
+
+
+      // Envía una petición http al servidor y retorna la respuesta si hubo éxito
+      function send_request(request_type, url, request_body){
+            
+            return new Promise(async (resolve, reject) => {
+
+                const http = new XMLHttpRequest()
+                
+                http.onreadystatechange = function(){
+                    
+                    if (this.readyState == 4 && this.status == 200){
+                        const response = JSON.parse(this.response)
+                        return resolve(response)    
+                    }
+                }
+
+                http.open(request_type, url)
+                http.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
+                http.send(JSON.stringify(request_body))
+            })
+      }
+
+      // Función para cancelar la reserva
+      async function cancel_booking(booking_id){
+        const request_body = {booking_id: booking_id}
+        const url = "http://localhost:4500/clients/cancel_booking"
+        const response = await send_request("POST", url, request_body)
+        show_response(response)
+      }
+
+      // Función para enviar la review
+      async function send_review(event, booking_id){
+        event.preventDefault()
+        const review = document.getElementById("review").value
+        const request_body = {booking_id: booking_id, review: review}
+        const url = "http://localhost:4500/clients/send_review"
+        const response = await send_request("POST", url, request_body)
+        show_response(response)
+      }
+
+      // Función para enviar un comentario
+      async function send_comment(event, booking_id){
+        event.preventDefault()
+        const comment = document.getElementById("comment").value
+        const request_body = {booking_id: booking_id, comment: comment}
+        const url = "http://localhost:4500/clients/send_comment"
+        const response = await send_request("POST", url, request_body)
+        show_response(response)
+      }
+
+      // Muestra el modal con la respuesta de una petición
+      function show_response(response){
+
+        if (response.error){
+            document.getElementById("error_message").innerHTML = response.message
+            $('#error_alert_modal').modal('show')
+        } else {
+            document.getElementById("success_message").innerHTML = response.message
+            $('#success_alert_modal').modal('show')
+        }
+      }
+
+      $('#success_alert_modal').on('hidden.bs.modal', function () {
+        location.reload()
+      })
+
+
+    // Configuraciones para las estrellas
     var $star_rating = $('.star-rating .fa')
     
     var SetRatingStar = function() {

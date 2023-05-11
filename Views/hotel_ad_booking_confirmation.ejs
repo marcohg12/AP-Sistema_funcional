@@ -53,7 +53,7 @@
 
         <section class="mb-4 mt-2">
           <div class="container">
-            <a href="/hotel_admins/edit_bookin_rooms/<%= booking.booking_id %>" class="btn btn-light mt-0"><span class="bi bi-arrow-left"></span></a>
+            <a href="/hotel_admins/edit_bookin_rooms/<%= booking_data.id %>" class="btn btn-light mt-0"><span class="bi bi-arrow-left"></span></a>
             <div class="row">
 
                 <!-- Habitaciones en la reserva --------------------------------------------------------------->
@@ -67,7 +67,7 @@
                           <div class="card mb-4" id="room-<%= room.id %>">
                             <% if (room.is_in_offer){ %>
                                 <div class="card-header">
-                                    En oferta
+                                    Oferta aplicable
                                 </div>
                             <% } %>
                             <div class="card-body">
@@ -77,6 +77,9 @@
                                 <p class="card-text">Precio por noche: <s><%= room.price%>$</s> <%= room.current_price%>$</p>
                               <% } else { %>
                                 <p class="card-text">Precio por noche: <%= room.price%>$</p>
+                              <% } %>
+                              <% if (room.admin_price){ %>
+                                <p class="card-text">Precio aplicado por noche: <%= room.admin_price%>$</p>
                               <% } %>
                               <p class="card-text"><small class="text-muted">Capacidad: <%= room.capacity%> personas</small></p>
                               <p class="card-text"><small class="text-muted">Unidades solicitadas: <%= room.units%></small></p>
@@ -96,28 +99,28 @@
 
                     <label class="h5 fw-bold mb-2">Fechas de estadía</label>
                     <p class="card-text mb-4">
-                      Fecha de check-in: <%= booking.check_in_date%> &nbsp;&nbsp;&nbsp;
-                      Fecha de check-out: <%= booking.check_out_date%> &nbsp;&nbsp;&nbsp;
-                      Total de noches: 4
+                      Fecha de check-in: <%= booking_data.check_in_date.toLocaleDateString() %> &nbsp;&nbsp;&nbsp;
+                      Fecha de check-out: <%= booking_data.check_out_date.toLocaleDateString() %> &nbsp;&nbsp;&nbsp;
+                      Total de noches: <%= booking_data.nights %>
                     </p>
 
                     <label class="h5 fw-bold mb-2">Total de habitaciones</label>
                     <p class="card-text mb-4">
-                      5 habitaciones
+                      <%= booking_data.room_count %> habitaciones
                     </p>
 
                     <div class="row">
                       <div class="col">
                         <label class="h5 fw-bold mb-2">Precio total</label>
                         <p class="card-text mb-4">
-                          5000$
+                          <%= booking_data.price %>$
                         </p>
                       </div>
 
                       <div class="col">
                         <label class="h5 fw-bold mb-2">Precio final (I.V.A incluido)</label>
                         <p class="card-text mb-4">
-                          5200$
+                          <%= booking_data.price_with_fee %>$
                         </p>
                       </div>
                     </div>
@@ -127,7 +130,7 @@
                     </div>
 
                     <!-- Formulario para enviar códigos de descuento -------------------------------------------->
-                    <form onsubmit="">
+                    <form onsubmit="javascript:apply_discount_code(event, '<%= booking_data.id %>')">
                         <div class="row mt-4">
                             <div class="col">
                                 <div class="form-outline mb-4">
@@ -141,8 +144,8 @@
                         </div>
                     </form>
 
-                    <!-- Formulario para aplicar códigos de descuento ------------------------------------------->
-                    <form method="POST" action="">
+                    <!-- Formulario para seleccionar el método de pago ------------------------------------------->
+                    <form onsubmit="javascript:confirm_booking(event, '<%= booking_data.id %>')">
                         <div class="row mt-4">
                             <div class="col">
                                 <select class="form-select" name="payment_method" id="payment_method" required>
@@ -160,8 +163,99 @@
             
                 </div>
             </div>
+
+                <!-- Pop ups de mensajes ----------------------------------------------------------------------->
+
+                 <!-- Pop de mensage de éxito -->  
+                 <div class="modal fade" id="success_alert_modal" tabindex="-1" aria-labelledby="success_alert_modal" aria-hidden="true">
+                  <div class="modal-dialog">
+                      <div class="alert alert-success alert-dismissible">
+                          <p id="success_message"></p>
+                          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                      </div>
+                  </div>
+               </div>
+
+               <!-- Pop de mensage de error -->  
+               <div class="modal fade" id="error_alert_modal" tabindex="-1" aria-labelledby="error_alert_modal" aria-hidden="true">
+                  <div class="modal-dialog">
+                      <div class="alert alert-danger alert-dismissible">
+                          <p id="error_message"></p>
+                          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                      </div>
+                  </div>
+               </div>
+
           </div>
         </section>
 
     </body>
+    <script>
+
+        // Envía una petición http al servidor y retorna la respuesta si hubo éxito
+        function send_request(request_type, url, request_body){
+            
+            return new Promise(async (resolve, reject) => {
+
+                const http = new XMLHttpRequest()
+                
+                http.onreadystatechange = function(){
+                    
+                    if (this.readyState == 4 && this.status == 200){
+                        const response = JSON.parse(this.response)
+                        return resolve(response)    
+                    }
+                }
+
+                http.open(request_type, url)
+                http.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
+                http.send(JSON.stringify(request_body))
+            })
+      }
+
+      // Función para aplicar un código de descuento a una habitación
+      async function apply_discount_code(event, booking_id){
+        event.preventDefault()
+
+        const code = document.getElementById("discount_code").value
+        const request_body = {booking_id: booking_id, code: code}
+        const url = "http://localhost:4500/hotel_admins/apply_discount_code"
+        const response = await send_request("POST", url, request_body)
+
+        if (response.error){
+          show_response(response)
+        } else {
+          location.reload()
+        }
+      }
+
+      // Función para confirmar la reserva
+      async function confirm_booking(event, booking_id){
+        event.preventDefault()
+
+        const payment_method_id = document.getElementById("payment_method").value
+        const request_body = {booking_id: booking_id, payment_method_id: payment_method_id}
+        const url = "http://localhost:4500/hotel_admins/confirm_booking"
+        const response = await send_request("POST", url, request_body)
+        show_response(response)
+      }
+      
+
+      // Muestra el modal con la respuesta de una petición
+      function show_response(response){
+
+        if (response.error){
+            document.getElementById("error_message").innerHTML = response.message
+            $('#error_alert_modal').modal('show')
+        } else {
+            document.getElementById("success_message").innerHTML = response.message
+            $('#success_alert_modal').modal('show')
+        }
+      }
+
+      $('#success_alert_modal').on('hidden.bs.modal', function () {
+        location.replace("http://localhost:4500/hotel_admins/bookin_catalog")
+      })
+
+    </script>
 </html>

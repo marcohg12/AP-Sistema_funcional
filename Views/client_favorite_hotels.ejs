@@ -63,13 +63,13 @@
 
             <% hotels.forEach(hotel => { %>
 
-            <div class="card mb-4">
+            <div class="card mb-4" id="<%= hotel.id %>">
 
               <div class="row no-gutters">
                 <div class="col-md-4">
 
                   <div>
-                    <img class="d-block w-100 card-img" style="width:200px; height: 200px;" src="../Photos/hotel-presidente-4s.jpg">
+                    <img class="d-block w-100 card-img" style="width:200px; height: 200px;" src="data:image/png;base64, <%= hotel.photo %>">
                   </div>
 
                 </div>
@@ -77,11 +77,16 @@
                 <div class="col-md-8">
                   <div class="card-body">
 
-                    <h5 class="card-title"><%= hotel.name %></h5>
-                    <p class="card-text"><%= hotel.classification%></p>
-                    <p class="card-text"><small class="text-muted"><%= hotel.province%></small></p>
-                    <a href="/clients/hotel_info/:hotel_id" class="btn text-white" style="background-color: #606c38;">Ver más</a>
-                    <a href="/clients/delete_from_favorites/" class="btn btn-link"><span class="bi bi-heart-fill" style="color: red; font-size: 20px;"></span></a>
+                    <h5 class="card-title">
+                      <%= hotel.hotel_name %>
+                    </h5>
+
+                    <p class="card-text"><%= hotel.classification_name%></p>
+                    <p class="card-text"><small class="text-muted"><%= hotel.country_name%>, <%= hotel.province_name%></small></p>
+                    <a href="/clients/hotel_info/<%= hotel.id %>" class="btn text-white" style="background-color: #606c38;">Ver más</a>
+                    <button onclick="javascript: delete_hotel_from_favorites('<%= hotel.id %>')" class="btn btn-link">
+                      <span class="bi bi-heart-fill" style="color: red; font-size: 20px;"></span>
+                    </button>
 
                   </div>
                 </div>
@@ -93,7 +98,67 @@
             </div>
           </div>
 
+                 <!-- Pop ups de mensajes ----------------------------------------------------------------------->
+
+                 <!-- Pop de mensage de éxito -->  
+                 <div class="modal fade" id="success_alert_modal" tabindex="-1" aria-labelledby="success_alert_modal" aria-hidden="true">
+                  <div class="modal-dialog">
+                      <div class="alert alert-success alert-dismissible">
+                          <p id="success_message"></p>
+                          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                      </div>
+                  </div>
+               </div>
+
+               <!-- Pop de mensage de error -->  
+               <div class="modal fade" id="error_alert_modal" tabindex="-1" aria-labelledby="error_alert_modal" aria-hidden="true">
+                  <div class="modal-dialog">
+                      <div class="alert alert-danger alert-dismissible">
+                          <p id="error_message"></p>
+                          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                      </div>
+                  </div>
+               </div>
+
         </section>
 
     </body>
+    <script>
+
+            // Envía una petición http al servidor y retorna la respuesta si hubo éxito
+            function send_request(request_type, url, request_body){
+            
+            return new Promise(async (resolve, reject) => {
+
+                const http = new XMLHttpRequest()
+                
+                http.onreadystatechange = function(){
+                    
+                    if (this.readyState == 4 && this.status == 200){
+                        const response = JSON.parse(this.response)
+                        return resolve(response)    
+                    }
+                }
+
+                http.open(request_type, url)
+                http.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
+                http.send(JSON.stringify(request_body))
+            })
+      }
+
+      // Función para eliminar un hotel de la lista de favoritos
+      async function delete_hotel_from_favorites(hotel_id){
+
+        const request_body = {hotel_id: hotel_id}
+        const url = "http://localhost:4500/clients/delete_hotel_from_favorites"
+        const response = await send_request("POST", url, request_body)
+
+        if (response.error){
+          show_response(response)
+        } else {
+          document.getElementById(hotel_id).remove()
+        }
+      }
+
+    </script>
 </html>

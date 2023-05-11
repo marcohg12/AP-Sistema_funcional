@@ -233,21 +233,26 @@ FOREIGN KEY (user_ref) REFERENCES User_table(username)
 
 CREATE TABLE IF NOT EXISTS Commentary(
 id              INT NOT NULL AUTO_INCREMENT,
-commentary_date DATE,
+username 		VARCHAR(50) NOT NULL,
 commentary      VARCHAR(100) NOT NULL,
 reservation_ref  INT NOT NULL,
+commentary_date DATE,
 
 CONSTRAINT idy_pk PRIMARY KEY (id),
+FOREIGN KEY (username) REFERENCES User_table(username) ON DELETE CASCADE,
 FOREIGN KEY (reservation_ref) REFERENCES Reservation(id)  ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS Review(
 id              INT NOT NULL AUTO_INCREMENT,
+username 		VARCHAR(50) NOT NULL,
 stars 		    INT NOT NULL,
 reservation_ref INT NOT NULL,
-date            DATE NOT NULL,
+review_date DATE NOT NULL,
+
 
 CONSTRAINT review_pk PRIMARY KEY (id),
+FOREIGN KEY (username) REFERENCES User_table(username) ON DELETE CASCADE,
 FOREIGN KEY (reservation_ref) REFERENCES RESERVATION(id)  ON DELETE CASCADE
 );
 
@@ -299,7 +304,7 @@ FOREIGN KEY (person_ref) REFERENCES Person(id)
 CREATE TABLE Reservation_X_Room(
 reservation_ref INT NOT NULL,
 room_ref        INT NOT NULL,
-price           INT NOT NULL,
+price           DOUBLE,
 units           INT NOT NULL,
 is_code_applied TINYINT(1) NOT NULL,
   
