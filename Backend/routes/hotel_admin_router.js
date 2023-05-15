@@ -168,7 +168,7 @@ router.get("/get_cantons/:province_id", check_authenticated, async (req, res) =>
 })
 
 // Responde a la solicitud de provincias de un país
-router.get("/get_provinces/:country_id", check_authenticated, async (req, res) => {
+router.get("/get_provinces/:country_id", async (req, res) => {
     const provinces = await master_admin_controller.get_provinces(req.params.country_id)
     res.status(200)
     res.send(JSON.stringify(provinces))
@@ -267,7 +267,8 @@ router.post("/get_top_days_bookings", check_authenticated, async (req, res) => {
 
 // Responde a la solicitud de consulta de habitaciones disponibles (del job)
 router.get("/get_rooms_available", check_authenticated, async (req, res) => {
-    res.render("hotel_ad_room_available_query", {profile: req.user.photo})
+    const rooms = await hotel_admin_controller.get_rooms_view(req.user.hotel_admin_id)
+    res.render("hotel_ad_room_available_query", {rooms: rooms, profile: req.user.photo})
 })
 
 // Responde a la solicitud de consulta de comentarios de un hotel
@@ -282,15 +283,29 @@ router.get("/get_hotel_reviews", check_authenticated, async (req, res) => {
     res.render("hotel_ad_reviews_query", {reviews: reviews, profile: req.user.photo})
 })
 
-// Responde a la solicitud de estadística de clientes por rango de edad
+// Responde a la solicitud de vista de estadística de clientes por rango de edad
 router.get("/get_clients_by_age_stat", check_authenticated, async (req, res) => {
     const genders = await user_controller.get_genders()
     res.render("hotel_ad_clients_by_age_stat", {genders: genders, profile: req.user.photo})
 })
 
-// Responde a la solicitud de estadística de top N habitaciones con más reservas
+// Responde a la solicitud de datos estadística de clientes por rango de edad
+router.post("/get_clients_by_age_range", check_authenticated, async (req, res) => {
+    const response = await hotel_admin_controller.get_clients_by_age_range(req.user.hotel_admin_id, req.body.gender_id)
+    res.status(200)
+    res.send(JSON.stringify(response))
+})
+
+// Responde a la solicitud de vista de estadística de top N habitaciones con más reservas
 router.get("/get_top_n_rooms_stat", check_authenticated, async (req, res) => {
     res.render("hotel_ad_top_n_rooms_stat", {profile: req.user.photo})
+})
+
+// Responde a la solicitud de datos de estadística de top N habitaciones con más reservas
+router.post("/get_top_most_booked_rooms", check_authenticated, async (req, res) => {
+    const response = await hotel_admin_controller.get_top_most_booked_rooms(req.user.hotel_admin_id, req.body.top)
+    res.status(200)
+    res.send(JSON.stringify(response))
 })
 
 // Responde a la solicitud de consulta de bitácora de cambios

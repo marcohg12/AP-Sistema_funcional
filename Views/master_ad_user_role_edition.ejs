@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
+        <title>Catálogos</title>
+    </head>
+
+    <body>
+
+        <nav class="navbar navbar-expand-lg" style="background-color: #283618;">
+            <div class="container">
+              <div class="collapse navbar-collapse" id="navbarButtonsExample" >
+
+                <div class="flex-shrink-0 me-4">
+                  <% if (profile) { %>
+                    <img src="data:image/png;base64, <%= profile %>"
+                    class="img-fluid rounded-circle border border-white border-3"
+                    style="width: 50px;">
+                  <% } else {%>
+                    <img src="/Photos/default_profile.png"
+                    class="img-fluid rounded-circle border border-white border-3"
+                    style="width: 50px;">
+                  <% } %>
+                </div>
+                
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 ">
+                  <li class="nav-item me-4">
+                    <a class="nav-link text-white" href="/master_admins">Menú Principal</a>
+                  </li>
+                  <li class="nav-item me-4">
+                    <a class="nav-link text-white" href="/my_account/my_profile_1">Mi perfil</a>
+                  </li>
+                </ul>
+                
+                <form method="POST" action="/logout">
+                  <div class="d-flex align-items-center">
+                    <button type="submit" class="btn me-3" style="background-color: #dda15e;">Cerrar sesión</button>
+                  </div>
+                </form>
+              
+              </div>
+            </div>
+        </nav>
+
+        <!--------------------------------------------------------------------------------------------------------------------------->
+
+        <section class="mb-4 mt-4">
+            <div class="container">
+
+                <div class="d-flex align-items-center pb-1">
+                    <span class="h3 fw-bold mb-0 me-4">Roles de usuario</span>
+
+                    <button type="button" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#registration_modal">
+                        Registrar
+                    </button>
+
+                    <div id="message_container">
+
+                    </div>
+
+                </div>
+
+                <div style="height: 600px; display: block; overflow: auto; position: relative;">
+
+                <table class="table mt-4 table-striped table-bordered">
+                    <thead class="bg-light">
+                      <tr>
+                        <th>Nombre</th>
+                        <th>Acciones</th>
+                      </tr>
+                    </thead>
+
+                    <tbody>
+
+                      <% roles.forEach(role => {%>
+
+                        <tr id="<%= role.id %>">
+                            <td style="width: 50%">
+                              <p class="fw-normal mb-1"><%= role.name %></p>
+                            </td>
+                            
+                            <td id="buttons-1">
+                                
+                                <button type="button" class="btn btn-link btn-sm btn-rounded" onclick="javascript:edit_row('<%= role.id %>', '<%= role.name %>')">
+                                    Editar
+                                </button>
+
+                                <% if (role.id > 3){ %>
+                                    <button type="button" class="btn btn-link btn-sm btn-rounded" onclick="javascript:delete_role('<%= role.id %>')">
+                                        Eliminar
+                                     </button>
+                                <% } %>
+
+                            </td>
+                        </tr>
+                        
+                      <%})%>
+
+                    </tbody>
+                  </table>
+
+                </div>
+
+                  <!-------------------------------------------------------------------------------------------------------->
+
+                  <!-- Pop up para la edición de nacionalidad -->
+                  <div class="modal fade" id="edition_modal" tabindex="-1" aria-labelledby="edition_modal" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            
+                            <div class="modal-header">
+                                <h1 class="modal-title fs-5">Editar rol de usuario</h1>
+                                
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            
+                            <section id="edition_modal_body">
+                            </section> 
+
+                        </div>
+                    </div>
+                 </div>
+
+                 <!-- Pop up para el registro de nacionalidad -->
+                 <div class="modal fade" id="registration_modal" tabindex="-1" aria-labelledby="registration_modal" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            
+                            <div class="modal-header">
+                                <h1 class="modal-title fs-5">Registrar rol de usuario</h1>
+                                
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+
+                            <form onsubmit="javascript:register_role(event)">
+                                <div class="modal-body">
+
+                                    <div class="form-outline mb-4">
+                                        <input type="text" id="name" maxlength="50" name="name" class="form-control" required/>
+                                        <label class="form-label">Nombre</label>
+                                    </div>
+                
+                                </div>
+                                            
+                                <div class="modal-footer">
+                                    
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                    <button type="submit" class="btn text-white" style="background-color: #606c38;">Registrar</button>
+                                </div>
+
+                            </form>
+                        </div>
+                    </div>
+                 </div>
+
+                <!-- Pop ups de mensajes ----------------------------------------------------------------------->
+
+                 <!-- Pop de mensage de éxito -->  
+                 <div class="modal fade" id="success_alert_modal" tabindex="-1" aria-labelledby="success_alert_modal" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="alert alert-success alert-dismissible">
+                            <p id="success_message"></p>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    </div>
+                 </div>
+
+                 <!-- Pop de mensage de error -->  
+                 <div class="modal fade" id="error_alert_modal" tabindex="-1" aria-labelledby="error_alert_modal" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="alert alert-danger alert-dismissible">
+                            <p id="error_message"></p>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    </div>
+                 </div>
+
+            </div>
+        </section>
+
+    </body>
+
+    <script>
+        
+        // Habilita el pop up para editar una nacionalidad
+        function edit_row(role_id, role_name){
+
+            const modal_content = `         
+            
+            <form onsubmit="javascript:update_role(event, ${role_id})">       
+                <div class="modal-body">
+
+                    <div class="form-outline mb-4">
+                        <input type="text" id="new_name" name="new_name" maxlength="50" value="${role_name}" required class="form-control"/>
+                        <label class="form-label">Nombre</label>
+                    </div>
+
+                </div>
+                            
+                <div class="modal-footer">        
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn text-white" style="background-color: #606c38;">Guardar</button>
+                </div>
+            </form>
+            `
+
+            document.getElementById("edition_modal_body").innerHTML = modal_content
+            $('#edition_modal').modal('show')
+        }
+
+        // Envía una petición http al servidor y retorna la respuesta si hubo éxito
+        function send_request(request_type, url, request_body){
+            
+            return new Promise(async (resolve, reject) => {
+
+                const http = new XMLHttpRequest()
+                
+                http.onreadystatechange = function(){
+                    
+                    if (this.readyState == 4 && this.status == 200){
+                        const response = JSON.parse(this.response)
+                        return resolve(response)    
+                    }
+                }
+
+                http.open(request_type, url)
+                http.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
+                http.send(JSON.stringify(request_body))
+            })
+        }
+
+        // Envía la petición para editar un rol de usuario
+        async function update_role(event, type_id){
+            event.preventDefault()
+            const url = "http://localhost:4500/master_admins/update_user_type"
+            const new_name = document.getElementById("new_name").value
+            const request_body = {type_id: type_id, new_name: new_name}
+            const response = await send_request("POST", url, request_body)
+            show_response(response)
+        }
+
+        // Envía la petición para eliminar una nacionalidad
+        async function delete_role(type_id) {
+            const url = "http://localhost:4500/master_admins/delete_user_type"
+            const request_body = {type_id: type_id}
+            const response = await send_request("POST", url, request_body)
+            show_response(response)   
+        }
+
+        // Envía la petición para registrar un rol de usuario
+        async function register_role(event) {
+            event.preventDefault()
+            const url = "http://localhost:4500/master_admins/register_user_type"
+            const name = document.getElementById("name").value
+            const request_body = {name: name}
+            const response = await send_request("POST", url, request_body)
+            show_response(response)
+        }
+
+        // Muestra el modal con la respuesta de una petición
+        function show_response(response){
+            
+            if (!response.error){
+                $('#registration_modal').modal('hide')
+                $('#edition_modal').modal('hide')
+            }
+
+            if (response.error){
+                document.getElementById("error_message").innerHTML = response.message
+                $('#error_alert_modal').modal('show')
+            } else {
+                document.getElementById("success_message").innerHTML = response.message
+                $('#success_alert_modal').modal('show')
+            }
+        }
+
+        $('#success_alert_modal').on('hidden.bs.modal', function () {
+            location.reload()
+        })
+
+    </script>
+</html>

@@ -111,6 +111,7 @@
                         <th>Fecha de fin</th>
                         <th>Porcentaje de descuento</th>
                         <th>Monto facturado</th>
+                        <th>Monto facturado original</th>
                       </tr>
                     </thead>
     
@@ -138,6 +139,10 @@
                           <td>
                               <p><%= row.profit %>$</p>
                           </td>
+
+                          <td>
+                            <p><%= row.og_profit %>$</p>
+                        </td>
                       </tr>
                       <% }) %>
 

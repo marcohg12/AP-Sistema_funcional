@@ -734,7 +734,6 @@ async function get_log_query(hotel_id, username, old_price, new_price, room_name
 // Consulta de las personas hospedadas por reserva
 async function get_booked_people_query(hotel_id, column, order, name, id_type, id_num, check_in, check_out, price){
 
-    console.log(price)
     if (column == ''){
         column = null
     }
@@ -756,8 +755,40 @@ async function get_booked_people_query(hotel_id, column, order, name, id_type, i
     return await execute_query(query, fields)
 }
 
+// Estadística del top N habitaciones más reservadas
+async function get_top_most_booked_rooms(hotel_id, top){
+    if (top == ''){
+        top = null
+    }
+
+    const fields = [hotel_id, top]
+    const query = "CALL get_top_most_booked_rooms(?,?);"
+    return await execute_query(query, fields)
+}
+
+// Estadística de clientes por rango de edad
+async function get_clients_by_age_range(hotel_id, gender_id){
+    if (gender_id == ''){
+        gender_id = null
+    }
+
+    const fields = [hotel_id, gender_id]
+    const query = "CALL get_clients_by_age_range(?,?);"
+    return await execute_query(query, fields)
+}
+
+// Consulta de habitaciones disponibles
+async function get_rooms_view(hotel_id){
+    const fields = [hotel_id]
+    const query = "CALL get_rooms_view(?);"
+    return await execute_query(query, fields)
+}
+
 // Nombres de cada funcion que hay arriba
 module.exports = {
+    get_rooms_view,
+    get_clients_by_age_range,
+    get_top_most_booked_rooms,
     get_booked_people_query,
     get_log_query,
     get_top_n_days_with_fewer_booking,

@@ -100,6 +100,11 @@ async function get_room_detail(room_id){
 
 // Pantalla de lista de ofertas --------------------------------------------------------------------------- //
 
+// Obtiene el listado de ofertas disponibles filtrado por provincia
+async function get_deals(province_id){
+    const query = "CALL get_deals_view(?);"
+    return await execute_query(query, [province_id])
+}
 
 // Pantalla de hoteles favoritos -------------------------------------------------------------------------- //
 
@@ -210,6 +215,7 @@ async function get_user_bookings(username){
 
 // Nombres de cada funcion que hay arriba
 module.exports = {
+    get_deals,
     get_hotel_deals_for_clients,
     is_hotel_favorite,
     get_user_favorite_hotels,

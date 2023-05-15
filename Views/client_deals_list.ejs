@@ -5,6 +5,8 @@
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
         <title>Ofertas</title>
     </head>
@@ -76,16 +78,61 @@
               <span class="h3 fw-bold mb-3">Ofertas disponibles</span>          
             </div>
 
+            <div class="mt-2 mb-4">
+              
+              <form method="GET" action="/clients/deal_list">
+
+                <div class="row row-cols-auto">
+
+                  <div class="col">
+                      <select class="form-select" style="width: 200px;" name="country" id="country" onchange="javascript:country_selected(value)">
+                          <option value="">País</option>
+                          <% countries.forEach( country => { %>
+                            <% if(locals.country_id && country.id == locals.country_id){ %>
+                              <option value="<%= country.id %>" selected><%= country.name %></option>
+                            <% } else { %>
+                              <option value="<%= country.id %>"><%= country.name %></option>
+                            <% } %>
+                          <% }) %>
+                      </select>
+                  </div>
+
+                  <div class="col">
+                    <select class="form-select" style="width: 200px;" name="province" id="province">
+                      <option value="">Provincia</option>
+                      <% if (locals.provinces){ %>
+                        <% provinces.forEach( province => { %>
+                          <% if(province.id == locals.province_id){ %>
+                            <option value="<%= province.id %>" selected><%= province.name %></option>
+                          <% } else { %>
+                            <option value="<%= province.id %>"><%= province.name %></option>
+                          <% } %>
+                        <% }) %>
+                      <% } %>
+                    </select>
+                </div>
+
+                  <div class="col">
+                      <button type="submit" class="me-3 btn text-white" style="background-color: #606c38;">Filtrar</button>
+                      <button onclick="javascript:clean_filters()" class="btn btn-secondary" >Limpiar</button>
+                  </div>
+
+              </div>
+
+              </form>
+
+            </div>
+
             <% offers.forEach( offer => { %>
               <div class="card mb-4">
                 <h5 class="card-header"><%= offer.hotel_name %></h5>
                 <div class="card-body">
-                    <h4 class="card-title"><%= offer.name %></h4>
+                    <h4 class="card-title"><%= offer.offer_name %></h4>
                     <div class="card-text">
-                      Desde el: <%= offer.initial_date%> &nbsp;&nbsp;&nbsp;
-                      Hasta el: <%= offer.ending_date%>
+                      Desde el: <%= offer.start_date.toLocaleDateString() %> &nbsp;&nbsp;&nbsp;
+                      Hasta el: <%= offer.ending_date.toLocaleDateString() %>
                     </div>
-                    <a href="/clients/deal_info/<%= offer.id %>" class="btn btn-outline-secondary mt-2">Ver detalles</a>
+                    <a href="/clients/deal_info/<%= offer.offer_id %>" class="btn btn-outline-secondary mt-2">Ver detalles</a>
                 </div>
               </div>
             <% }) %>
@@ -94,4 +141,51 @@
         </section>
 
     </body>
+    <script>
+
+      // Función para actualizar el selector de provincia
+      function update_province_selector(provinces){
+        var content = `<option value="">Provincia</option>`
+        for (i = 0; i < provinces.length; i++){
+          content += `<option value="${provinces[i].id}">${provinces[i].name}</option>`
+        }
+        document.getElementById("province").innerHTML = content
+      }
+
+      // Envía una petición http al servidor y retorna la respuesta si hubo éxito
+      function send_request(request_type, url, request_body){
+            
+            return new Promise(async (resolve, reject) => {
+
+                const http = new XMLHttpRequest()
+                
+                http.onreadystatechange = function(){
+                    
+                    if (this.readyState == 4 && this.status == 200){
+                        const response = JSON.parse(this.response)
+                        return resolve(response)    
+                    }
+                }
+
+                http.open(request_type, url)
+                http.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
+                http.send(JSON.stringify(request_body))
+            })
+      }
+
+      // Función que se activa cuando se cambia el país
+      async function country_selected(country_id){
+        const url = "http://localhost:4500/hotel_admins/get_provinces/" + 1
+        const provinces = await send_request("GET", url, {})
+
+        update_province_selector(provinces)
+      }
+
+      // Reinicia la consulta
+      function clean_filters(){
+        country.value = ""
+        province.value = ""
+      }
+
+    </script>
 </html>

@@ -71,75 +71,29 @@
     
                     <tbody>
 
-                        <tr>
-                            <td>
-                                <p>Habitación sencilla</p>
-                            </td>
-
-                            <td>
-                                <p>2 personas</p>
-                            </td>
-
-                            <td>
-                                <p>75$</p>
-                            </td>
-
-                            <td>
-                                <p>20</p>
-                            </td>
-
-                            <td>
-                                <p>5</p>
-                            </td>
-
-                        </tr>
-
+                      <% rooms.forEach( room => { %>
                         <tr>
                           <td>
-                              <p>Habitación doble</p>
+                              <p><%= room.name %></p>
                           </td>
 
                           <td>
-                              <p>4 personas</p>
+                              <p><%= room.capacity %> personas</p>
                           </td>
 
                           <td>
-                              <p>290$</p>
+                              <p><%= room.recommended_price %>$</p>
                           </td>
 
                           <td>
-                              <p>5</p>
+                              <p><%= room.units %></p>
                           </td>
 
                           <td>
-                              <p>1</p>
+                              <p><%= room.units_available %></p>
                           </td>
-
                       </tr>
-
-
-                      <tr>
-                        <td>
-                            <p>Habitación deluxe</p>
-                        </td>
-
-                        <td>
-                            <p>2 personas</p>
-                        </td>
-
-                        <td>
-                            <p>350$</p>
-                        </td>
-
-                        <td>
-                            <p>3</p>
-                        </td>
-
-                        <td>
-                            <p>2</p>
-                        </td>
-
-                    </tr>
+                      <% }) %>
         
                     </tbody>
                 </table>

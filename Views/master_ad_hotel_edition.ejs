@@ -283,7 +283,6 @@
       async function country_selected(country_id){
         const url = "http://localhost:4500/hotel_admins/get_provinces/" + country_id
         const provinces = await send_request("GET", url, {})
-        console.log(provinces)
         update_province_selector(provinces)
         update_canton_selector([])
         update_district_selector([])

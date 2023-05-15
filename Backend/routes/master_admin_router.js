@@ -387,6 +387,35 @@ router.post("/delete_user", check_authenticated, async (req, res) => {
     res.send(JSON.stringify(response))
 })
 
+// RUD de roles de usuario ---------------------------------------------------------------------------------------------------- //
+
+// Responde a la solicitud de obtener el catálogo de roles de usuario
+router.get("/user_roles_catalog", check_authenticated, async (req, res) => {
+    const roles = await master_admin_controller.get_user_types()
+    res.render("master_ad_user_role_edition", {roles: roles, profile: req.user.photo})
+})
+
+// Responde a la solicitud de agregar un rol de usuario
+router.post("/register_user_type", check_authenticated, async (req, res) => {
+    const response = await master_admin_controller.register_user_type(req.body.name)
+    res.status(200)
+    res.send(JSON.stringify(response))
+})
+
+// Responde a la solicitud de editar un rol de usuario
+router.post("/update_user_type", check_authenticated, async (req, res) => {
+    const response = await master_admin_controller.update_user_type(req.body.type_id, req.body.new_name)
+    res.status(200)
+    res.send(JSON.stringify(response))
+})
+
+// Responde a la solicitud de eliminar un rol de usuario
+router.post("/delete_user_type", check_authenticated, async (req, res) => {
+    const response = await master_admin_controller.delete_user_type(req.body.type_id)
+    res.status(200)
+    res.send(JSON.stringify(response))
+})
+
 // Funciones de verificación de autenticación
 function check_authenticated(req, res, next){
     if (req.isAuthenticated()){

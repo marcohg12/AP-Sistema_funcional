@@ -55,12 +55,12 @@
             <div class="container">
 
                 <div class="d-flex align-items-center pb-1">
-                    <span class="h3 fw-bold mb-0">Estadística: personas por rango de edad</span>
+                    <span class="h3 fw-bold mb-0">Estadística: Personas por rango de edad</span>
                 </div>
 
                 <!-- Filtros -------------------------------------------------------->
                 <div class="mt-3">
-                    <form>
+                    <form onsubmit="javascript:filter_data(event)">
                         <div class="row row-cols-auto">
 
                             <div class="col">
@@ -73,7 +73,8 @@
                             </div>
 
                             <div class="col">
-                                <button type="submit" class="btn text-white" style="background-color: #606c38;">Filtrar</button>
+                                <button type="submit" class="me-3 btn text-white" style="background-color: #606c38;">Filtrar</button>
+                                <button onclick="javascript:clean_filters()" class="btn btn-secondary" >Limpiar</button>
                             </div>
 
                         </div>
@@ -90,9 +91,8 @@
                 <!-- Tipo de despliegue ---------------------------------------------->
                 <div class="mt-3">
                     <select class="form-select" style="width: 200px;" name="display_type" id="display_type" onchange="javascript:display_changed(value)">
-                        <option value="1">Despliegue numérico</option>
-                        <option value="2">Despliegue porcentual</option>
-                        <option value="3" selected>Despliegue gráfico</option>
+                        <option value="1" selected>Despliegue tabular</option>
+                        <option value="2">Despliegue gráfico</option>
                     </select>
                 </div>
 
@@ -102,39 +102,72 @@
     </body>
     <script>
 
+        // Envía una petición http al servidor y retorna la respuesta si hubo éxito
+        function send_request(request_type, url, request_body){
+            
+            return new Promise(async (resolve, reject) => {
+
+                const http = new XMLHttpRequest()
+                
+                http.onreadystatechange = function(){
+                    
+                    if (this.readyState == 4 && this.status == 200){
+                        const response = JSON.parse(this.response)
+                        return resolve(response)    
+                    }
+                }
+
+                http.open(request_type, url)
+                http.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
+                http.send(JSON.stringify(request_body))
+            })
+        }
+
+        // Cambia el tipo de despliegue de la información de la estadística
         function display_changed(display_type){
-            if (display_type == 3){
+            if (display_type == 2){
                 generate_graph()
             } else {
-                generate_table(display_type)
+                generate_table()
             }
         }
 
-        function get_data(display_type){
-            if (display_type == 2){
-                return [{label: "0 a 18", y: 24.5},  {label: "19 a 30", y: 27.5},
-                    {label: "31 a 45", y: 19.6}, {label: "46 a 60", y: 9.8},
-                    {label: "61 a 75", y: 12.4}, {label: "75+", y: 6.5}]
-            } else {
-                return [{label: "0 a 18", y: 50},  {label: "19 a 30", y: 56},
-                    {label: "31 a 45", y: 40}, {label: "46 a 60", y: 20},
-                    {label: "61 a 75", y: 25}, {label: "75+", y: 13}]
-            }
+        // Filtra los datos de la estadística
+        function filter_data(event){
+            event.preventDefault()
+            display_type = document.getElementById("display_type").value
+            display_changed(display_type)
+        }
+
+        // Obtiene los datos para la estadística del servidor
+        async function get_data(display_type){
+            const gender_id = document.getElementById("gender").value
+            const url = "http://localhost:4500/hotel_admins/get_clients_by_age_range"
+            const data = await send_request("POST", url, {gender_id: gender_id})
+            return data
         }
 
         // Genera el gráfico con la información obtenida
-        function generate_graph(){
-            const data = get_data(3)
-            var chart = new CanvasJS.Chart("content", {
-                axisY: {title: "Total de clientes"},
-                data:  [{type: "column", dataPoints: data}]
+        async function generate_graph(){
+
+            const data = await get_data()
+            var data_with_format = []
+
+            // Formateo de los datos
+            for (i = 0; i < data.length; i++){
+                data_with_format.push({label: data[i].age_range, y: data[i].client_count})
+            }
+
+            // Construcción del gráfico
+            const chart = new CanvasJS.Chart("content", {
+            data:  [{type: "column", dataPoints: data_with_format}]
             })
             chart.render()
         }
 
         // Genera la tabla con la información obtenida
-        function generate_table(display_type){
-            const data = get_data(display_type)
+        async function generate_table(display_type){
+            const data = await get_data(display_type)
             var table =  `
             
             <div style="height: 450px; display: block; overflow: auto; position: relative;">
@@ -143,6 +176,7 @@
                         <tr>
                             <th>Rango</th>
                             <th>Total de clientes</th>
+                            <th>Porcentaje de clientes</th>
                         </tr>
                     </thead>
                     
@@ -151,8 +185,9 @@
             for (i = 0; i < data.length; i++) {
                 table += `
                 <tr>
-                    <td>${data[i].label}</td>
-                    <td>${data[i].y}${display_type == 2 ? "%" : ""}</td>
+                    <td>${data[i].age_range}</td>
+                    <td>${data[i].client_count}</td>
+                    <td>${data[i].client_percent}%</td>
                 </tr>
                 `
             }
@@ -161,7 +196,12 @@
             document.getElementById("content").innerHTML = table
         }
 
-        generate_graph()
+        // Reinicia los filtros
+        function clean_filters(){
+          gender.value = ""
+        }
+
+        generate_table()
 
     </script>
 </html>

@@ -97,9 +97,12 @@
                                     Editar
                                 </button>
 
-                                <button type="button" class="btn btn-link btn-sm btn-rounded" onclick="javascript:delete_parameter('<%= parameter.id %>')">
-                                   Eliminar
-                                </button>
+                                <% if (parameter.id > 1){ %>
+                                  <button type="button" class="btn btn-link btn-sm btn-rounded" onclick="javascript:delete_parameter('<%= parameter.id %>')">
+                                    Eliminar
+                                 </button>
+                                <% } %>
+
                             </td>
                         </tr>
                         

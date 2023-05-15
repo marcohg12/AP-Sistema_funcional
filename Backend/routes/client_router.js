@@ -108,12 +108,18 @@ router.get("/deal_list", async (req, res) => {
         profile = req.user.photo
     }
 
-    const offers = [{id: 1, hotel_name: "Hotal Maracuyá", name: "40% Descuento en Habitaciones Doble", initial_date: "2023-03-25", ending_date: "2023-03-30"},
-                    {id: 1, hotel_name: "Hotal Barceló", name: "30% Descuento en Habitaciones Sencillas", initial_date: "2023-03-25", ending_date: "2023-03-30"},
-                    {id: 1, hotel_name: "Hotal Buena Vista", name: "15% Descuento en Habitaciones Deluxe", initial_date: "2023-03-25", ending_date: "2023-03-30"},
-                    {id: 1, hotel_name: "Hotal Casona Vieja", name: "20% Descuento en Habitaciones Doble", initial_date: "2023-03-25", ending_date: "2023-03-30"}]
+    var offers
+    const countries = await master_admin_controller.get_countries()
 
-    res.render("client_deals_list", {offers: offers, is_authenticated: is_authenticated, profile: profile}) 
+    if (req.query.province){
+        offers = await client_controller.get_deals(req.query.province)
+        const provinces = await master_admin_controller.get_provinces(req.query.country)
+        res.render("client_deals_list", {provinces: provinces, province_id: req.query.province, country_id: req.query.country,
+                                         offers: offers, countries: countries, is_authenticated: is_authenticated, profile: profile}) 
+    } else {
+        offers = await client_controller.get_deals(null)
+        res.render("client_deals_list", {offers: offers, countries: countries, is_authenticated: is_authenticated, profile: profile}) 
+    }
 })
 
 // Atiende la petición de ventana de reservas del cliente

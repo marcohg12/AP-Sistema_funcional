@@ -567,6 +567,48 @@ async function delete_hotel(hotel_id){
     }
 }
 
+// RUD de roles de usuario ------------------------------------------------------------------------------------------ //
+
+async function register_user_type(name){
+    const fields = [name]
+    const query = "CALL register_user_type(?,@execution_code); SELECT @execution_code AS execution_code;"
+    const execution_code = await execute_operation(query, fields)
+
+    // Generación de la respuesta
+    if (execution_code == -1){
+        return ({error: true, message: "Ocurrió un error inesperado"})
+    } else {
+        return ({error: false, message: "Rol de usuario agregado exitosamente"})
+    }
+}
+
+async function update_user_type(type_id, new_name){
+    const fields = [type_id, new_name]
+    const query = "CALL update_user_type(?,?,@execution_code); SELECT @execution_code AS execution_code;"
+    const execution_code = await execute_operation(query, fields)
+
+    // Generación de la respuesta
+    if (execution_code == -1){
+        return ({error: true, message: "Ocurrió un error inesperado"})
+    } else {
+        return ({error: false, message: "Rol de usuario actualizado exitosamente"})
+    }
+}
+
+async function delete_user_type(type_id){
+    const fields = [type_id]
+    const query = "CALL delete_user_type(?,@execution_code); SELECT @execution_code AS execution_code;"
+    const execution_code = await execute_operation(query, fields)
+
+    // Generación de la respuesta
+    if (execution_code == -1){
+        return ({error: true, message: "Ocurrió un error inesperado"})
+    } else {
+        return ({error: false, message: "Rol de usuario eliminado exitosamente"})
+    }
+}
+
+
 // Funciones de consultas ------------------------------------------------------------------------------------------- //
 
 // Retorna la consulta de hoteles (hoteles registrados con total de habitaciones, reservas y montos facturados)
@@ -578,6 +620,9 @@ async function get_hotels_query(name, start_date, ending_date){
 
 // Nombres de cada funcion que hay arriba
 module.exports = {
+    register_user_type,
+    update_user_type,
+    delete_user_type,
     get_hotels_query,
     register_gender,
     update_gender,
