@@ -1778,7 +1778,7 @@ DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `get_hotel_reviews`(IN hotel_id INT)
 BEGIN
 
-SELECT review.id, review.date, GET_PERSON_COMPLETE_NAME(person.id) AS name, photo, user_table.username, review.stars
+SELECT review.id, review.review_date, GET_PERSON_COMPLETE_NAME(person.id) AS name, photo, user_table.username, review.stars
 FROM review 
 INNER JOIN reservation 
 ON reservation.id = review.reservation_ref
