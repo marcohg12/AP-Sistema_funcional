@@ -1373,7 +1373,7 @@ SELECT reservation.id, reservation.check_in_date, reservation.check_out_date,
        hotel.name AS hotel_name, user_ref AS username, GET_RESERVATED_DAYS(p_booking_id)-1 AS nights,
        GET_ROOM_COUNT_IN_BOOKING(p_booking_id) AS room_count, GET_BOOKING_PRICE(p_booking_id) AS price,
        GET_BOOKING_PRICE_WITH_FEE(p_booking_id) AS price_with_fee, IS_BOOKING_REVIEWED(p_booking_id) AS is_reviewed,
-       review.date AS review_date, review.stars, IS_BOOKING_CHECKED_IN(p_booking_id) AS is_checked_in
+       review.review_date AS review_date, review.stars, IS_BOOKING_CHECKED_IN(p_booking_id) AS is_checked_in
 FROM reservation
 INNER JOIN reservation_status
 ON reservation.reservation_status_ref = reservation_status.id
