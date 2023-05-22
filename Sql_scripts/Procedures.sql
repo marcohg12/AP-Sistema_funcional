@@ -2803,7 +2803,7 @@ BEGIN
     ROLLBACK;
 END;
 
-INSERT INTO review (reservation_ref, stars, date)
+INSERT INTO review (reservation_ref, stars, review_date)
 VALUES (p_booking_id, p_review, CURDATE());
 
 SET execution_code = 0;
