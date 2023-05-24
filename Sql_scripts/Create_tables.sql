@@ -238,7 +238,6 @@ reservation_ref  INT NOT NULL,
 commentary_date DATE,
 
 CONSTRAINT idy_pk PRIMARY KEY (id),
-FOREIGN KEY (username) REFERENCES User_table(username) ON DELETE CASCADE,
 FOREIGN KEY (reservation_ref) REFERENCES Reservation(id)  ON DELETE CASCADE
 );
 
@@ -250,7 +249,6 @@ review_date DATE NOT NULL,
 
 
 CONSTRAINT review_pk PRIMARY KEY (id),
-FOREIGN KEY (username) REFERENCES User_table(username) ON DELETE CASCADE,
 FOREIGN KEY (reservation_ref) REFERENCES RESERVATION(id)  ON DELETE CASCADE
 );
 
