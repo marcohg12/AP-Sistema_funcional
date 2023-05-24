@@ -233,9 +233,13 @@ router.get("/get_review_avarage", check_authenticated, async (req, res) => {
 router.get("/get_booking_comments/:booking_id/:username", check_authenticated, async (req, res) => {
     const comments = await hotel_admin_controller.get_booking_comments(req.params.booking_id)
     const user_data = await user_controller.get_user_by_username(req.params.username)
-    user_data.photo = user_data.photo.toString('ascii')
+    
+    var photo = null
+    if (user_data.photo){
+        photo = user_data.photo.toString('ascii')
+    }
     res.status(200)
-    res.send(JSON.stringify({comments: comments, user_data: {name: user_data.name, photo: user_data.photo}}))
+    res.send(JSON.stringify({comments: comments, user_data: {name: user_data.name, photo: photo}}))
 })
 
 // Responde a la solicitud de consulta de tops de ventas por días
