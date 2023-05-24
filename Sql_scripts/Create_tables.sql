@@ -233,7 +233,6 @@ FOREIGN KEY (user_ref) REFERENCES User_table(username)
 
 CREATE TABLE IF NOT EXISTS Commentary(
 id              INT NOT NULL AUTO_INCREMENT,
-username 		VARCHAR(50) NOT NULL,
 commentary      VARCHAR(100) NOT NULL,
 reservation_ref  INT NOT NULL,
 commentary_date DATE,
@@ -245,7 +244,6 @@ FOREIGN KEY (reservation_ref) REFERENCES Reservation(id)  ON DELETE CASCADE
 
 CREATE TABLE IF NOT EXISTS Review(
 id              INT NOT NULL AUTO_INCREMENT,
-username 		VARCHAR(50) NOT NULL,
 stars 		    INT NOT NULL,
 reservation_ref INT NOT NULL,
 review_date DATE NOT NULL,
